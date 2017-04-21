@@ -251,7 +251,7 @@ class SplitIt_Checkout extends WC_Checkout {
                     wc_add_notice( __( 'Invalid payment method.', 'woocommerce' ), 'error' );
                 } else {
                     $this->payment_method = $available_gateways[ $this->posted['payment_method'] ];
-                    $this->payment_method->validate_fields();
+                   // $this->payment_method->validate_fields();
                 }
             } else {
                 $available_gateways = array();
