@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.0.2
+Version: 2.0.3
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -22,25 +22,25 @@ function add_notice_function(){
         wc_print_notices();
     }
 }
-add_action( 'template_redirect', 'wc_custom_redirect_after_purchase' );
-function wc_custom_redirect_after_purchase() {
-    global $wp;
+// add_action( 'template_redirect', 'wc_custom_redirect_after_purchase' );
+// function wc_custom_redirect_after_purchase() {
+//     global $wp;
 
-    if ( is_checkout() && ! empty( $wp->query_vars['order-received'] ) ) {
-        $order_id  = absint( $wp->query_vars['order-received'] );
-        $order_key = wc_clean( $_GET['key'] );
+//     if ( is_checkout() && ! empty( $wp->query_vars['order-received'] ) ) {
+//         $order_id  = absint( $wp->query_vars['order-received'] );
+//         $order_key = wc_clean( $_GET['key'] );
 
-        /**
-         * Replace {PAGE_ID} with the ID of your page
-         */
-        $redirect  = get_permalink(11);
-        $redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
-        $redirect .= 'order=' . $order_id . '&key=' . $order_key;
+//         /**
+//          * Replace {PAGE_ID} with the ID of your page
+//          */
+//         $redirect  = get_permalink(11);
+//         $redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
+//         $redirect .= 'order=' . $order_id . '&key=' . $order_key;
 
-        wp_redirect( $redirect );
-        exit;
-    }
-}
+//         wp_redirect( $redirect );
+//         exit;
+//     }
+// }
 function init_splitit_method(){
 
 
@@ -48,7 +48,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '0.2.9' );
+    define( 'Splitit_VERSION', '2.0.3' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');

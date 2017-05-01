@@ -214,7 +214,7 @@ class SplitIt_Checkout extends WC_Checkout {
                 }
 
             }
-            
+           //print_r(WC()->customer);die;
             // Update cart totals now we have customer address
             WC()->cart->calculate_totals();
 
@@ -301,11 +301,12 @@ class SplitIt_Checkout extends WC_Checkout {
                 // Do a final stock check at this point
                 $this->check_cart_items();
 
+
+
                 // Abort if errors are present
                 if ( wc_notice_count( 'error' ) > 0 )
                     throw new Exception();
-
-                $order_id = $this->create_order();
+                $order_id = $this->create_order($this->posted);
                 $order = wc_get_order( $order_id );
                 $order->set_payment_method($payment_obj);
                 $order->update_status('processing');
