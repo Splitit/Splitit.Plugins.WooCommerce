@@ -187,6 +187,8 @@ class SplitIt_Checkout extends WC_Checkout {
             }
 
             // Shipping Information
+           
+
             if ( ! $skipped_shipping ) {
 
                 // Update customer location to posted location so we can correctly check available shipping methods
@@ -213,8 +215,36 @@ class SplitIt_Checkout extends WC_Checkout {
                     WC()->customer->set_shipping_postcode( $this->posted['billing_postcode'] );
                 }
 
+                /*custom pushing billing information into shipping*/
+                if ( isset( $this->posted['billing_first_name'] ) ) {
+                    $this->posted['shipping_first_name'] =  $this->posted['billing_first_name'];
+                }
+                if ( isset( $this->posted['billing_last_name'] ) ) {
+                    $this->posted['shipping_last_name'] =  $this->posted['billing_last_name'];
+                }
+                if ( isset( $this->posted['billing_company'] ) ) {
+                    $this->posted['shipping_company'] =  $this->posted['billing_company'];
+                }
+                if ( isset( $this->posted['billing_address_1'] ) ) {
+                    $this->posted['shipping_address_1'] =  $this->posted['billing_address_1'];
+                }
+                if ( isset( $this->posted['billing_city'] ) ) {
+                    $this->posted['shipping_city'] =  $this->posted['billing_city'];
+                }
+                if ( isset( $this->posted['billing_address_2'] ) ) {
+                    $this->posted['shipping_address_2'] =  $this->posted['billing_address_2'];
+                }
+                if ( isset( $this->posted['billing_state'] ) ) {
+                    $this->posted['shipping_state'] =  $this->posted['billing_state'];
+                }
+                if ( isset( $this->posted['billing_postcode'] ) ) {
+                    $this->posted['shipping_postcode'] =  $this->posted['billing_postcode'];
+                }
+                /*custom pushing billing information into shipping*/
+
+
             }
-           //print_r(WC()->customer);die;
+          //  print_r($this->posted);die;
             // Update cart totals now we have customer address
             WC()->cart->calculate_totals();
 
