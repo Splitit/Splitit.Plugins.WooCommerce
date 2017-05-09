@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.0.3
+Version: 2.0.4
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -1128,6 +1128,28 @@ function init_splitit_method(){
                         'redirect'  => apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
                     ) );
                 } else {
+                    global $wp;
+                    // redirect to checkout success page.
+                    if ( $order_id  ) {
+                        
+                        $order = new WC_Order($order_id);
+                        $order_key = $order->order_key;
+                        //$order_key = wc_clean( $_GET['key'] );
+
+                        /**
+                         * Replace {PAGE_ID} with the ID of your page
+                         */
+                        //$redirect  = get_permalink(6);
+                        //$redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
+                        global $woocommerce;
+                        $checkout_url = $woocommerce->cart->get_checkout_url();
+                        $redirect = $checkout_url.'/order-received/' . $order_id . '/?key=' . $order_key;
+
+                        wp_redirect( $redirect );
+                        exit;
+                    }
+
+
                     wp_safe_redirect(
                         apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
                     );
