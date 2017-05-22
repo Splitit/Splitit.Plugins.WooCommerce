@@ -153,7 +153,15 @@
             if ($(this).prop('id') == 'account_password_field') {
                 return false;
             }
-
+            if ($(this).prop('id') == 'account_username_field') {
+                 if(!$("#createaccount").is(':checked')){
+                    return false;
+                 }
+                
+            }
+            if($(this).closest("#payment").attr('id')=="payment"){   
+                return false;
+            }
             //billing custom
             if ($(this).prop('id') == 'billing_country_field') {
                 var elem = $('#billing_country option:selected').val();

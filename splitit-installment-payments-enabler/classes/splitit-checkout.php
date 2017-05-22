@@ -367,8 +367,8 @@ class SplitIt_Checkout extends WC_Checkout {
                     $success_message .= "Your Installment number is #".$installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'}."<br/>";
                     
                     $success_message .="Please contact us in case of any query.";
-
-                    wc_add_notice( __( $success_message, 'woocommerce' ), 'success' );
+                    // hide success msg 
+                    //wc_add_notice( __( $success_message, 'woocommerce' ), 'success' );
                     
                    
                     // Store Order ID in session so it can be re-used after payment failure

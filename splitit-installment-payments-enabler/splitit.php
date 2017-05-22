@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.0.3
+Version: 2.0.6
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -48,7 +48,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.0.3' );
+    define( 'Splitit_VERSION', '2.0.5' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -851,7 +851,17 @@ function init_splitit_method(){
                 unset($_POST['account_password_field']); //not needed field
                 $checkout_fields = $_POST;
                 $validate_errors = '';
+              //  print_r($checkout_fields);
+                //echo "comig";
+                 if ( ! is_user_logged_in() && isset($checkout_fields['billing_email_field']) && $checkout_fields['billing_email_field'][1]!="" ) {
+                    //echo "entered";
+                    if(email_exists($checkout_fields['billing_email_field'][1])){
+                        //echo "condition";
+                        $validate_errors[] = '<li>An account is already registered with your email address. Please login. </li>';
+                    }
 
+                }
+                //die("done");
                 //add billing data to shipping if shipping is same as billing
                 $skip_shipping = $checkout_fields['ship-to-different-address'][1] == 1 ? false : true;
                 unset($checkout_fields['ship-to-different-address']);
@@ -1128,6 +1138,28 @@ function init_splitit_method(){
                         'redirect'  => apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
                     ) );
                 } else {
+                    global $wp;
+                    // redirect to checkout success page.
+                    if ( $order_id  ) {
+                        
+                        $order = new WC_Order($order_id);
+                        $order_key = $order->order_key;
+                        //$order_key = wc_clean( $_GET['key'] );
+
+                        /**
+                         * Replace {PAGE_ID} with the ID of your page
+                         */
+                        //$redirect  = get_permalink(6);
+                        //$redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
+                        global $woocommerce;
+                        $checkout_url = $woocommerce->cart->get_checkout_url();
+                        $redirect = $checkout_url.'/order-received/' . $order_id . '/?key=' . $order_key;
+
+                        wp_redirect( $redirect );
+                        exit;
+                    }
+
+
                     wp_safe_redirect(
                         apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
                     );
