@@ -11,8 +11,18 @@ Author URI: https://www.splitit.com/
 */
 
 if(is_admin()){
+
     error_reporting(0);
 }
+
+// function test(){
+//     global $wpdb; 
+//     $ipn = "23123670308455655541";
+//     $table_name = $wpdb->prefix . 'splitit_logs';
+//     $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
+//     print_r($fetch_items);die;
+// }
+// add_action('init','test');
 
 
 add_action('plugins_loaded', 'init_splitit_method', 0);
@@ -22,25 +32,34 @@ function add_notice_function(){
         wc_print_notices();
     }
 }
-// add_action( 'template_redirect', 'wc_custom_redirect_after_purchase' );
-// function wc_custom_redirect_after_purchase() {
-//     global $wp;
 
-//     if ( is_checkout() && ! empty( $wp->query_vars['order-received'] ) ) {
-//         $order_id  = absint( $wp->query_vars['order-received'] );
-//         $order_key = wc_clean( $_GET['key'] );
+/*code to create new table and maintain IPN logss for Async*/
+function create_plugin_database_table()
+{
+    global $wpdb;
 
-//         /**
-//          * Replace {PAGE_ID} with the ID of your page
-//          */
-//         $redirect  = get_permalink(11);
-//         $redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
-//         $redirect .= 'order=' . $order_id . '&key=' . $order_key;
+    $table_name = $wpdb->prefix . 'splitit_logs';
+    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE ".$table_name." (
+             `id` int(11) NOT NULL AUTO_INCREMENT,
+              `ipn` varchar(255) DEFAULT NULL,
+              `session_id` varchar(255) DEFAULT NULL,
+              `user_data` longtext,
+              PRIMARY KEY (`id`)
+        ) $charset_collate;";
 
-//         wp_redirect( $redirect );
-//         exit;
-//     }
-// }
+       // echo $sql;die;
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
+    }
+}
+
+//register_activation_hook( __FILE__, 'create_plugin_database_table' );
+add_action( "admin_init", 'create_plugin_database_table' );
+/*end*/
+
 function init_splitit_method(){
 
 
@@ -994,65 +1013,60 @@ function init_splitit_method(){
 
         }
 
+       public function get_post_id_by_meta_value($value) {
+            global $wpdb;
+            $meta = $wpdb->get_results("SELECT * FROM `".$wpdb->postmeta."` WHERE meta_key='".$wpdb->escape("installment_plan_number")."' AND meta_value='".$wpdb->escape($value)."'");      
+            return $meta;
+         }
+
+
         /**
          * Api success redirect handler
          * captures order in merchant account if necessary, and creates new order in WP
          *
          * @access public
          */
-        public function splitit_payment_success($flag=NULL)
-        {
-          
 
+
+        public function splitit_payment_success($flag=NULL){
+
+            global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
             $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? $_COOKIE["splitit_checkout_session_id_data"] : false;
+            $exists_data_array = $this->get_post_id_by_meta_value($ipn);          
+             if (empty($exists_data_array)) {     
+                    $this->_API = new SplitIt_API($this->settings); //passing settings to API
+                    if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
+                        $this->settings['splitit_cancel_url'] = 'checkout/';
+                    }
+                    $table_name = $wpdb->prefix . 'splitit_logs';
+                    $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
+                    //checking for user entered data
+                    if(isset($fetch_items['user_data']) && $fetch_items['user_data'] !="") {
+                        $checkout_fields_array = explode('&', $fetch_items['user_data']);
+                        $checkout_fields = array();
+                        foreach($checkout_fields_array as $row) {
+                            $key_value = explode('=', $row);
+                            $checkout_fields[$key_value[0]] = $key_value[1];
+                        }
+                        $checkout_fields['payment_method'] = 'splitit'; 
+                        $criteria = array('InstallmentPlanNumber' => $ipn);
+                        $installment_data = $this->_API->get($esi, $criteria);   
+                        $checkout = new SplitIt_Checkout();
+                        $checkout->process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings);
+                        setcookie('splitit_checkout', null, strtotime('-1 day'));
+                        setcookie('splitit_checkout_session_id_data', null, strtotime('-1 day'));
+                        wc_clear_notices();                     
+                    } else {
+                        wc_clear_notices();
+                        wc_add_notice('Sorry, there was no checkout data received to create order! It was not placed. Please try to order again.','error');
+                        wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+                        exit;
 
-
-            $args = array(
-               'post_type' => 'shop_order',
-               'meta_query' => array(
-                   array(
-                       'key' => 'installment_plan_number',
-                       'value' => $ipn
-                   )
-               )
-             );
-             $vid_query = new WP_Query( $args );
-             $vid_ids = $vid_query->posts;
-           
-
-            $this->_API = new SplitIt_API($this->settings); //passing settings to API
-
-            if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
-                $this->settings['splitit_cancel_url'] = 'checkout/';
+                    }
             }
 
-            //checking for user entered data
-            if(isset($_COOKIE['splitit_checkout'])) {
-                $checkout_fields_array = explode('&', $_COOKIE['splitit_checkout']);
-                $checkout_fields = array();
-                foreach($checkout_fields_array as $row) {
-                    $key_value = explode('=', $row);
-                    $checkout_fields[$key_value[0]] = $key_value[1];
-                }
-                $checkout_fields['payment_method'] = 'splitit'; //override default method as it is not correct                
-                $criteria = array('InstallmentPlanNumber' => $ipn);
-                $installment_data = $this->_API->get($esi, $criteria);   
-                if (empty($vid_ids)) {
-                    $checkout = new SplitIt_Checkout();
-                    $checkout->process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings);
-                }
-                setcookie('splitit_checkout', null, strtotime('-1 day'));
-                setcookie('splitit_checkout_session_id_data', null, strtotime('-1 day'));
-                wc_clear_notices();
-              
-            } else {
-                wc_clear_notices();
-                wc_add_notice('Sorry, there was no checkout data received to create order! It was not placed. Please try to order again.','error');
-                wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
-                exit;
 
-            }
         }
 
         /**
@@ -1062,24 +1076,42 @@ function init_splitit_method(){
          * @access public
          */
         public function splitit_payment_success_async() {
+            global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
-            $args = array(
-               'post_type' => 'shop_order',
-               'meta_query' => array(
-                   array(
-                       'key' => 'installment_plan_number',
-                       'value' => $ipn
-                   )
-               )
-             );
-             // perform the query
-             $vid_query = new WP_Query( $args );
-             $vid_ids = $vid_query->posts;
+            //echo $ipn."---";die;
+           // $ipn = "67757642666443565703";
+            $exists_data_array = $this->get_post_id_by_meta_value($ipn);
+           // echo "<pre>";print_r($exists_data_array);die;
              // do something if the meta-key-value-pair exists in another post
-             if (empty( $vid_ids ) ) {
-                $this->splitit_payment_success();
-             }
+             if (empty($exists_data_array) ) {
+                $table_name = $wpdb->prefix . 'splitit_logs';
+                $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
+                if(!empty($fetch_items)){
+                    $user_data = $fetch_items['user_data'];
+                    $esi = $fetch_items['session_id'];
+                    $this->_API = new SplitIt_API($this->settings); //passing settings to API
+                    if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
+                        $this->settings['splitit_cancel_url'] = 'checkout/';
+                    }
+                    if($user_data!="") {
+                        $checkout_fields_array = explode('&', $user_data);
+                        $checkout_fields = array();
+                        foreach($checkout_fields_array as $row) {
+                            $key_value = explode('=', $row);
+                            $checkout_fields[$key_value[0]] = $key_value[1];
+                        }
+                        $checkout_fields['payment_method'] = 'splitit'; //override default method as it is not correct                
+                        $criteria = array('InstallmentPlanNumber' => $ipn);
+                        $installment_data = $this->_API->get($esi, $criteria);   
+                        $checkout = new SplitIt_Checkout();
+                        $checkout->process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings);
+                        wc_clear_notices();
+                      
+                    } 
 
+                }
+                
+             }
              return true;
            
         }

@@ -85,6 +85,7 @@ class SplitIt_API {
      */
     public function getEcSession($order_data) {
         global $woocommerce;
+        global $wpdb;
         if(!$this->is_logged_in()) {
             $this->setError(self::ERROR_UNKNOWN, 'SessionId is not exist. Login first.');
             if ($this->_log) {
@@ -191,11 +192,32 @@ class SplitIt_API {
                                                 "SuccessAsyncURL"=>$site_url . '?wc-api=splitit_payment_success_async'
                                             );
 
-            //echo "<pre>";print_r($params);die;
+            // echo "<pre>";print_r($params);
+            // echo $_COOKIE['splitit_checkout']."---";
+            // die;
 
             try {
                 $result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
 
+                if(isset($result) && isset($result->InstallmentPlan) && isset($result->InstallmentPlan->InstallmentPlanNumber)){
+                    $table_name = $wpdb->prefix . 'splitit_logs';
+                    $ipn = $result->InstallmentPlan->InstallmentPlanNumber;
+                    $user_data = "";
+                     if(isset($_COOKIE['splitit_checkout'])){
+                        $user_data = $_COOKIE['splitit_checkout'];
+                     }
+                     if($ipn!="" && $user_data!=""){
+                        $wpdb->insert( 
+                                        $table_name, 
+                                        array( 
+                                            'ipn' => $ipn, 
+                                            'session_id'=> $this->_API['session_id'],
+                                            'user_data' => $user_data
+                                        ) 
+                                    );
+                     }
+                   
+                }
                 return $result;
             } catch (Exception $e) {
                 if($this->_log) { $this->_log->info(__FILE__,__LINE__,__METHOD__); $this->_log->add($e); }
