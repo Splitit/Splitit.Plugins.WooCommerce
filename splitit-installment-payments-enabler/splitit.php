@@ -38,6 +38,7 @@ function create_plugin_database_table()
               `session_id` varchar(255) DEFAULT NULL,
               `user_data` longtext,
               `cart_items` longtext,
+               `updated_at` datetime NOT NULL,               
               PRIMARY KEY (`id`)
         ) $charset_collate;";
 

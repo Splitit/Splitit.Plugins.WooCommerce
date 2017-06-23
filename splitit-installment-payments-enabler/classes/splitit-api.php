@@ -221,7 +221,8 @@ class SplitIt_API {
                                             'user_id' => $userid,
                                             'cart_items'=>json_encode(WC()->cart->get_cart()),
                                             'session_id'=> $this->_API['session_id'],
-                                            'user_data' => $user_data
+                                            'user_data' => $user_data,
+                                            'updated_at' => date('Y-m-d H:i:s')
                                         ) 
                                     );
                      }
