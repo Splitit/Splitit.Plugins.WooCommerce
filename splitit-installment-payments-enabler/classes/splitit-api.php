@@ -52,7 +52,7 @@ class SplitIt_API {
         }
         $params = array('UserName' => $this->_username,
                          'Password' => $this->_password,
-                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => wpbo_get_woo_version_number())
+                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.0.7")
                          );
 
         try {
@@ -195,9 +195,15 @@ class SplitIt_API {
             // echo "<pre>";print_r($params);
             // echo $_COOKIE['splitit_checkout']."---";
             // die;
-
+            global $woocommerce;
+           // print_r(WC()->cart->get_cart());die;
             try {
+
                 $result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
+                $userid="0";
+                if(is_user_logged_in()){
+                    $userid = get_current_user_id();
+                }
 
                 if(isset($result) && isset($result->InstallmentPlan) && isset($result->InstallmentPlan->InstallmentPlanNumber)){
                     $table_name = $wpdb->prefix . 'splitit_logs';
@@ -206,11 +212,14 @@ class SplitIt_API {
                      if(isset($_COOKIE['splitit_checkout'])){
                         $user_data = $_COOKIE['splitit_checkout'];
                      }
+
                      if($ipn!="" && $user_data!=""){
                         $wpdb->insert( 
                                         $table_name, 
                                         array( 
                                             'ipn' => $ipn, 
+                                            'user_id' => $userid,
+                                            'cart_items'=>json_encode(WC()->cart->get_cart()),
                                             'session_id'=> $this->_API['session_id'],
                                             'user_data' => $user_data
                                         ) 

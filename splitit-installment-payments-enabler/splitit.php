@@ -15,26 +15,6 @@ if(is_admin()){
     error_reporting(0);
 }
 
-function wpbo_get_woo_version_number() {
-        // If get_plugins() isn't available, require it
-    if ( ! function_exists( 'get_plugins' ) )
-        require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-    
-        // Create the plugins folder and file variables
-    $plugin_folder = get_plugins( '/' . 'woocommerce' );
-    $plugin_file = 'woocommerce.php';
-    
-    // If the plugin version number is set, return it 
-    if ( isset( $plugin_folder[$plugin_file]['Version'] ) ) {
-        return $plugin_folder[$plugin_file]['Version'];
-
-    } else {
-    // Otherwise return null
-        return NULL;
-    }
-}
-
-
 add_action('plugins_loaded', 'init_splitit_method', 0);
 
 function add_notice_function(){
@@ -53,9 +33,11 @@ function create_plugin_database_table()
         $charset_collate = $wpdb->get_charset_collate();
         $sql = "CREATE TABLE ".$table_name." (
              `id` int(11) NOT NULL AUTO_INCREMENT,
+             `user_id` int(11) DEFAULT 0,
               `ipn` varchar(255) DEFAULT NULL,
               `session_id` varchar(255) DEFAULT NULL,
               `user_data` longtext,
+              `cart_items` longtext,
               PRIMARY KEY (`id`)
         ) $charset_collate;";
 
@@ -77,7 +59,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.0.5' );
+    define( 'Splitit_VERSION', '2.0.7' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -1096,9 +1078,13 @@ function init_splitit_method(){
              if (empty($exists_data_array) ) {
                 $table_name = $wpdb->prefix . 'splitit_logs';
                 $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
+
                 if(!empty($fetch_items)){
                     $user_data = $fetch_items['user_data'];
                     $esi = $fetch_items['session_id'];
+                    $user_id = $fetch_items['user_id'];
+                    $cart_items = $fetch_items['cart_items'];
+                    $cart_items = json_decode($fetch_items['cart_items'],true);
                     $this->_API = new SplitIt_API($this->settings); //passing settings to API
                     if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
                         $this->settings['splitit_cancel_url'] = 'checkout/';
@@ -1114,13 +1100,15 @@ function init_splitit_method(){
                         $criteria = array('InstallmentPlanNumber' => $ipn);
                         $installment_data = $this->_API->get($esi, $criteria);   
                         $checkout = new SplitIt_Checkout();
-                        $checkout->process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings);
+                        $checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings,$user_id,$cart_items);
                         wc_clear_notices();
                       
                     } 
 
                 }
                 
+             }else{
+                echo "Already created";
              }
              return true;
            

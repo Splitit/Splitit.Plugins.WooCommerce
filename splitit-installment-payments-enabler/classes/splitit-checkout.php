@@ -459,6 +459,289 @@ class SplitIt_Checkout extends WC_Checkout {
         }
         
     }
+    public function async_process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings,$user_id,$cart_items) {
+
+       // print_r($installment_plan_data);die;
+        try {          
+
+            // Prevent timeout
+            @set_time_limit(0);
+
+            do_action( 'woocommerce_before_checkout_process' );
+           
+            // Checkout fields (not defined in checkout_fields)
+            $this->posted['terms']                     = isset( $checkout_fields['terms'] ) ? 1 : 0;
+            $this->posted['createaccount']             = isset( $checkout_fields['createaccount'] ) && ! empty( $checkout_fields['createaccount'] ) ? 1 : 0;
+            $this->posted['payment_method']            = isset( $checkout_fields['payment_method'] ) ? stripslashes( $checkout_fields['payment_method'] ) : '';
+            $this->posted['shipping_method']           = isset( $checkout_fields['shipping_method'] ) ? $checkout_fields['shipping_method'] : '';
+            $this->posted['ship_to_different_address'] = isset( $checkout_fields['ship_to_different_address'] ) ? true : false;
+
+            if ( isset( $checkout_fields['shiptobilling'] ) ) {
+                $this->posted['ship_to_different_address'] = $checkout_fields['shiptobilling'] ? false : true;
+            }
+
+         
+
+            // Get posted checkout_fields and do validation
+            foreach ( $this->checkout_fields as $fieldset_key => $fieldset ) {
+
+                foreach ( $fieldset as $key => $field ) {
+
+                    if ( ! isset( $field['type'] ) ) {
+                        $field['type'] = 'text';
+                    }
+
+                    // Get Value
+                    switch ( $field['type'] ) {
+                        case "checkbox" :
+                            $this->posted[ $key ] = isset( $checkout_fields[ $key ] ) ? 1 : 0;
+                            break;
+                        case "multiselect" :
+                            $this->posted[ $key ] = isset( $checkout_fields[ $key ] ) ? implode( ', ', array_map( 'wc_clean', $checkout_fields[ $key ] ) ) : '';
+                            break;
+                        case "textarea" :
+                            $this->posted[ $key ] = isset( $checkout_fields[ $key ] ) ? wp_strip_all_tags( wp_check_invalid_utf8( stripslashes( $checkout_fields[ $key ] ) ) ) : '';
+                            break;
+                        default :
+                            $this->posted[ $key ] = isset( $checkout_fields[ $key ] ) ? ( is_array( $checkout_fields[ $key ] ) ? array_map( 'wc_clean', $checkout_fields[ $key ] ) : wc_clean( $checkout_fields[ $key ] ) ) : '';
+                            break;
+                    }
+
+                    // Hooks to allow modification of value
+                    $this->posted[ $key ] = apply_filters( 'woocommerce_process_checkout_' . sanitize_title( $field['type'] ) . '_field', $this->posted[ $key ] );
+                    $this->posted[ $key ] = apply_filters( 'woocommerce_process_checkout_field_' . $key, $this->posted[ $key ] );
+
+  
+                }
+            }
+           
+     
+
+       
+
+                // Update customer location to posted location so we can correctly check available shipping methods
+            
+
+                /*custom pushing billing information into shipping*/
+                if ( isset( $this->posted['billing_first_name'] ) ) {
+                    $this->posted['shipping_first_name'] =  $this->posted['billing_first_name'];
+                }
+                if ( isset( $this->posted['billing_last_name'] ) ) {
+                    $this->posted['shipping_last_name'] =  $this->posted['billing_last_name'];
+                }
+                if ( isset( $this->posted['billing_company'] ) ) {
+                    $this->posted['shipping_company'] =  $this->posted['billing_company'];
+                }
+                if ( isset( $this->posted['billing_address_1'] ) ) {
+                    $this->posted['shipping_address_1'] =  $this->posted['billing_address_1'];
+                }
+                if ( isset( $this->posted['billing_city'] ) ) {
+                    $this->posted['shipping_city'] =  $this->posted['billing_city'];
+                }
+                if ( isset( $this->posted['billing_address_2'] ) ) {
+                    $this->posted['shipping_address_2'] =  $this->posted['billing_address_2'];
+                }
+                if ( isset( $this->posted['billing_state'] ) ) {
+                    $this->posted['shipping_state'] =  $this->posted['billing_state'];
+                }
+                if ( isset( $this->posted['billing_postcode'] ) ) {
+                    $this->posted['shipping_postcode'] =  $this->posted['billing_postcode'];
+                }
+                /*custom pushing billing information into shipping*/
+
+                $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                $this->payment_method = $available_gateways[ $this->posted['payment_method'] ];  
+
+                //print_r($this->posted);die;
+
+            // Action after validation
+             do_action( 'woocommerce_after_checkout_validation', $this->posted );
+
+
+            
+                
+
+                // Customer accounts
+                $this->customer_id = apply_filters( 'woocommerce_checkout_customer_id', $user_id );
+
+
+                if ( $user_id==0 && ( $this->must_create_account || ! empty( $this->posted['createaccount'] ) ) ) {
+
+                    $username     = ! empty( $this->posted['account_username'] ) ? $this->posted['account_username'] : '';
+                    $password     = ! empty( $this->posted['account_password'] ) ? $this->posted['account_password'] : '';
+                    $new_customer = wc_create_new_customer( $this->posted['billing_email'], $username, $password );
+
+                    $this->customer_id = $new_customer;
+
+
+                    wc_set_customer_auth_cookie( $this->customer_id );
+
+
+                    // As we are now logged in, checkout will need to refresh to show logged in data
+                    WC()->session->set( 'reload_checkout', true );
+
+                    // Also, recalculate cart totals to reveal any role-based discounts that were unavailable before registering
+                    WC()->cart->calculate_totals();
+
+                    // Add customer info from other billing fields
+                    if ( $this->posted['billing_first_name'] && apply_filters( 'woocommerce_checkout_update_customer_data', true, $this ) ) {
+                        $userdata = array(
+                            'ID'           => $this->customer_id,
+                            'first_name'   => $this->posted['billing_first_name'] ? $this->posted['billing_first_name'] : '',
+                            'last_name'    => $this->posted['billing_last_name'] ? $this->posted['billing_last_name'] : '',
+                            'display_name' => $this->posted['billing_first_name'] ? $this->posted['billing_first_name'] : ''
+                        );
+                        wp_update_user( apply_filters( 'woocommerce_checkout_customer_userdata', $userdata, $this ) );
+                    }
+                }
+               
+                // Do a final stock check at this point
+                //$this->check_cart_items();
+                // echo wc_print_notices();die;
+                // echo wc_notice_count( 'error' );die;
+
+                // Abort if errors are present
+              
+                $order_id = $this->create_order($this->posted);
+                $order = wc_get_order( $order_id );
+                foreach ($cart_items as $key => $values) {
+                    $product_id = $values['product_id'];
+                    $product = wc_get_product($product_id);
+                    $quantity = (int)$values['quantity'];
+                    if(!empty($values['variation'])){
+                        $var_id = $values['variation_id'];
+                        $var_slug = $values['variation']['attribute_pa_weight'];
+                        $variationsArray = array();
+                        $variationsArray['variation'] = array(
+                          'pa_weight' => $var_slug
+                        );
+                        $var_product = new WC_Product_Variation($var_id);
+                        $order->add_product(get_product($var_product), $quantity, $variationsArray);
+                    }else{
+                        $order->add_product(get_product($product_id), $quantity);
+                    }
+                  
+                }
+                $order->calculate_totals();
+                $order->set_payment_method($payment_obj);
+                $order->update_status('processing');
+                setcookie("order_id",$order_id);
+                
+                if (is_null($this->_API)) { 
+                        $this->_API = new SplitIt_API($settings); //passing settings to API
+                    }
+                    $this->_API->installment_plan_update($order_id,$esi,$ipn);
+              
+                if ( !empty($installment_plan_data) ) {
+                    update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
+                    update_post_meta( $order_id, 'number_of_installments', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'NumberOfInstallments'} ) );
+                }
+
+                if ( is_wp_error( $order_id ) ) {
+                    throw new Exception( $order_id->get_error_message() );
+                }
+
+                do_action( 'woocommerce_checkout_order_processed', $order_id, $this->posted );
+
+                // Process payment
+                if ( WC()->cart->needs_payment() ) {
+                    $success_message = "";
+                    $success_message .= "Congratulations you have successfully placed your order.<br/>Please find the details mentioned below.<br/>";
+                    $order_details = wc_get_order( $order_id );
+                    $success_message .= "Your Order number is #".$order_details->post->ID."<br/>";
+                    $success_message .= "Your Installment number is #".$installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'}."<br/>";
+                    
+                    $success_message .="Please contact us in case of any query.";
+                    // hide success msg 
+                    //wc_add_notice( __( $success_message, 'woocommerce' ), 'success' );
+                    
+                   
+                    // Store Order ID in session so it can be re-used after payment failure
+                    WC()->session->order_awaiting_payment = $order_id;
+
+                    // Process Payment
+                    $result = $available_gateways[ $this->posted['payment_method'] ]->process_payment( $order_id );
+
+                    // Redirect to success/confirmation/payment page
+                    if ( $result['result'] == 'success' ) {
+
+                        $result = apply_filters( 'woocommerce_payment_successful_result', $result, $order_id );
+
+                        if ( is_ajax() ) {
+                            wp_send_json( $result );
+                        } else {
+                          //  wp_redirect( $result['redirect'] );
+                            exit;
+                        }
+
+                    }
+
+                } else {
+
+                    if ( empty( $order ) ) {
+                        $order = wc_get_order( $order_id );
+                    }
+
+
+
+                    // No payment was required for order
+                    $order->payment_complete();
+
+
+                    // Empty the Cart
+                    WC()->cart->empty_cart();
+
+                    // Get redirect
+                    $return_url = $order->get_checkout_order_received_url();
+
+
+                    // Redirect to success/confirmation/payment page
+                    if ( is_ajax() ) {
+
+                        wp_send_json( array(
+                            'result'    => 'success',
+                            'redirect'  => apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
+                        ) );
+                    } else {
+                        wp_safe_redirect(
+                            apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
+                        );
+                        exit;
+                    }
+
+                }
+
+           
+
+        } catch ( Exception $e ) {
+            if ( ! empty( $e ) ) {
+                wc_add_notice( $e->getMessage(), 'error' );
+            }
+        }
+
+        // If we reached this point then there were errors
+        if ( is_ajax() ) {
+
+            // only print notices if not reloading the checkout, otherwise they're lost in the page reload
+            if ( ! isset( WC()->session->reload_checkout ) ) {
+                ob_start();
+                wc_print_notices();
+                $messages = ob_get_clean();
+            }
+
+            $response = array(
+                'result'    => 'failure',
+                'messages'  => isset( $messages ) ? $messages : '',
+                'refresh'   => isset( WC()->session->refresh_totals ) ? 'true' : 'false',
+                'reload'    => isset( WC()->session->reload_checkout ) ? 'true' : 'false'
+            );
+
+            unset( WC()->session->refresh_totals, WC()->session->reload_checkout );
+
+            wp_send_json( $response );
+        }
+        
+    }
 }
 
 ?>
