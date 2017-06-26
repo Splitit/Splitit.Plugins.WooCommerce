@@ -809,12 +809,11 @@ function init_splitit_method(){
                 foreach ($checkout_fields_post as $field_name => $label_value) {
                     $checkout_fields[$field_name] = $label_value[1];
                 }
+               //echo "<pre>"; print_r($checkout_fields);die;
                 $order_data = array(
-                    'AvsAddress' => trim( $checkout_fields['billing_address_1_field'] ) . ' '
-                        . trim( isset($checkout_fields['billing_address_2_field']) ? $checkout_fields['billing_address_2_field'] : '' ) . ', '
-                        . trim( $checkout_fields['billing_city_field'] ) . ' '
-                        . trim( $checkout_fields['billing_state_field'] ),
-                    'AvsZip'     => trim( $checkout_fields['billing_postcode_field']),
+                    'Address' => trim( $checkout_fields['billing_address_1_field'] ) ,
+                    'Address2'=>  trim( isset($checkout_fields['billing_address_2_field']) ? $checkout_fields['billing_address_2_field'] : '' ), 
+                    'Zip'     => trim( $checkout_fields['billing_postcode_field']),
                     'AmountBeforeFees' => WC()->cart->total,
                     'ConsumerFullName' => trim( $checkout_fields['billing_first_name_field'] . ' ' . $checkout_fields['billing_last_name_field'] ),
                     'Email'      => trim( $checkout_fields['billing_email_field'] ),
@@ -828,8 +827,9 @@ function init_splitit_method(){
                 // create empty address data, so user will be able to fill it on Splitit popup
             } else {
                 $order_data = array(
-                    'AvsAddress' => ' ',
-                    'AvsZip'     => ' ',
+                    'Address' => '',
+                    'Address2' => '',
+                    'Zip'     => '',
                     'AmountBeforeFees' => WC()->cart->total
                 );
             }
@@ -1022,6 +1022,7 @@ function init_splitit_method(){
 
 
         public function splitit_payment_success($flag=NULL){
+           //die("did not create the order it will be created automatically");
 
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
@@ -1069,8 +1070,11 @@ function init_splitit_method(){
          * @access public
          */
         public function splitit_payment_success_async() {
+
+
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
+          
             //echo $ipn."---";die;
            // $ipn = "67757642666443565703";
             $exists_data_array = $this->get_post_id_by_meta_value($ipn);
@@ -1082,11 +1086,11 @@ function init_splitit_method(){
 
                 if(!empty($fetch_items)){
                     $user_data = $fetch_items['user_data'];
-                    $esi = $fetch_items['session_id'];
-                    $user_id = $fetch_items['user_id'];
+                    $user_id   = $fetch_items['user_id'];
                     $cart_items = $fetch_items['cart_items'];
                     $cart_items = json_decode($fetch_items['cart_items'],true);
                     $this->_API = new SplitIt_API($this->settings); //passing settings to API
+                    $session = $this->_API->login();
                     if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
                         $this->settings['splitit_cancel_url'] = 'checkout/';
                     }
@@ -1099,9 +1103,9 @@ function init_splitit_method(){
                         }
                         $checkout_fields['payment_method'] = 'splitit'; //override default method as it is not correct                
                         $criteria = array('InstallmentPlanNumber' => $ipn);
-                        $installment_data = $this->_API->get($esi, $criteria);   
+                        $installment_data = $this->_API->get($session, $criteria);   
                         $checkout = new SplitIt_Checkout();
-                        $checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings,$user_id,$cart_items);
+                        $checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$session,$this->settings,$user_id,$cart_items);
                         wc_clear_notices();
                       
                     } 
@@ -1109,7 +1113,7 @@ function init_splitit_method(){
                 }
                 
              }else{
-                echo "Already created";
+                echo "Order has been already created";die;
              }
              return true;
            

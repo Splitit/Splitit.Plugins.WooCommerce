@@ -168,12 +168,12 @@ class SplitIt_API {
                                             "AutoCapture"=>$acpature
                                     );
             $params['BillingAddress'] = array(
-                                                "AddressLine"=>$order_data['AvsAddress'],
-                                                "AddressLine2"=>"",
+                                                "AddressLine"=>$order_data['Address'],
+                                                "AddressLine2"=>$order_data['Address2'],
                                                 "City"=>$order_data['City'],
                                                 "State"=>$order_data['State'],
                                                 "Country"=>$order_data['Country'],
-                                                "Zip"=>$order_data['AvsZip']
+                                                "Zip"=>$order_data['Zip']
                                             );
             $params['ConsumerData'] = array(
                                             "FullName"=>$order_data['ConsumerFullName'],
@@ -192,7 +192,7 @@ class SplitIt_API {
                                                 "SuccessAsyncURL"=>$site_url . '?wc-api=splitit_payment_success_async'
                                             );
 
-            // echo "<pre>";print_r($params);
+           // echo "<pre>";print_r($params);die;
             // echo $_COOKIE['splitit_checkout']."---";
             // die;
             global $woocommerce;

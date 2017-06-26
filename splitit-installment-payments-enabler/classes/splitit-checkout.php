@@ -461,7 +461,7 @@ class SplitIt_Checkout extends WC_Checkout {
     }
     public function async_process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings,$user_id,$cart_items) {
 
-       // print_r($installment_plan_data);die;
+
         try {          
 
             // Prevent timeout
@@ -578,10 +578,10 @@ class SplitIt_Checkout extends WC_Checkout {
 
 
                     // As we are now logged in, checkout will need to refresh to show logged in data
-                    WC()->session->set( 'reload_checkout', true );
+                   // WC()->session->set( 'reload_checkout', true );
 
                     // Also, recalculate cart totals to reveal any role-based discounts that were unavailable before registering
-                    WC()->cart->calculate_totals();
+                   // WC()->cart->calculate_totals();
 
                     // Add customer info from other billing fields
                     if ( $this->posted['billing_first_name'] && apply_filters( 'woocommerce_checkout_update_customer_data', true, $this ) ) {
@@ -657,7 +657,7 @@ class SplitIt_Checkout extends WC_Checkout {
                     
                    
                     // Store Order ID in session so it can be re-used after payment failure
-                    WC()->session->order_awaiting_payment = $order_id;
+                   // WC()->session->order_awaiting_payment = $order_id;
 
                     // Process Payment
                     $result = $available_gateways[ $this->posted['payment_method'] ]->process_payment( $order_id );
