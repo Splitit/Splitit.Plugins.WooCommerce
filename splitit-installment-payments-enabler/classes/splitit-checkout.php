@@ -529,30 +529,66 @@ class SplitIt_Checkout extends WC_Checkout {
             
 
                 /*custom pushing billing information into shipping*/
-                if ( isset( $this->posted['billing_first_name'] ) ) {
+
+                if(isset($checkout_fields['ship_to_different_address']) && $checkout_fields['ship_to_different_address']==1 ){
+
+                     if ( isset( $this->posted['shipping_first_name'] ) ) {
+                    $this->posted['shipping_first_name'] =  $this->posted['shipping_first_name'];
+                    }
+                    if ( isset( $this->posted['shipping_last_name'] ) ) {
+                        $this->posted['shipping_last_name'] =  $this->posted['shipping_last_name'];
+                    }
+                    if ( isset( $this->posted['shipping_company'] ) ) {
+                        $this->posted['shipping_company'] =  $this->posted['shipping_company'];
+                    }
+                    if ( isset( $this->posted['shipping_address_1'] ) ) {
+                        $this->posted['shipping_address_1'] =  $this->posted['shipping_address_1'];
+                    }
+                    if ( isset( $this->posted['shipping_city'] ) ) {
+                        $this->posted['shipping_city'] =  $this->posted['shipping_city'];
+                    }
+                    if ( isset( $this->posted['shipping_address_2'] ) ) {
+                        $this->posted['shipping_address_2'] =  $this->posted['shipping_address_2'];
+                    }
+                    if ( isset( $this->posted['shipping_state'] ) ) {
+                        $this->posted['shipping_state'] =  $this->posted['shipping_state'];
+                    }
+                    if ( isset( $this->posted['shipping_postcode'] ) ) {
+                        $this->posted['shipping_postcode'] =  $this->posted['shipping_postcode'];
+                    }
+
+
+                }else{
+
+                    if ( isset( $this->posted['billing_first_name'] ) ) {
                     $this->posted['shipping_first_name'] =  $this->posted['billing_first_name'];
+                    }
+                    if ( isset( $this->posted['billing_last_name'] ) ) {
+                        $this->posted['shipping_last_name'] =  $this->posted['billing_last_name'];
+                    }
+                    if ( isset( $this->posted['billing_company'] ) ) {
+                        $this->posted['shipping_company'] =  $this->posted['billing_company'];
+                    }
+                    if ( isset( $this->posted['billing_address_1'] ) ) {
+                        $this->posted['shipping_address_1'] =  $this->posted['billing_address_1'];
+                    }
+                    if ( isset( $this->posted['billing_city'] ) ) {
+                        $this->posted['shipping_city'] =  $this->posted['billing_city'];
+                    }
+                    if ( isset( $this->posted['billing_address_2'] ) ) {
+                        $this->posted['shipping_address_2'] =  $this->posted['billing_address_2'];
+                    }
+                    if ( isset( $this->posted['billing_state'] ) ) {
+                        $this->posted['shipping_state'] =  $this->posted['billing_state'];
+                    }
+                    if ( isset( $this->posted['billing_postcode'] ) ) {
+                        $this->posted['shipping_postcode'] =  $this->posted['billing_postcode'];
+                    }
+
                 }
-                if ( isset( $this->posted['billing_last_name'] ) ) {
-                    $this->posted['shipping_last_name'] =  $this->posted['billing_last_name'];
-                }
-                if ( isset( $this->posted['billing_company'] ) ) {
-                    $this->posted['shipping_company'] =  $this->posted['billing_company'];
-                }
-                if ( isset( $this->posted['billing_address_1'] ) ) {
-                    $this->posted['shipping_address_1'] =  $this->posted['billing_address_1'];
-                }
-                if ( isset( $this->posted['billing_city'] ) ) {
-                    $this->posted['shipping_city'] =  $this->posted['billing_city'];
-                }
-                if ( isset( $this->posted['billing_address_2'] ) ) {
-                    $this->posted['shipping_address_2'] =  $this->posted['billing_address_2'];
-                }
-                if ( isset( $this->posted['billing_state'] ) ) {
-                    $this->posted['shipping_state'] =  $this->posted['billing_state'];
-                }
-                if ( isset( $this->posted['billing_postcode'] ) ) {
-                    $this->posted['shipping_postcode'] =  $this->posted['billing_postcode'];
-                }
+
+                
+
                 /*custom pushing billing information into shipping*/
 
                 $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
@@ -654,7 +690,7 @@ class SplitIt_Checkout extends WC_Checkout {
                     $this->_API->installment_plan_update($order_id,$esi,$ipn);
               
                 if ( !empty($installment_plan_data) ) {
-                   update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
+                  update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
                    update_post_meta( $order_id, 'number_of_installments', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'NumberOfInstallments'} ) );
                 }
 
