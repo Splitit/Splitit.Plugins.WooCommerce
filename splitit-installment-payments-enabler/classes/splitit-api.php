@@ -3,7 +3,7 @@
  * SplitIt_API class
  *
  * @class       SplitIt_API
- * @version     0.2.9
+ * @version     2.0.7
  * @package     SplitIt/Classes
  * @category    API
  * @author      By Splitit
@@ -192,11 +192,13 @@ class SplitIt_API {
                                                 "SuccessAsyncURL"=>$site_url . '?wc-api=splitit_payment_success_async'
                                             );
 
-           // echo "<pre>";print_r($params);die;
-            // echo $_COOKIE['splitit_checkout']."---";
-            // die;
-            global $woocommerce;
-           // print_r(WC()->cart->get_cart());die;
+            $fetch_session_item = WC()->session->get( 'chosen_shipping_methods' );
+            if(!empty($fetch_session_item)){
+                $explode_items = explode(":",$fetch_session_item[0]);
+                $selected_shipping_method = $explode_items[0];
+            }else{
+                $selected_shipping_method = "";
+            }
             try {
 
                 $result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
@@ -220,7 +222,7 @@ class SplitIt_API {
                                             'ipn' => $ipn, 
                                             'user_id' => $userid,
                                             'cart_items'=>json_encode(WC()->cart->get_cart()),
-                                            'session_id'=> $this->_API['session_id'],
+                                            'session_id'=> $selected_shipping_method,
                                             'user_data' => $user_data,
                                             'updated_at' => date('Y-m-d H:i:s')
                                         ) 

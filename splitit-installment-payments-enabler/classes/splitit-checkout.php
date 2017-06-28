@@ -254,7 +254,6 @@ class SplitIt_Checkout extends WC_Checkout {
             }
 
             if ( WC()->cart->needs_shipping() ) {
-                echo "needs_shipping";
                 if ( ! in_array( WC()->customer->get_shipping_country(), array_keys( WC()->countries->get_shipping_countries() ) ) ) {
                     wc_add_notice( sprintf( __( 'Unfortunately <strong>we do not ship %s</strong>. Please enter an alternative shipping address.', 'woocommerce' ), WC()->countries->shipping_to_prefix() . ' ' . WC()->customer->get_shipping_country() ), 'error' );
                 }
@@ -263,12 +262,12 @@ class SplitIt_Checkout extends WC_Checkout {
                 $packages               = WC()->shipping->get_packages();
                 $this->shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
 
-                foreach ( $packages as $i => $package ) {
-                    if ( ! isset( $package['rates'][ $this->shipping_methods[ $i ] ] ) ) {
-                        wc_add_notice( __( 'Invalid shipping method.', 'woocommerce' ), 'error' );
-                        $this->shipping_methods[ $i ] = '';
-                    }
-                }
+                // foreach ( $packages as $i => $package ) {
+                //     if ( ! isset( $package['rates'][ $this->shipping_methods[ $i ] ] ) ) {
+                //         wc_add_notice( __( 'Invalid shipping method.', 'woocommerce' ), 'error' );
+                //         $this->shipping_methods[ $i ] = '';
+                //     }
+                // }
             }
 
             if ( WC()->cart->needs_payment() ) {
@@ -289,6 +288,7 @@ class SplitIt_Checkout extends WC_Checkout {
 
             // Action after validation
             do_action( 'woocommerce_after_checkout_validation', $this->posted );
+            //print_r($this->posted);die;
 
             if ( ! isset( $checkout_fields['woocommerce_checkout_update_totals'] ) && wc_notice_count( 'error' ) == 0 ) {
                 
@@ -309,6 +309,7 @@ class SplitIt_Checkout extends WC_Checkout {
                     $this->customer_id = $new_customer;
 
                     wc_set_customer_auth_cookie( $this->customer_id );
+
 
                     // As we are now logged in, checkout will need to refresh to show logged in data
                     WC()->session->set( 'reload_checkout', true );
@@ -332,10 +333,11 @@ class SplitIt_Checkout extends WC_Checkout {
                 $this->check_cart_items();
 
 
-
+              // print_r(wc_print_notices());
                 // Abort if errors are present
                 if ( wc_notice_count( 'error' ) > 0 )
                     throw new Exception();
+                
                 $order_id = $this->create_order($this->posted);
                 $order = wc_get_order( $order_id );
                 $order->set_payment_method($payment_obj);
@@ -459,10 +461,14 @@ class SplitIt_Checkout extends WC_Checkout {
         }
         
     }
-    public function async_process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings,$user_id,$cart_items) {
+    public function async_process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings,$user_id,$cart_items,$selected_shipping_method) {
 
+            global $woocommerce;
 
-        try {          
+            WC()->shipping->load_shipping_methods();
+            $shipping_methods = WC()->shipping->get_shipping_methods();
+
+         try {          
 
             // Prevent timeout
             @set_time_limit(0);
@@ -607,6 +613,7 @@ class SplitIt_Checkout extends WC_Checkout {
                 foreach ($cart_items as $key => $values) {
                     $product_id = $values['product_id'];
                     $product = wc_get_product($product_id);
+                   // echo "<pre>";print_r($product);
                     $quantity = (int)$values['quantity'];
                     if(!empty($values['variation'])){
                         $var_id = $values['variation_id'];
@@ -622,6 +629,20 @@ class SplitIt_Checkout extends WC_Checkout {
                     }
                   
                 }
+                //echo "----".$product->get_shipping_class();die;
+                $shipping_methods = $woocommerce->shipping->load_shipping_methods();
+                $shipping_class = get_term_by('slug', $product->get_shipping_class(), 'product_shipping_class');
+               // print_r($shipping_methods[$selected_shipping_method]);die;
+                if($selected_shipping_method!=""){
+                      if(isset($shipping_class->term_id)&&$shipping_class->term_id!=""){
+                        $selected_shipping_method = $shipping_methods[$selected_shipping_method];
+                        $options_value = get_option('woocommerce_flat_rate_1_settings');
+                        $class_cost = wc_format_decimal($options_value['class_cost_'. $shipping_class->term_id]);
+                        $shipping_rate = new WC_Shipping_Rate('', $selected_shipping_method->method_title,$class_cost, "", $selected_shipping_method->id );
+                        $order->add_shipping($shipping_rate);
+                    }
+                }
+              
                 $order->calculate_totals();
                 $order->set_payment_method($payment_obj);
                 $order->update_status('processing');
@@ -633,8 +654,8 @@ class SplitIt_Checkout extends WC_Checkout {
                     $this->_API->installment_plan_update($order_id,$esi,$ipn);
               
                 if ( !empty($installment_plan_data) ) {
-                    update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
-                    update_post_meta( $order_id, 'number_of_installments', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'NumberOfInstallments'} ) );
+                   update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
+                   update_post_meta( $order_id, 'number_of_installments', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'NumberOfInstallments'} ) );
                 }
 
                 if ( is_wp_error( $order_id ) ) {

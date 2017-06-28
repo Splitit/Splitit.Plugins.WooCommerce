@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.0.6
+Version: 2.0.7
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -1022,12 +1022,13 @@ function init_splitit_method(){
 
 
         public function splitit_payment_success($flag=NULL){
-           //die("did not create the order it will be created automatically");
+          // die("did not create the order it will be created automatically");
 
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
             $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? $_COOKIE["splitit_checkout_session_id_data"] : false;
-            $exists_data_array = $this->get_post_id_by_meta_value($ipn);          
+            $exists_data_array = $this->get_post_id_by_meta_value($ipn);   
+            //print_r($exists_data_array);die;       
              if (empty($exists_data_array)) {     
                     $this->_API = new SplitIt_API($this->settings); //passing settings to API
                     if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
@@ -1070,11 +1071,8 @@ function init_splitit_method(){
          * @access public
          */
         public function splitit_payment_success_async() {
-
-
             global $wpdb;
-            $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
-          
+            $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;          
             //echo $ipn."---";die;
            // $ipn = "67757642666443565703";
             $exists_data_array = $this->get_post_id_by_meta_value($ipn);
@@ -1088,6 +1086,7 @@ function init_splitit_method(){
                     $user_data = $fetch_items['user_data'];
                     $user_id   = $fetch_items['user_id'];
                     $cart_items = $fetch_items['cart_items'];
+                    $selected_shipping_method = $fetch_items['session_id'];
                     $cart_items = json_decode($fetch_items['cart_items'],true);
                     $this->_API = new SplitIt_API($this->settings); //passing settings to API
                     $session = $this->_API->login();
@@ -1105,7 +1104,7 @@ function init_splitit_method(){
                         $criteria = array('InstallmentPlanNumber' => $ipn);
                         $installment_data = $this->_API->get($session, $criteria);   
                         $checkout = new SplitIt_Checkout();
-                        $checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$session,$this->settings,$user_id,$cart_items);
+                        $checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$session,$this->settings,$user_id,$cart_items,$selected_shipping_method);
                         wc_clear_notices();
                       
                     } 
