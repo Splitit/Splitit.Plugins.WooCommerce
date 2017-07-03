@@ -461,7 +461,7 @@ class SplitIt_Checkout extends WC_Checkout {
         }
         
     }
-    public function async_process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings,$user_id,$cart_items,$selected_shipping_method) {
+    public function async_process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings,$user_id,$cart_items,$shipping_method,$shipping_cost,$shipping_title,$coupon_amount,$coupon_code) {
 
             global $woocommerce;
 
@@ -597,10 +597,7 @@ class SplitIt_Checkout extends WC_Checkout {
                 //print_r($this->posted);die;
 
             // Action after validation
-             do_action( 'woocommerce_after_checkout_validation', $this->posted );
-
-
-            
+             do_action( 'woocommerce_after_checkout_validation', $this->posted );       
                 
 
                 // Customer accounts
@@ -665,21 +662,19 @@ class SplitIt_Checkout extends WC_Checkout {
                     }
                   
                 }
-                //echo "----".$product->get_shipping_class();die;
-                $shipping_methods = $woocommerce->shipping->load_shipping_methods();
-                $shipping_class = get_term_by('slug', $product->get_shipping_class(), 'product_shipping_class');
-               // print_r($shipping_methods[$selected_shipping_method]);die;
-                if($selected_shipping_method!=""){
-                      if(isset($shipping_class->term_id)&&$shipping_class->term_id!=""){
-                        $selected_shipping_method = $shipping_methods[$selected_shipping_method];
-                        $options_value = get_option('woocommerce_flat_rate_1_settings');
-                        $class_cost = wc_format_decimal($options_value['class_cost_'. $shipping_class->term_id]);
-                        $shipping_rate = new WC_Shipping_Rate('', $selected_shipping_method->method_title,$class_cost, "", $selected_shipping_method->id );
-                        $order->add_shipping($shipping_rate);
-                    }
+               
+                if($shipping_method!=""){
+                    $shipping_cost = wc_format_decimal($shipping_cost);
+                    $shipping_rate = new WC_Shipping_Rate('', $shipping_title,$shipping_cost, "", $shipping_method );
+                    $order->add_shipping($shipping_rate);                    
                 }
-              
                 $order->calculate_totals();
+                if($coupon_code!="" && $coupon_amount!=""){
+                    $order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));
+                    $order->set_total($order->calculate_totals() - wc_format_decimal($coupon_amount));
+                    $order->set_total($coupon_amount, 'cart_discount');
+                }
+                
                 $order->set_payment_method($payment_obj);
                 $order->update_status('processing');
                 setcookie("order_id",$order_id);

@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.0.7
+Version: 2.0.9
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -34,6 +34,11 @@ function create_plugin_database_table()
         $sql = "CREATE TABLE ".$table_name." (
              `id` int(11) NOT NULL AUTO_INCREMENT,
              `user_id` int(11) DEFAULT 0,
+              `shipping_method_cost` varchar(255) DEFAULT NULL,
+              `shipping_method_title` varchar(255) DEFAULT NULL,
+              `shipping_method_id` varchar(255) DEFAULT NULL,
+              `coupon_amount` varchar(255) DEFAULT NULL,
+              `coupon_code` varchar(255) DEFAULT NULL,
               `ipn` varchar(255) DEFAULT NULL,
               `session_id` varchar(255) DEFAULT NULL,
               `user_data` longtext,
@@ -46,7 +51,15 @@ function create_plugin_database_table()
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
+    }else{
+        $row = $wpdb->get_results( "SELECT coupon_code FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_cost'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_cost` varchar(255) DEFAULT NULL, ADD COLUMN `shipping_method_title` varchar(255) DEFAULT NULL,ADD COLUMN `shipping_method_id` varchar(255) DEFAULT NULL,ADD COLUMN `coupon_amount` varchar(255) DEFAULT NULL,ADD COLUMN `coupon_code` varchar(255) DEFAULT NULL");
+        }
     }
+
+
+
 }
 
 //register_activation_hook( __FILE__, 'create_plugin_database_table' );
@@ -60,7 +73,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.0.7' );
+    define( 'Splitit_VERSION', '2.0.9' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -1022,7 +1035,7 @@ function init_splitit_method(){
 
 
         public function splitit_payment_success($flag=NULL){
-          // die("did not create the order it will be created automatically");
+           //die("did not create the order it will be created automatically");
 
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
@@ -1086,7 +1099,11 @@ function init_splitit_method(){
                     $user_data = $fetch_items['user_data'];
                     $user_id   = $fetch_items['user_id'];
                     $cart_items = $fetch_items['cart_items'];
-                    $selected_shipping_method = $fetch_items['session_id'];
+                    $shipping_method = $fetch_items['shipping_method_id'];
+                    $shipping_cost = $fetch_items['shipping_method_cost'];
+                    $shipping_title = $fetch_items['shipping_method_title'];
+                    $coupon_amount = $fetch_items['coupon_amount'];
+                    $coupon_code = $fetch_items['coupon_code'];
                     $cart_items = json_decode($fetch_items['cart_items'],true);
                     $this->_API = new SplitIt_API($this->settings); //passing settings to API
                     $session = $this->_API->login();
@@ -1104,7 +1121,7 @@ function init_splitit_method(){
                         $criteria = array('InstallmentPlanNumber' => $ipn);
                         $installment_data = $this->_API->get($session, $criteria);   
                         $checkout = new SplitIt_Checkout();
-                        $checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$session,$this->settings,$user_id,$cart_items,$selected_shipping_method);
+                        $checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$session,$this->settings,$user_id,$cart_items,$shipping_method,$shipping_cost,$shipping_title,$coupon_amount,$coupon_code);
                         wc_clear_notices();
                       
                     } 

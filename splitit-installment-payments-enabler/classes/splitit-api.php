@@ -3,7 +3,7 @@
  * SplitIt_API class
  *
  * @class       SplitIt_API
- * @version     2.0.7
+ * @version     2.0.8
  * @package     SplitIt/Classes
  * @category    API
  * @author      By Splitit
@@ -52,7 +52,7 @@ class SplitIt_API {
         }
         $params = array('UserName' => $this->_username,
                          'Password' => $this->_password,
-                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.0.7")
+                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.0.9")
                          );
 
         try {
@@ -191,14 +191,35 @@ class SplitIt_API {
 
                                                 "SuccessAsyncURL"=>$site_url . '?wc-api=splitit_payment_success_async'
                                             );
-
+            define( 'WOOCOMMERCE_CHECKOUT', true );
+            define( 'WOOCOMMERCE_CART', true );
             $fetch_session_item = WC()->session->get( 'chosen_shipping_methods' );
+            $shipping_method_cost = "";
+            $shipping_method_cost = WC()->cart->shipping_total;
+            $shipping_methods = WC()->shipping->get_shipping_methods();
+            $shipping_method_id= "";
             if(!empty($fetch_session_item)){
                 $explode_items = explode(":",$fetch_session_item[0]);
-                $selected_shipping_method = $explode_items[0];
+                $shipping_method_id = $explode_items[0];
             }else{
-                $selected_shipping_method = "";
+                $shipping_method_id = "";
             }
+            $shipping_method_title="";
+            $coupon_code = "";
+            $coupon_amount = "";
+            $applied_coupon_array = $woocommerce->cart->get_applied_coupons();
+            if(!empty($applied_coupon_array)){
+                 $discount_array = $woocommerce->cart->coupon_discount_amounts;
+                    foreach ($discount_array as $key => $value) {
+                        $coupon_code = $key;
+                        $coupon_amount = wc_format_decimal(number_format($discount_array[$key],2));
+                    }
+            }
+            //echo "-------".$coupon_amount."-----".$coupon_code;die;           
+            if($shipping_method_id!=""){
+                $shipping_method_title = $shipping_methods[$shipping_method_id]->method_title;
+            }
+            
             try {
 
                 $result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
@@ -222,7 +243,11 @@ class SplitIt_API {
                                             'ipn' => $ipn, 
                                             'user_id' => $userid,
                                             'cart_items'=>json_encode(WC()->cart->get_cart()),
-                                            'session_id'=> $selected_shipping_method,
+                                            'shipping_method_cost' =>$shipping_method_cost,
+                                            'shipping_method_title' =>$shipping_method_title,
+                                            'shipping_method_id' =>$shipping_method_id,
+                                            'coupon_amount' =>$coupon_amount,
+                                            'coupon_code' =>$coupon_code,
                                             'user_data' => $user_data,
                                             'updated_at' => date('Y-m-d H:i:s')
                                         ) 
