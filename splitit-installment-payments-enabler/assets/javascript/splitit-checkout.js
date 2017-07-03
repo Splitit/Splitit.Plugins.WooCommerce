@@ -164,7 +164,7 @@
             }
             //billing custom
             if ($(this).prop('id') == 'billing_country_field') {
-                var elem = $('#billing_country option:selected').val();
+                var elem = $('#billing_country').val();
             } else if($(this).prop('id') == 'billing_state_field') {
                 //state can be input or select
                 if($('#billing_state').hasClass('input-text')) {
@@ -187,8 +187,8 @@
                     elem = 1;
                 }
             } else if ($(this).prop('id') == 'shipping_country_field') {
-                var elem = $('#shipping_country option:selected').val();
-                if(!$('#shipping_country option:selected') || $('#shipping_country option:selected').val() == 'undefined') {
+                var elem = $('#shipping_country').val();
+                if(!$('#shipping_country') || $('#shipping_country').val() == 'undefined') {
                     var elem = '';
                 }
             } else if ($(this).prop('id') == 'shipping_state_field') {
