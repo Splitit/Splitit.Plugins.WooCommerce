@@ -39,23 +39,93 @@ function create_plugin_database_table()
               `shipping_method_id` varchar(255) DEFAULT NULL,
               `coupon_amount` varchar(255) DEFAULT NULL,
               `coupon_code` varchar(255) DEFAULT NULL,
+              `tax_amount` varchar(255) DEFAULT NULL,
+              `set_shipping_total` varchar(255) DEFAULT NULL,
+              `set_discount_total` varchar(255) DEFAULT NULL,
+              `set_discount_tax` varchar(255) DEFAULT NULL,
+              `set_cart_tax` varchar(255) DEFAULT NULL,
+              `set_shipping_tax` varchar(255) DEFAULT NULL,
+              `set_total` varchar(255) DEFAULT NULL, 
+              `wc_cart` longtext,
+              `get_packages` longtext,
+              `chosen_shipping_methods_data` longtext,
               `ipn` varchar(255) DEFAULT NULL,
               `session_id` varchar(255) DEFAULT NULL,
               `user_data` longtext,
               `cart_items` longtext,
-               `updated_at` datetime NOT NULL,               
+              `updated_at` datetime NOT NULL,               
               PRIMARY KEY (`id`)
         ) $charset_collate;";
 
-       // echo $sql;die;
+      //  echo $sql;die;
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
     }else{
-        $row = $wpdb->get_results( "SELECT coupon_code FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_cost'"  );
+        $row = $wpdb->get_results( "SELECT shipping_method_cost FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_cost'"  );
         if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_cost` varchar(255) DEFAULT NULL, ADD COLUMN `shipping_method_title` varchar(255) DEFAULT NULL,ADD COLUMN `shipping_method_id` varchar(255) DEFAULT NULL,ADD COLUMN `coupon_amount` varchar(255) DEFAULT NULL,ADD COLUMN `coupon_code` varchar(255) DEFAULT NULL");
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_cost` varchar(255) DEFAULT NULL");
         }
+        $row = $wpdb->get_results( "SELECT shipping_method_title FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_title'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_title` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT shipping_method_id FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_id'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_id` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT coupon_amount FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'coupon_amount'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `coupon_amount` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT coupon_code FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'coupon_code'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `coupon_code` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT tax_amount FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'tax_amount'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `tax_amount` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_shipping_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_shipping_total'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_shipping_total` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_discount_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_discount_total'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_discount_total` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_discount_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_discount_tax'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_discount_tax` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_cart_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_cart_tax'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_cart_tax` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_shipping_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_shipping_tax'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_shipping_tax` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_total'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_total` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT wc_cart FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'wc_cart'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `wc_cart` longtext DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT get_packages FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'get_packages'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `get_packages` longtext DEFAULT NULL");
+        }
+      
+        $row = $wpdb->get_results( "SELECT chosen_shipping_methods_data FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'chosen_shipping_methods_data'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `chosen_shipping_methods_data` longtext DEFAULT NULL");
+        }
+
+
+
     }
 
 
@@ -1035,6 +1105,9 @@ function init_splitit_method(){
 
 
         public function splitit_payment_success($flag=NULL){
+            //print_r($);
+           // print_r(WC()->session->cart);
+
            //die("did not create the order it will be created automatically");
 
             global $wpdb;
@@ -1085,7 +1158,8 @@ function init_splitit_method(){
          */
         public function splitit_payment_success_async() {
             global $wpdb;
-            $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;          
+            $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
+
             //echo $ipn."---";die;
            // $ipn = "67757642666443565703";
             $exists_data_array = $this->get_post_id_by_meta_value($ipn);
@@ -1094,7 +1168,6 @@ function init_splitit_method(){
              if (empty($exists_data_array) ) {
                 $table_name = $wpdb->prefix . 'splitit_logs';
                 $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
-
                 if(!empty($fetch_items)){
                     $user_data = $fetch_items['user_data'];
                     $user_id   = $fetch_items['user_id'];
@@ -1105,6 +1178,7 @@ function init_splitit_method(){
                     $coupon_amount = $fetch_items['coupon_amount'];
                     $coupon_code = $fetch_items['coupon_code'];
                     $cart_items = json_decode($fetch_items['cart_items'],true);
+                    //print_r($cart_items);die;
                     $this->_API = new SplitIt_API($this->settings); //passing settings to API
                     $session = $this->_API->login();
                     if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {

@@ -215,7 +215,34 @@ class SplitIt_API {
                         $coupon_amount = wc_format_decimal(number_format($discount_array[$key],2));
                     }
             }
-            //echo "-------".$coupon_amount."-----".$coupon_code;die;           
+            //echo "-------".$coupon_amount."-----".$coupon_code;die; 
+
+            
+            /*total variables*/ 
+            $set_shipping_total=WC()->cart->shipping_total;
+            $set_discount_total=WC()->cart->get_cart_discount_total();
+            $set_discount_tax=WC()->cart->get_cart_discount_tax_total();
+            $set_cart_tax=WC()->cart->tax_total;
+            $set_shipping_tax=WC()->cart->shipping_tax_total;
+            $set_total=WC()->cart->total;
+            $wc_cart=json_encode(WC()->cart);
+            //print_r($wc_cart);die;
+            $get_packages=json_encode(WC()->shipping->get_packages());
+            $chosen_shipping_methods_data = json_encode(WC()->session->get( 'chosen_shipping_methods' ));
+
+
+            /*end*/
+
+            
+            $total_tax_amount="";
+            $total_taxes_array = WC()->cart->get_taxes();
+            if(!empty($total_taxes_array)){
+                $total_tax_amount = array_sum($total_taxes_array);
+                $total_tax_amount = wc_format_decimal(number_format($total_tax_amount,2));
+                
+            }
+            
+            //echo $total_tax_amount;die; 
             if($shipping_method_id!=""){
                 $shipping_method_title = $shipping_methods[$shipping_method_id]->method_title;
             }
@@ -231,6 +258,7 @@ class SplitIt_API {
                 if(isset($result) && isset($result->InstallmentPlan) && isset($result->InstallmentPlan->InstallmentPlanNumber)){
                     $table_name = $wpdb->prefix . 'splitit_logs';
                     $ipn = $result->InstallmentPlan->InstallmentPlanNumber;
+
                     $user_data = "";
                      if(isset($_COOKIE['splitit_checkout'])){
                         $user_data = $_COOKIE['splitit_checkout'];
@@ -248,7 +276,17 @@ class SplitIt_API {
                                             'shipping_method_id' =>$shipping_method_id,
                                             'coupon_amount' =>$coupon_amount,
                                             'coupon_code' =>$coupon_code,
+                                            'tax_amount' => $total_tax_amount,
                                             'user_data' => $user_data,
+                                            'set_shipping_total'=>$set_shipping_total,
+                                            'set_discount_total'=>$set_discount_total,
+                                            'set_discount_tax'=>$set_discount_tax,
+                                            'set_cart_tax'=>$set_cart_tax,
+                                            'set_shipping_tax'=>$set_shipping_tax,
+                                            'set_total'=>$set_total,
+                                            'wc_cart'=>$wc_cart,
+                                            'get_packages'=>$get_packages,
+                                            'chosen_shipping_methods_data'=>$chosen_shipping_methods_data,
                                             'updated_at' => date('Y-m-d H:i:s')
                                         ) 
                                     );
