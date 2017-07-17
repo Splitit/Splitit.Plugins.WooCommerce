@@ -33,7 +33,8 @@ Or you can receive the total amount upfront after paying a low discount fee<br>
 -We are pre-integrated with all major credit card processors and gateways and are Level 1 PCI DSS compliant.
 
 == Installation ==
-1. Requires WooCommerce extension to be installed/updated at least to 2.6.5 version first! https://ru.wordpress.org/plugins/woocommerce/
+1. Requires WooCommerce extension to be installed/updated at least to 2.6.5 version first! 
+https://wordpress.org/plugins/woocommerce/
 2. Upload `splitit` folder to the `/wp-content/plugins/` directory.
 3. Activate the plugin through the 'Plugins' menu in WordPress.
 4. Configure Splitit API keys and enable the module in WooCommerce -> Settings -> Checkout -> Splitit (tab) before it appears on the checkout page.
@@ -62,7 +63,7 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 == Changelog ==
 
 = 2.0.9 =
-*Fixed coupon,shipping, taxes in Async.
+*Fixed coupon,shipping, taxes in Async also handled if fraud cases comes out.
 
 = 2.0.8 =
 *Fixed shipping charges in Async URL.

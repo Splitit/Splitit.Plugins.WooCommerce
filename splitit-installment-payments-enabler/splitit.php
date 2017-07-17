@@ -1108,7 +1108,7 @@ function init_splitit_method(){
             //print_r($);
            // print_r(WC()->session->cart);
 
-           //die("did not create the order it will be created automatically");
+          // die("did not create the order it will be created automatically");
 
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
