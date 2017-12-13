@@ -4,16 +4,16 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.0.4
+Version: 2.1.0
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
 */
 
 if(is_admin()){
+
     error_reporting(0);
 }
-
 
 add_action('plugins_loaded', 'init_splitit_method', 0);
 
@@ -22,25 +22,120 @@ function add_notice_function(){
         wc_print_notices();
     }
 }
-// add_action( 'template_redirect', 'wc_custom_redirect_after_purchase' );
-// function wc_custom_redirect_after_purchase() {
-//     global $wp;
 
-//     if ( is_checkout() && ! empty( $wp->query_vars['order-received'] ) ) {
-//         $order_id  = absint( $wp->query_vars['order-received'] );
-//         $order_key = wc_clean( $_GET['key'] );
+/*code to create new table and maintain IPN logss for Async*/
+function create_plugin_database_table()
+{
+    global $wpdb;
 
-//         /**
-//          * Replace {PAGE_ID} with the ID of your page
-//          */
-//         $redirect  = get_permalink(11);
-//         $redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
-//         $redirect .= 'order=' . $order_id . '&key=' . $order_key;
+    $table_name = $wpdb->prefix . 'splitit_logs';
+    if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE ".$table_name." (
+             `id` int(11) NOT NULL AUTO_INCREMENT,
+             `user_id` int(11) DEFAULT 0,
+              `shipping_method_cost` varchar(255) DEFAULT NULL,
+              `shipping_method_title` varchar(255) DEFAULT NULL,
+              `shipping_method_id` varchar(255) DEFAULT NULL,
+              `coupon_amount` varchar(255) DEFAULT NULL,
+              `coupon_code` varchar(255) DEFAULT NULL,
+              `tax_amount` varchar(255) DEFAULT NULL,
+              `set_shipping_total` varchar(255) DEFAULT NULL,
+              `set_discount_total` varchar(255) DEFAULT NULL,
+              `set_discount_tax` varchar(255) DEFAULT NULL,
+              `set_cart_tax` varchar(255) DEFAULT NULL,
+              `set_shipping_tax` varchar(255) DEFAULT NULL,
+              `set_total` varchar(255) DEFAULT NULL, 
+              `wc_cart` longtext,
+              `get_packages` longtext,
+              `chosen_shipping_methods_data` longtext,
+              `ipn` varchar(255) DEFAULT NULL,
+              `session_id` varchar(255) DEFAULT NULL,
+              `user_data` longtext,
+              `cart_items` longtext,
+              `updated_at` datetime NOT NULL,               
+              PRIMARY KEY (`id`)
+        ) $charset_collate;";
 
-//         wp_redirect( $redirect );
-//         exit;
-//     }
-// }
+      //  echo $sql;die;
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
+    }else{
+        $row = $wpdb->get_results( "SELECT shipping_method_cost FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_cost'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_cost` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT shipping_method_title FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_title'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_title` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT shipping_method_id FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_id'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_id` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT coupon_amount FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'coupon_amount'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `coupon_amount` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT coupon_code FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'coupon_code'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `coupon_code` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT tax_amount FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'tax_amount'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `tax_amount` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_shipping_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_shipping_total'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_shipping_total` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_discount_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_discount_total'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_discount_total` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_discount_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_discount_tax'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_discount_tax` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_cart_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_cart_tax'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_cart_tax` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_shipping_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_shipping_tax'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_shipping_tax` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT set_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_total'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_total` varchar(255) DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT wc_cart FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'wc_cart'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `wc_cart` longtext DEFAULT NULL");
+        }
+        $row = $wpdb->get_results( "SELECT get_packages FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'get_packages'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `get_packages` longtext DEFAULT NULL");
+        }
+      
+        $row = $wpdb->get_results( "SELECT chosen_shipping_methods_data FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'chosen_shipping_methods_data'"  );
+        if(empty($row)){
+           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `chosen_shipping_methods_data` longtext DEFAULT NULL");
+        }
+
+
+
+    }
+
+
+
+}
+
+//register_activation_hook( __FILE__, 'create_plugin_database_table' );
+add_action( "admin_init", 'create_plugin_database_table' );
+/*end*/
+
 function init_splitit_method(){
 
 
@@ -48,7 +143,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.0.3' );
+    define( 'Splitit_VERSION', '2.1.0' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -184,6 +279,7 @@ function init_splitit_method(){
             }
 
             //Installment price functionality init
+                    
             if($this->s('splitit_enable_installment_price') == 'yes') {
                 add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 10, 3);
                 add_filter('woocommerce_get_price', array($this, 'splitit_installment_price'), 10, 3);
@@ -797,12 +893,11 @@ function init_splitit_method(){
                 foreach ($checkout_fields_post as $field_name => $label_value) {
                     $checkout_fields[$field_name] = $label_value[1];
                 }
+               //echo "<pre>"; print_r($checkout_fields);die;
                 $order_data = array(
-                    'AvsAddress' => trim( $checkout_fields['billing_address_1_field'] ) . ' '
-                        . trim( isset($checkout_fields['billing_address_2_field']) ? $checkout_fields['billing_address_2_field'] : '' ) . ', '
-                        . trim( $checkout_fields['billing_city_field'] ) . ' '
-                        . trim( $checkout_fields['billing_state_field'] ),
-                    'AvsZip'     => trim( $checkout_fields['billing_postcode_field']),
+                    'Address' => trim( $checkout_fields['billing_address_1_field'] ) ,
+                    'Address2'=>  trim( isset($checkout_fields['billing_address_2_field']) ? $checkout_fields['billing_address_2_field'] : '' ), 
+                    'Zip'     => trim( $checkout_fields['billing_postcode_field']),
                     'AmountBeforeFees' => WC()->cart->total,
                     'ConsumerFullName' => trim( $checkout_fields['billing_first_name_field'] . ' ' . $checkout_fields['billing_last_name_field'] ),
                     'Email'      => trim( $checkout_fields['billing_email_field'] ),
@@ -816,8 +911,9 @@ function init_splitit_method(){
                 // create empty address data, so user will be able to fill it on Splitit popup
             } else {
                 $order_data = array(
-                    'AvsAddress' => ' ',
-                    'AvsZip'     => ' ',
+                    'Address' => '',
+                    'Address2' => '',
+                    'Zip'     => '',
                     'AmountBeforeFees' => WC()->cart->total
                 );
             }
@@ -851,7 +947,17 @@ function init_splitit_method(){
                 unset($_POST['account_password_field']); //not needed field
                 $checkout_fields = $_POST;
                 $validate_errors = '';
+              //  print_r($checkout_fields);
+                //echo "comig";
+                 if ( ! is_user_logged_in() && isset($checkout_fields['billing_email_field']) && $checkout_fields['billing_email_field'][1]!="" ) {
+                    //echo "entered";
+                    if(email_exists($checkout_fields['billing_email_field'][1])){
+                        //echo "condition";
+                        $validate_errors[] = '<li>An account is already registered with your email address. Please login. </li>';
+                    }
 
+                }
+                //die("done");
                 //add billing data to shipping if shipping is same as billing
                 $skip_shipping = $checkout_fields['ship-to-different-address'][1] == 1 ? false : true;
                 unset($checkout_fields['ship-to-different-address']);
@@ -984,65 +1090,65 @@ function init_splitit_method(){
 
         }
 
+       public function get_post_id_by_meta_value($value) {
+            global $wpdb;
+            $meta = $wpdb->get_results("SELECT * FROM `".$wpdb->postmeta."` WHERE meta_key='".$wpdb->escape("installment_plan_number")."' AND meta_value='".$wpdb->escape($value)."'");      
+            return $meta;
+         }
+
+
         /**
          * Api success redirect handler
          * captures order in merchant account if necessary, and creates new order in WP
          *
          * @access public
          */
-        public function splitit_payment_success($flag=NULL)
-        {
-          
 
+
+        public function splitit_payment_success($flag=NULL){
+            //print_r($);
+           // print_r(WC()->session->cart);
+
+          // die("did not create the order it will be created automatically");
+
+            global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
             $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? $_COOKIE["splitit_checkout_session_id_data"] : false;
+            $exists_data_array = $this->get_post_id_by_meta_value($ipn);   
+            //print_r($exists_data_array);die;       
+             if (empty($exists_data_array)) {     
+                    $this->_API = new SplitIt_API($this->settings); //passing settings to API
+                    if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
+                        $this->settings['splitit_cancel_url'] = 'checkout/';
+                    }
+                    $table_name = $wpdb->prefix . 'splitit_logs';
+                    $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
+                    //checking for user entered data
+                    if(isset($fetch_items['user_data']) && $fetch_items['user_data'] !="") {
+                        $checkout_fields_array = explode('&', $fetch_items['user_data']);
+                        $checkout_fields = array();
+                        foreach($checkout_fields_array as $row) {
+                            $key_value = explode('=', $row);
+                            $checkout_fields[$key_value[0]] = $key_value[1];
+                        }
+                        $checkout_fields['payment_method'] = 'splitit'; 
+                        $criteria = array('InstallmentPlanNumber' => $ipn);
+                        $installment_data = $this->_API->get($esi, $criteria);   
+                        $checkout = new SplitIt_Checkout();
+                        $checkout->process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings);
+                        setcookie('splitit_checkout', null, strtotime('-1 day'));
+                        setcookie('splitit_checkout_session_id_data', null, strtotime('-1 day'));
+                        wc_clear_notices();                     
+                    } else {
+                        wc_clear_notices();
+                        wc_add_notice('Sorry, there was no checkout data received to create order! It was not placed. Please try to order again.','error');
+                        wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+                        exit;
 
-
-            $args = array(
-               'post_type' => 'shop_order',
-               'meta_query' => array(
-                   array(
-                       'key' => 'installment_plan_number',
-                       'value' => $ipn
-                   )
-               )
-             );
-             $vid_query = new WP_Query( $args );
-             $vid_ids = $vid_query->posts;
-           
-
-            $this->_API = new SplitIt_API($this->settings); //passing settings to API
-
-            if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
-                $this->settings['splitit_cancel_url'] = 'checkout/';
+                    }
             }
 
-            //checking for user entered data
-            if(isset($_COOKIE['splitit_checkout'])) {
-                $checkout_fields_array = explode('&', $_COOKIE['splitit_checkout']);
-                $checkout_fields = array();
-                foreach($checkout_fields_array as $row) {
-                    $key_value = explode('=', $row);
-                    $checkout_fields[$key_value[0]] = $key_value[1];
-                }
-                $checkout_fields['payment_method'] = 'splitit'; //override default method as it is not correct                
-                $criteria = array('InstallmentPlanNumber' => $ipn);
-                $installment_data = $this->_API->get($esi, $criteria);   
-                if (empty($vid_ids)) {
-                    $checkout = new SplitIt_Checkout();
-                    $checkout->process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings);
-                }
-                setcookie('splitit_checkout', null, strtotime('-1 day'));
-                setcookie('splitit_checkout_session_id_data', null, strtotime('-1 day'));
-                wc_clear_notices();
-              
-            } else {
-                wc_clear_notices();
-                wc_add_notice('Sorry, there was no checkout data received to create order! It was not placed. Please try to order again.','error');
-                wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
-                exit;
 
-            }
         }
 
         /**
@@ -1052,24 +1158,54 @@ function init_splitit_method(){
          * @access public
          */
         public function splitit_payment_success_async() {
+            global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
-            $args = array(
-               'post_type' => 'shop_order',
-               'meta_query' => array(
-                   array(
-                       'key' => 'installment_plan_number',
-                       'value' => $ipn
-                   )
-               )
-             );
-             // perform the query
-             $vid_query = new WP_Query( $args );
-             $vid_ids = $vid_query->posts;
-             // do something if the meta-key-value-pair exists in another post
-             if (empty( $vid_ids ) ) {
-                $this->splitit_payment_success();
-             }
 
+            //echo $ipn."---";die;
+           // $ipn = "67757642666443565703";
+            $exists_data_array = $this->get_post_id_by_meta_value($ipn);
+           // echo "<pre>";print_r($exists_data_array);die;
+             // do something if the meta-key-value-pair exists in another post
+             if (empty($exists_data_array) ) {
+                $table_name = $wpdb->prefix . 'splitit_logs';
+                $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
+                if(!empty($fetch_items)){
+                    $user_data = $fetch_items['user_data'];
+                    $user_id   = $fetch_items['user_id'];
+                    $cart_items = $fetch_items['cart_items'];
+                    $shipping_method = $fetch_items['shipping_method_id'];
+                    $shipping_cost = $fetch_items['shipping_method_cost'];
+                    $shipping_title = $fetch_items['shipping_method_title'];
+                    $coupon_amount = $fetch_items['coupon_amount'];
+                    $coupon_code = $fetch_items['coupon_code'];
+                    $cart_items = json_decode($fetch_items['cart_items'],true);
+                    //print_r($cart_items);die;
+                    $this->_API = new SplitIt_API($this->settings); //passing settings to API
+                    $session = $this->_API->login();
+                    if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
+                        $this->settings['splitit_cancel_url'] = 'checkout/';
+                    }
+                    if($user_data!="") {
+                        $checkout_fields_array = explode('&', $user_data);
+                        $checkout_fields = array();
+                        foreach($checkout_fields_array as $row) {
+                            $key_value = explode('=', $row);
+                            $checkout_fields[$key_value[0]] = $key_value[1];
+                        }
+                        $checkout_fields['payment_method'] = 'splitit'; //override default method as it is not correct                
+                        $criteria = array('InstallmentPlanNumber' => $ipn);
+                        $installment_data = $this->_API->get($session, $criteria);   
+                        $checkout = new SplitIt_Checkout();
+                        $checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$session,$this->settings,$user_id,$cart_items,$shipping_method,$shipping_cost,$shipping_title,$coupon_amount,$coupon_code);
+                        wc_clear_notices();
+                      
+                    } 
+
+                }
+                
+             }else{
+                echo "Order has been already created";die;
+             }
              return true;
            
         }
@@ -1177,8 +1313,12 @@ function init_splitit_method(){
         public function splitit_installment_price($price, $product) {
             if(isset($this->settings['splitit_installment_price_sections'])) {
                 $sections = $this->settings['splitit_installment_price_sections'];
+                // check range to show installment price on PDP page.
+                $displayInstallmentPrice = (int)$this->display_installment_price_on_pages();
+                
                 //checking if any options selected in admin
-                if (is_array($sections)) {
+                
+                if (is_array($sections) && $displayInstallmentPrice) {
                     if (is_product() && in_array('product', $sections)) {
                         return $price . $this->get_formatted_installment_price($product);
                     }
@@ -1204,7 +1344,9 @@ function init_splitit_method(){
          */
         public function splitit_installment_total_price($price) {
             global $woocommerce;
-            if(is_array($this->settings['splitit_installment_price_sections'])) {
+            // check range to show installment price on cart and checkout page.
+            $displayInstallmentPrice = (int)$this->display_installment_price_on_pages();
+            if(is_array($this->settings['splitit_installment_price_sections']) && $displayInstallmentPrice) {
                 $sections = $this->settings['splitit_installment_price_sections'];
                 if ((is_cart() && in_array('cart', $sections)) || (is_checkout() && in_array('checkout', $sections))) {
                     $split_price = round($woocommerce->cart->total / self::$_maxInstallments, 3);
@@ -1290,7 +1432,7 @@ function init_splitit_method(){
          * @return mixed
          */
         public function change_payment_gateway($gateways) {
-
+            
             foreach ($this->settings['splitit_doct']['ct_from'] as $key => $value) {
                                 if (empty($value)) {
                                    unset($this->settings['splitit_doct']['ct_from'][$key]);
@@ -1308,6 +1450,39 @@ function init_splitit_method(){
                 unset( $gateways['splitit'] );
             }
             return $gateways;
+        }
+
+        /**
+         * remove splitit installment price on pages if cart total > max or < min
+         * @param $gateways
+         * @return mixed
+         */
+        public function display_installment_price_on_pages() {
+            
+            foreach ($this->settings['splitit_doct']['ct_from'] as $key => $value) {
+                                if (empty($value)) {
+                                   unset($this->settings['splitit_doct']['ct_from'][$key]);
+                                }
+                            }
+            foreach ($this->settings['splitit_doct']['ct_to'] as $key1 => $value1) {
+                                if (empty($value1)) {
+                                   unset($this->settings['splitit_doct']['ct_to'][$key1]);
+                                }
+                            }    
+              $min = min($this->settings['splitit_doct']['ct_from']);
+              $max = max($this->settings['splitit_doct']['ct_to']);
+            // Compare cart subtotal (without shipment fees)
+            $installmentSetup = $this->settings['splitit_discount_type'];
+            if($installmentSetup == "fixed"){
+              return true;
+            }else{
+              if( WC()->cart->subtotal > $max || WC()->cart->subtotal < $min ){
+                  return false;
+              }
+              return true;
+            }
+            
+            
         }
 
 

@@ -254,7 +254,6 @@ class SplitIt_Checkout extends WC_Checkout {
             }
 
             if ( WC()->cart->needs_shipping() ) {
-                echo "needs_shipping";
                 if ( ! in_array( WC()->customer->get_shipping_country(), array_keys( WC()->countries->get_shipping_countries() ) ) ) {
                     wc_add_notice( sprintf( __( 'Unfortunately <strong>we do not ship %s</strong>. Please enter an alternative shipping address.', 'woocommerce' ), WC()->countries->shipping_to_prefix() . ' ' . WC()->customer->get_shipping_country() ), 'error' );
                 }
@@ -263,12 +262,12 @@ class SplitIt_Checkout extends WC_Checkout {
                 $packages               = WC()->shipping->get_packages();
                 $this->shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
 
-                foreach ( $packages as $i => $package ) {
-                    if ( ! isset( $package['rates'][ $this->shipping_methods[ $i ] ] ) ) {
-                        wc_add_notice( __( 'Invalid shipping method.', 'woocommerce' ), 'error' );
-                        $this->shipping_methods[ $i ] = '';
-                    }
-                }
+                // foreach ( $packages as $i => $package ) {
+                //     if ( ! isset( $package['rates'][ $this->shipping_methods[ $i ] ] ) ) {
+                //         wc_add_notice( __( 'Invalid shipping method.', 'woocommerce' ), 'error' );
+                //         $this->shipping_methods[ $i ] = '';
+                //     }
+                // }
             }
 
             if ( WC()->cart->needs_payment() ) {
@@ -289,6 +288,7 @@ class SplitIt_Checkout extends WC_Checkout {
 
             // Action after validation
             do_action( 'woocommerce_after_checkout_validation', $this->posted );
+            //print_r($this->posted);die;
 
             if ( ! isset( $checkout_fields['woocommerce_checkout_update_totals'] ) && wc_notice_count( 'error' ) == 0 ) {
                 
@@ -309,6 +309,7 @@ class SplitIt_Checkout extends WC_Checkout {
                     $this->customer_id = $new_customer;
 
                     wc_set_customer_auth_cookie( $this->customer_id );
+
 
                     // As we are now logged in, checkout will need to refresh to show logged in data
                     WC()->session->set( 'reload_checkout', true );
@@ -332,26 +333,149 @@ class SplitIt_Checkout extends WC_Checkout {
                 $this->check_cart_items();
 
 
-
+               print_r(wc_print_notices());
                 // Abort if errors are present
                 if ( wc_notice_count( 'error' ) > 0 )
                     throw new Exception();
-                $order_id = $this->create_order($this->posted);
-                $order = wc_get_order( $order_id );
-                $order->set_payment_method($payment_obj);
-                $order->update_status('processing');
-                setcookie("order_id",$order_id);
+
+                $total_amount_on_cart = WC()->cart->total;
+                $total_amount_paid   = $installment_plan_data->{'PlansList'}[0]->{'Amount'}->{'Value'};
+                if($total_amount_on_cart==$total_amount_paid){
+                    $order_id = $this->create_order($this->posted);
+                    $order = wc_get_order( $order_id );
+                    $order->set_payment_method($payment_obj);
+                    $order->update_status('processing');
+                }else{
+                    /*created orders from the database values*/
+                        global $wpdb;
+                        $fetch_ipn_data = $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'};
+                        $table_name = $wpdb->prefix . 'splitit_logs';
+                        $fetch_cart_details = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$fetch_ipn_data ), ARRAY_A );
+
+                        $cart_info = json_decode($fetch_cart_details['wc_cart'],true);
+                        $cart_info = $cart_info['cart_contents'];
+                        $shipping_method = $fetch_cart_details['shipping_method_id'];
+                        $shipping_cost = $fetch_cart_details['shipping_method_cost'];
+                        $shipping_title = $fetch_cart_details['shipping_method_title'];
+                        $coupon_amount = $fetch_cart_details['coupon_amount'];
+                        $coupon_code = $fetch_cart_details['coupon_code'];
+                        //print_r($cart_info['cart_contents']);die;
+                        $checkout_fields_array = explode('&', $fetch_cart_details['user_data']);
+                        $checkout_fields = array();
+                        foreach($checkout_fields_array as $row) {
+                            $key_value = explode('=', $row);
+                            $checkout_fields[$key_value[0]] = $key_value[1];
+                        }
+                        $billing_address_array = $shipping_address_array = array();   
+                        if(isset($checkout_fields['billing_first_name'])){
+                             $billing_address_array = array(
+                                              'first_name' => $checkout_fields['billing_first_name'],
+                                              'last_name'  => $checkout_fields['billing_last_name'],
+                                              'company'    => $checkout_fields['billing_company'],
+                                              'email'      => $checkout_fields['billing_email'],
+                                              'phone'      => $checkout_fields['billing_phone'],
+                                              'address_1'  => $checkout_fields['billing_address_1'],
+                                              'address_2'  => $checkout_fields['billing_address_2'],
+                                              'city'       => $checkout_fields['billing_city'],
+                                              'state'      => $checkout_fields['billing_state'],
+                                              'postcode'   => $checkout_fields['billing_postcode'],
+                                              'country'    => $checkout_fields['billing_country']
+                                          );
+
+
+                        }  
+                        if(isset($checkout_fields['ship_to_different_address']) && $checkout_fields['ship_to_different_address']==1 ){
+                             $shipping_address_array = array(
+                                              'first_name' => $checkout_fields['shipping_first_name'],
+                                              'last_name'  => $checkout_fields['shipping_last_name'],
+                                              'company'    => $checkout_fields['shipping_company'],
+                                              'email'      => $checkout_fields['shipping_email'],
+                                              'phone'      => $checkout_fields['shipping_phone'],
+                                              'address_1'  => $checkout_fields['shipping_address_1'],
+                                              'address_2'  => $checkout_fields['shipping_address_2'],
+                                              'city'       => $checkout_fields['shipping_city'],
+                                              'state'      => $checkout_fields['shipping_state'],
+                                              'postcode'   => $checkout_fields['shipping_postcode'],
+                                              'country'    => $checkout_fields['shipping_country']
+                                          );
+
+
+                        }else{
+                            $shipping_address_array = $billing_address_array;
+                        }
+
+                            //$order = wc_create_order();
+                            $order = wc_create_order();
+                            foreach ($cart_info as $key => $values) {
+                                $product_id = $values['product_id'];
+                                $product = wc_get_product($product_id);
+                                $quantity = (int)$values['quantity'];
+                                if(!empty($values['variation'])){
+                                    $var_id = $values['variation_id'];
+                                    $var_slug = $values['variation']['attribute_pa_weight'];
+                                    $variationsArray = array();
+                                    $variationsArray['variation'] = array(
+                                      'pa_weight' => $var_slug
+                                    );
+                                    $var_product = new WC_Product_Variation($var_id);
+                                   $variationsArray['totals'] = array(
+                                                                    'subtotal' => $values['line_subtotal'],
+                                                                    'subtotal_tax' => $values['line_subtotal_tax'],
+                                                                    'total' => $values['line_total'],
+                                                                    'tax' => $values['line_tax'],
+                                                                    'tax_data' => $values['line_tax_data'] // Since 2.2
+                                                                );
+
+                                    
+                                    $order->add_product(get_product($var_product), $quantity, $variationsArray);
+                                }else{                        
+                                   $price_params = array(
+                                                        'totals' => array(
+                                                                        'subtotal' => $values['line_subtotal'],
+                                                                        'subtotal_tax' => $values['line_subtotal_tax'],
+                                                                        'total' => $values['line_total'],
+                                                                        'tax' => $values['line_tax'],
+                                                                        'tax_data' => $values['line_tax_data'] 
+                                                                    )
+                                                        );
+
+                                    $order->add_product(get_product($product_id), $quantity,$price_params);
+                                }
+                              
+                            } 
+                           $order->set_address( $billing_address_array, 'billing' );
+                           $order->set_address( $shipping_address_array, 'shipping' ); 
+
+                            if($shipping_method!=""){
+                                $shipping_cost = wc_format_decimal($shipping_cost);
+                                $shipping_rate = new WC_Shipping_Rate('', $shipping_title,$shipping_cost, "", $shipping_method );
+                                $order->add_shipping($shipping_rate);                    
+                            }
+                            //$order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));
+                            $order->calculate_totals();
+                            if($coupon_code!="" && $coupon_amount!=""){
+                                $order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));
+                                $order->set_total($order->calculate_totals() - wc_format_decimal($coupon_amount));
+                                $order->set_total($coupon_amount, 'cart_discount');
+                            }
+                            
+                            $order->set_payment_method($payment_obj);
+                            $order->update_status('processing');
+                            $order_id = $order->get_id();
+
+                        /*custom order creation end*/                
+
+                }
                 
+                setcookie("order_id",$order_id);
                 if (is_null($this->_API)) { 
-                        $this->_API = new SplitIt_API($settings); //passing settings to API
-                    }
-                    $this->_API->installment_plan_update($order_id,$esi,$ipn);
-              
+                    $this->_API = new SplitIt_API($settings); //passing settings to API
+                }
+                $this->_API->installment_plan_update($order_id,$esi,$ipn);
                 if ( !empty($installment_plan_data) ) {
                     update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
                     update_post_meta( $order_id, 'number_of_installments', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'NumberOfInstallments'} ) );
                 }
-
                 if ( is_wp_error( $order_id ) ) {
                     throw new Exception( $order_id->get_error_message() );
                 }
@@ -435,6 +559,218 @@ class SplitIt_Checkout extends WC_Checkout {
                 wc_add_notice( $e->getMessage(), 'error' );
             }
         }
+
+        // If we reached this point then there were errors
+        if ( is_ajax() ) {
+
+            // only print notices if not reloading the checkout, otherwise they're lost in the page reload
+            if ( ! isset( WC()->session->reload_checkout ) ) {
+                ob_start();
+                wc_print_notices();
+                $messages = ob_get_clean();
+            }
+
+            $response = array(
+                'result'    => 'failure',
+                'messages'  => isset( $messages ) ? $messages : '',
+                'refresh'   => isset( WC()->session->refresh_totals ) ? 'true' : 'false',
+                'reload'    => isset( WC()->session->reload_checkout ) ? 'true' : 'false'
+            );
+
+            unset( WC()->session->refresh_totals, WC()->session->reload_checkout );
+
+            wp_send_json( $response );
+        }
+        
+    }
+    public function async_process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings,$user_id,$cart_items,$shipping_method,$shipping_cost,$shipping_title,$coupon_amount,$coupon_code) {
+
+            /*created orders from the database values*/
+                        global $wpdb;
+                        $fetch_ipn_data = $ipn;
+                        $table_name = $wpdb->prefix . 'splitit_logs';
+                        $fetch_cart_details = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$fetch_ipn_data ), ARRAY_A );
+
+                        $cart_info = json_decode($fetch_cart_details['wc_cart'],true);
+                        $cart_info = $cart_info['cart_contents'];
+                        $shipping_method = $fetch_cart_details['shipping_method_id'];
+                        $shipping_cost = $fetch_cart_details['shipping_method_cost'];
+                        $shipping_title = $fetch_cart_details['shipping_method_title'];
+                        $coupon_amount = $fetch_cart_details['coupon_amount'];
+                        $coupon_code = $fetch_cart_details['coupon_code'];
+                        //print_r($cart_info['cart_contents']);die;
+                        $checkout_fields_array = explode('&', $fetch_cart_details['user_data']);
+                        $checkout_fields = array();
+                        foreach($checkout_fields_array as $row) {
+                            $key_value = explode('=', $row);
+                            $checkout_fields[$key_value[0]] = $key_value[1];
+                        }
+                        $billing_address_array = $shipping_address_array = array();   
+                        if(isset($checkout_fields['billing_first_name'])){
+                             $billing_address_array = array(
+                                              'first_name' => $checkout_fields['billing_first_name'],
+                                              'last_name'  => $checkout_fields['billing_last_name'],
+                                              'company'    => $checkout_fields['billing_company'],
+                                              'email'      => $checkout_fields['billing_email'],
+                                              'phone'      => $checkout_fields['billing_phone'],
+                                              'address_1'  => $checkout_fields['billing_address_1'],
+                                              'address_2'  => $checkout_fields['billing_address_2'],
+                                              'city'       => $checkout_fields['billing_city'],
+                                              'state'      => $checkout_fields['billing_state'],
+                                              'postcode'   => $checkout_fields['billing_postcode'],
+                                              'country'    => $checkout_fields['billing_country']
+                                          );
+
+
+                        }  
+                        if(isset($checkout_fields['ship_to_different_address']) && $checkout_fields['ship_to_different_address']==1 ){
+                             $shipping_address_array = array(
+                                              'first_name' => $checkout_fields['shipping_first_name'],
+                                              'last_name'  => $checkout_fields['shipping_last_name'],
+                                              'company'    => $checkout_fields['shipping_company'],
+                                              'email'      => $checkout_fields['shipping_email'],
+                                              'phone'      => $checkout_fields['shipping_phone'],
+                                              'address_1'  => $checkout_fields['shipping_address_1'],
+                                              'address_2'  => $checkout_fields['shipping_address_2'],
+                                              'city'       => $checkout_fields['shipping_city'],
+                                              'state'      => $checkout_fields['shipping_state'],
+                                              'postcode'   => $checkout_fields['shipping_postcode'],
+                                              'country'    => $checkout_fields['shipping_country']
+                                          );
+
+
+                        }else{
+                            $shipping_address_array = $billing_address_array;
+                        }
+
+                            //$order = wc_create_order();
+                             $order_data = array(
+                                             'status' => apply_filters('woocommerce_default_order_status', 'processing'),
+                                             'customer_id' => $user_id
+                                        );
+                            $order = wc_create_order($order_data);
+                            foreach ($cart_info as $key => $values) {
+                                $product_id = $values['product_id'];
+                                $product = wc_get_product($product_id);
+                                $quantity = (int)$values['quantity'];
+                                if(!empty($values['variation'])){
+                                    $var_id = $values['variation_id'];
+                                    $var_slug = $values['variation']['attribute_pa_weight'];
+                                    $variationsArray = array();
+                                    $variationsArray['variation'] = array(
+                                      'pa_weight' => $var_slug
+                                    );
+                                    $var_product = new WC_Product_Variation($var_id);
+                                   $variationsArray['totals'] = array(
+                                                                    'subtotal' => $values['line_subtotal'],
+                                                                    'subtotal_tax' => $values['line_subtotal_tax'],
+                                                                    'total' => $values['line_total'],
+                                                                    'tax' => $values['line_tax'],
+                                                                    'tax_data' => $values['line_tax_data'] // Since 2.2
+                                                                );
+
+                                    
+                                    $order->add_product(get_product($var_product), $quantity, $variationsArray);
+                                }else{                        
+                                   $price_params = array(
+                                                        'totals' => array(
+                                                                        'subtotal' => $values['line_subtotal'],
+                                                                        'subtotal_tax' => $values['line_subtotal_tax'],
+                                                                        'total' => $values['line_total'],
+                                                                        'tax' => $values['line_tax'],
+                                                                        'tax_data' => $values['line_tax_data'] 
+                                                                    )
+                                                        );
+
+                                    $order->add_product(get_product($product_id), $quantity,$price_params);
+                                }
+                              
+                            } 
+                           $order->set_address( $billing_address_array, 'billing' );
+                           $order->set_address( $shipping_address_array, 'shipping' ); 
+
+                            if($shipping_method!=""){
+                                $shipping_cost = wc_format_decimal($shipping_cost);
+                                $shipping_rate = new WC_Shipping_Rate('', $shipping_title,$shipping_cost, "", $shipping_method );
+                                $order->add_shipping($shipping_rate);                    
+                            }
+                            //$order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));
+                            $order->calculate_totals();
+                            if($coupon_code!="" && $coupon_amount!=""){
+                                $order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));
+                                $order->set_total($order->calculate_totals() - wc_format_decimal($coupon_amount));
+                                $order->set_total($coupon_amount, 'cart_discount');
+                            }
+                            
+                            $order->set_payment_method($payment_obj);
+                            $order->update_status('processing');
+                            $order_id = $order->get_id();
+
+                        /*custom order creation end*/                
+
+
+
+
+            /*end*/
+
+
+                setcookie("order_id",$order_id);
+                
+                if (is_null($this->_API)) { 
+                        $this->_API = new SplitIt_API($settings); //passing settings to API
+                    }
+                    $this->_API->installment_plan_update($order_id,$esi,$ipn);
+              
+                if ( !empty($installment_plan_data) ) {
+                  update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
+                   update_post_meta( $order_id, 'number_of_installments', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'NumberOfInstallments'} ) );
+                }
+
+                if ( is_wp_error( $order_id ) ) {
+                    throw new Exception( $order_id->get_error_message() );
+                }
+
+                do_action( 'woocommerce_checkout_order_processed', $order_id, $this->posted );
+
+                // Process payment
+              
+
+                    if ( empty( $order ) ) {
+                        $order = wc_get_order( $order_id );
+                    }
+
+
+
+                    // No payment was required for order
+                    $order->payment_complete();
+
+
+                    // Empty the Cart
+                    WC()->cart->empty_cart();
+
+                    // Get redirect
+                    $return_url = $order->get_checkout_order_received_url();
+
+
+                    // Redirect to success/confirmation/payment page
+                    if ( is_ajax() ) {
+
+                        wp_send_json( array(
+                            'result'    => 'success',
+                            'redirect'  => apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
+                        ) );
+                    } else {
+                        wp_safe_redirect(
+                            apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
+                        );
+                        exit;
+                    }
+
+                
+
+           
+
+       
 
         // If we reached this point then there were errors
         if ( is_ajax() ) {

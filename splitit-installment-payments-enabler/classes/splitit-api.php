@@ -3,7 +3,7 @@
  * SplitIt_API class
  *
  * @class       SplitIt_API
- * @version     0.2.9
+ * @version     2.0.8
  * @package     SplitIt/Classes
  * @category    API
  * @author      By Splitit
@@ -52,7 +52,7 @@ class SplitIt_API {
         }
         $params = array('UserName' => $this->_username,
                          'Password' => $this->_password,
-                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.0")
+                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.0")
                          );
 
         try {
@@ -85,6 +85,7 @@ class SplitIt_API {
      */
     public function getEcSession($order_data) {
         global $woocommerce;
+        global $wpdb;
         if(!$this->is_logged_in()) {
             $this->setError(self::ERROR_UNKNOWN, 'SessionId is not exist. Login first.');
             if ($this->_log) {
@@ -167,12 +168,12 @@ class SplitIt_API {
                                             "AutoCapture"=>$acpature
                                     );
             $params['BillingAddress'] = array(
-                                                "AddressLine"=>$order_data['AvsAddress'],
-                                                "AddressLine2"=>"",
+                                                "AddressLine"=>$order_data['Address'],
+                                                "AddressLine2"=>$order_data['Address2'],
                                                 "City"=>$order_data['City'],
                                                 "State"=>$order_data['State'],
                                                 "Country"=>$order_data['Country'],
-                                                "Zip"=>$order_data['AvsZip']
+                                                "Zip"=>$order_data['Zip']
                                             );
             $params['ConsumerData'] = array(
                                             "FullName"=>$order_data['ConsumerFullName'],
@@ -190,12 +191,108 @@ class SplitIt_API {
 
                                                 "SuccessAsyncURL"=>$site_url . '?wc-api=splitit_payment_success_async'
                                             );
+            define( 'WOOCOMMERCE_CHECKOUT', true );
+            define( 'WOOCOMMERCE_CART', true );
+            $fetch_session_item = WC()->session->get( 'chosen_shipping_methods' );
+            $shipping_method_cost = "";
+            $shipping_method_cost = WC()->cart->shipping_total;
+            $shipping_methods = WC()->shipping->get_shipping_methods();
+            $shipping_method_id= "";
+            if(!empty($fetch_session_item)){
+                $explode_items = explode(":",$fetch_session_item[0]);
+                $shipping_method_id = $explode_items[0];
+            }else{
+                $shipping_method_id = "";
+            }
+            $shipping_method_title="";
+            $coupon_code = "";
+            $coupon_amount = "";
+            $applied_coupon_array = $woocommerce->cart->get_applied_coupons();
+            if(!empty($applied_coupon_array)){
+                 $discount_array = $woocommerce->cart->coupon_discount_amounts;
+                    foreach ($discount_array as $key => $value) {
+                        $coupon_code = $key;
+                        $coupon_amount = wc_format_decimal(number_format($discount_array[$key],2));
+                    }
+            }
+            //echo "-------".$coupon_amount."-----".$coupon_code;die; 
 
-            //echo "<pre>";print_r($params);die;
+            
+            /*total variables*/ 
+            $set_shipping_total=WC()->cart->shipping_total;
+            $set_discount_total=WC()->cart->get_cart_discount_total();
+            $set_discount_tax=WC()->cart->get_cart_discount_tax_total();
+            $set_cart_tax=WC()->cart->tax_total;
+            $set_shipping_tax=WC()->cart->shipping_tax_total;
+            $set_total=WC()->cart->total;
+            $wc_cart=json_encode(WC()->cart);
+            //print_r($wc_cart);die;
+            $get_packages=json_encode(WC()->shipping->get_packages());
+            $chosen_shipping_methods_data = json_encode(WC()->session->get( 'chosen_shipping_methods' ));
 
+
+            /*end*/
+
+            
+            $total_tax_amount="";
+            $total_taxes_array = WC()->cart->get_taxes();
+            if(!empty($total_taxes_array)){
+                $total_tax_amount = array_sum($total_taxes_array);
+                $total_tax_amount = wc_format_decimal(number_format($total_tax_amount,2));
+                
+            }
+            
+            //echo $total_tax_amount;die; 
+            if($shipping_method_id!=""){
+                $shipping_method_title = $shipping_methods[$shipping_method_id]->method_title;
+            }
+            
             try {
-                $result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
 
+                $result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
+                $userid="0";
+                if(is_user_logged_in()){
+                    $userid = get_current_user_id();
+                }
+
+                if(isset($result) && isset($result->InstallmentPlan) && isset($result->InstallmentPlan->InstallmentPlanNumber)){
+                    $table_name = $wpdb->prefix . 'splitit_logs';
+                    $ipn = $result->InstallmentPlan->InstallmentPlanNumber;
+
+                    $user_data = "";
+                     if(isset($_COOKIE['splitit_checkout'])){
+                        $user_data = $_COOKIE['splitit_checkout'];
+                     }
+
+                     if($ipn!="" && $user_data!=""){
+                        $wpdb->insert( 
+                                        $table_name, 
+                                        array( 
+                                            'ipn' => $ipn, 
+                                            'user_id' => $userid,
+                                            'cart_items'=>json_encode(WC()->cart->get_cart()),
+                                            'shipping_method_cost' =>$shipping_method_cost,
+                                            'shipping_method_title' =>$shipping_method_title,
+                                            'shipping_method_id' =>$shipping_method_id,
+                                            'coupon_amount' =>$coupon_amount,
+                                            'coupon_code' =>$coupon_code,
+                                            'tax_amount' => $total_tax_amount,
+                                            'user_data' => $user_data,
+                                            'set_shipping_total'=>$set_shipping_total,
+                                            'set_discount_total'=>$set_discount_total,
+                                            'set_discount_tax'=>$set_discount_tax,
+                                            'set_cart_tax'=>$set_cart_tax,
+                                            'set_shipping_tax'=>$set_shipping_tax,
+                                            'set_total'=>$set_total,
+                                            'wc_cart'=>$wc_cart,
+                                            'get_packages'=>$get_packages,
+                                            'chosen_shipping_methods_data'=>$chosen_shipping_methods_data,
+                                            'updated_at' => date('Y-m-d H:i:s')
+                                        ) 
+                                    );
+                     }
+                   
+                }
                 return $result;
             } catch (Exception $e) {
                 if($this->_log) { $this->_log->info(__FILE__,__LINE__,__METHOD__); $this->_log->add($e); }

@@ -9,7 +9,7 @@
     setCookie('splitit_ec_session_id', 0);
     setCookie('splitit_button_loaded', 0);
     setCookie('splitit_validation_passed', 0);
-    setCookie('splitit_checkout', 0);
+    //setCookie('splitit_checkout', 0);
     setCookie('splitit_checkout_session_id_data',0);
 
     //on Place Order button:
@@ -116,9 +116,9 @@
 
                 } else if ('success' == data.result) {
                     $('#place_order').val('Loading Splitit...');
-
-                    initEcSession();
+                    
                     saveFieldsToCookie();
+                    initEcSession();
                     setCookie('splitit_validation_passed', 1);
                 } else {
                     alert('Error occured, please try again later');
@@ -153,10 +153,18 @@
             if ($(this).prop('id') == 'account_password_field') {
                 return false;
             }
-
+            if ($(this).prop('id') == 'account_username_field') {
+                 if(!$("#createaccount").is(':checked')){
+                    return false;
+                 }
+                
+            }
+            if($(this).closest("#payment").attr('id')=="payment"){   
+                return false;
+            }
             //billing custom
             if ($(this).prop('id') == 'billing_country_field') {
-                var elem = $('#billing_country option:selected').val();
+                var elem = $('#billing_country').val();
             } else if($(this).prop('id') == 'billing_state_field') {
                 //state can be input or select
                 if($('#billing_state').hasClass('input-text')) {
@@ -179,8 +187,8 @@
                     elem = 1;
                 }
             } else if ($(this).prop('id') == 'shipping_country_field') {
-                var elem = $('#shipping_country option:selected').val();
-                if(!$('#shipping_country option:selected') || $('#shipping_country option:selected').val() == 'undefined') {
+                var elem = $('#shipping_country').val();
+                if(!$('#shipping_country') || $('#shipping_country').val() == 'undefined') {
                     var elem = '';
                 }
             } else if ($(this).prop('id') == 'shipping_state_field') {

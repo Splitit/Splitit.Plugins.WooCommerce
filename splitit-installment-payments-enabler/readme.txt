@@ -3,7 +3,7 @@ Contributors: splitit
 Tags: ecommerce, e-commerce, commerce, wordpress ecommerce, sales, sell, shop, shopping, checkout, payment, splitit
 Requires at least: 3.0.1
 Tested up to: 4.3.1
-Stable tag: 2.0.3
+Stable tag: 2.1.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -33,7 +33,8 @@ Or you can receive the total amount upfront after paying a low discount fee<br>
 -We are pre-integrated with all major credit card processors and gateways and are Level 1 PCI DSS compliant.
 
 == Installation ==
-1. Requires WooCommerce extension to be installed/updated at least to 2.6.5 version first! https://ru.wordpress.org/plugins/woocommerce/
+1. Requires WooCommerce extension to be installed/updated at least to 2.6.5 version first! 
+https://wordpress.org/plugins/woocommerce/
 2. Upload `splitit` folder to the `/wp-content/plugins/` directory.
 3. Activate the plugin through the 'Plugins' menu in WordPress.
 4. Configure Splitit API keys and enable the module in WooCommerce -> Settings -> Checkout -> Splitit (tab) before it appears on the checkout page.
@@ -60,6 +61,28 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 4. Customer charge action
 
 == Changelog ==
+
+= 2.1.0 =
+*Show number of installments on PDP, Category, Cart & Checkout only if cart total is in the depanding on cart range.
+
+= 2.0.9 =
+*Fixed coupon,shipping, taxes in Async also handled if fraud cases comes out.
+
+= 2.0.8 =
+*Fixed shipping charges in Async URL.
+
+= 2.0.7 =
+* Async URL fixed.
+
+= 2.0.6 =
+* Validation error fixes.
+
+= 2.0.5 =
+* Change redirection after order success.
+
+= 2.0.4 =
+* Fixed Plugin collision with other plugins
+* Fixed Billing and Shipping address  
 
 = 2.0.3 =
 * Images updated
