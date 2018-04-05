@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.1.0
+Version: 2.0.9
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -143,7 +143,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.1.0' );
+    define( 'Splitit_VERSION', '2.0.9' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -277,9 +277,11 @@ function init_splitit_method(){
             if($this->s('splitit_discount_type') == 'depending_on_cart_total') {
                 add_filter( 'woocommerce_available_payment_gateways', array( $this, 'change_payment_gateway' ), 20, 1 );
             }
+            if($this->s('splitit_product_option')) {
+                add_filter( 'woocommerce_available_payment_gateways', array( $this, 'product_specific_payment_gateway' ), 20, 1 );
+            }
 
             //Installment price functionality init
-                    
             if($this->s('splitit_enable_installment_price') == 'yes') {
                 add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 10, 3);
                 add_filter('woocommerce_get_price', array($this, 'splitit_installment_price'), 10, 3);
@@ -978,7 +980,7 @@ function init_splitit_method(){
                 foreach ($checkout_fields as $field => $data) {
 
                     // Validation: Required fields
-                    if(!isset($data[1]) || $data[1] == '') {
+                    if((!isset($data[1]) || $data[1] == '')&&($field!='terms-field'&&$field!='terms')) {
                         $type = 'shipping';
                         $pos = strpos($field, 'ship');
                         if($pos === false) {
@@ -1034,10 +1036,19 @@ function init_splitit_method(){
                         }
                     }
                 }
-
-                if(isset($checkout_fields['terms'])) {
-                    if($checkout_fields['terms'][1] == 0) {
-                        $validate_errors[] = '<li>' . __( 'You must accept our Terms &amp; Conditions.', 'woocommerce' ) . '</li>';
+WC()->cart->check_customer_coupons(array('billing_email'=>$checkout_fields['billing_email_field'][1]));
+//print_r(wc_get_notices());exit;
+$notices=wc_get_notices();
+if(isset($notices['error'])&&!empty($notices['error'])){
+    foreach ($notices['error'] as $noticeErr) {
+        $validate_errors[] = '<li>' . __( $noticeErr, 'woocommerce' ) . '</li>';
+    }
+}
+                if(isset($checkout_fields['terms-field'])&&$checkout_fields['terms-field']) {
+                    if(!isset($checkout_fields['terms'])||!$checkout_fields['terms']) {
+//                        if($checkout_fields['terms'][1] == 0) {
+                            $validate_errors[] = '<li>' . __( 'You must accept our Terms &amp; Conditions.', 'woocommerce' ) . '</li>';
+//                        }
                     }
                 }
 
@@ -1061,7 +1072,12 @@ function init_splitit_method(){
                     'messages' => 'No data has been sent from form'
                 );
             }
-
+//            foreach(WC()->cart->get_coupons() as $coupon){
+//                print_r($coupon->is_valid_for_cart());exit;
+////                print_r(WC_Coupon($coupon)->is_valid());exit;
+//            }
+//            echo get_class(WC()->cart);exit;
+//            WC()->cart->check_customer_coupons(array('billing_email'=>$checkout_fields['billing_email_field'][1]));
             wp_send_json($response);
         }
 
@@ -1313,12 +1329,8 @@ function init_splitit_method(){
         public function splitit_installment_price($price, $product) {
             if(isset($this->settings['splitit_installment_price_sections'])) {
                 $sections = $this->settings['splitit_installment_price_sections'];
-                // check range to show installment price on PDP page.
-                $displayInstallmentPrice = (int)$this->display_installment_price_on_pages();
-                
                 //checking if any options selected in admin
-                
-                if (is_array($sections) && $displayInstallmentPrice) {
+                if (is_array($sections)) {
                     if (is_product() && in_array('product', $sections)) {
                         return $price . $this->get_formatted_installment_price($product);
                     }
@@ -1344,9 +1356,12 @@ function init_splitit_method(){
          */
         public function splitit_installment_total_price($price) {
             global $woocommerce;
-            // check range to show installment price on cart and checkout page.
-            $displayInstallmentPrice = (int)$this->display_installment_price_on_pages();
-            if(is_array($this->settings['splitit_installment_price_sections']) && $displayInstallmentPrice) {
+            $gateways = WC()->payment_gateways->get_available_payment_gateways();
+            $enabledGateways=$this->change_payment_gateway($gateways);
+            if(isset($enabledGateways['splitit'])){
+                $enabledGateways=$this->product_specific_payment_gateway($gateways);
+            }
+            if(($this->settings['enabled']=='yes'&&isset($enabledGateways['splitit']))&&is_array($this->settings['splitit_installment_price_sections'])) {
                 $sections = $this->settings['splitit_installment_price_sections'];
                 if ((is_cart() && in_array('cart', $sections)) || (is_checkout() && in_array('checkout', $sections))) {
                     $split_price = round($woocommerce->cart->total / self::$_maxInstallments, 3);
@@ -1364,6 +1379,13 @@ function init_splitit_method(){
          * @return string
          */
         public function get_formatted_installment_price($product) {
+            $gateways = WC()->payment_gateways->get_available_payment_gateways();
+            $enabledGateways=$this->change_payment_gateway($gateways);
+            if(isset($enabledGateways['splitit'])){
+                $enabledGateways=$this->product_specific_payment_gateway($gateways);
+            }
+            if($this->settings['enabled']=='no'||!isset($enabledGateways['splitit']))
+                return;
             $split_price = round($product->price / self::$_maxInstallments, 3);
             return '<span style="display:block;" class="splitit-installment-price">' . self::$_maxInstallments . ' x ' . wc_price($split_price, array('decimals'=>2)) . ' ' . $this->s('splitit_without_interest') . '</span>';
         }
@@ -1432,14 +1454,16 @@ function init_splitit_method(){
          * @return mixed
          */
         public function change_payment_gateway($gateways) {
-            
+
             foreach ($this->settings['splitit_doct']['ct_from'] as $key => $value) {
-                                if (empty($value)) {
+//                                if (empty($value)) {
+                                if (trim($value)=='') {
                                    unset($this->settings['splitit_doct']['ct_from'][$key]);
                                 }
                             }
             foreach ($this->settings['splitit_doct']['ct_to'] as $key1 => $value1) {
-                                if (empty($value1)) {
+//                                if (empty($value1)) {
+                                if (trim($value1)=='') {
                                    unset($this->settings['splitit_doct']['ct_to'][$key1]);
                                 }
                             }    
@@ -1451,38 +1475,32 @@ function init_splitit_method(){
             }
             return $gateways;
         }
-
+        
         /**
-         * remove splitit installment price on pages if cart total > max or < min
+         * remove splitit gateway if product conditions met
          * @param $gateways
          * @return mixed
          */
-        public function display_installment_price_on_pages() {
-            
-            foreach ($this->settings['splitit_doct']['ct_from'] as $key => $value) {
-                                if (empty($value)) {
-                                   unset($this->settings['splitit_doct']['ct_from'][$key]);
-                                }
-                            }
-            foreach ($this->settings['splitit_doct']['ct_to'] as $key1 => $value1) {
-                                if (empty($value1)) {
-                                   unset($this->settings['splitit_doct']['ct_to'][$key1]);
-                                }
-                            }    
-              $min = min($this->settings['splitit_doct']['ct_from']);
-              $max = max($this->settings['splitit_doct']['ct_to']);
-            // Compare cart subtotal (without shipment fees)
-            $installmentSetup = $this->settings['splitit_discount_type'];
-            if($installmentSetup == "fixed"){
-              return true;
-            }else{
-              if( WC()->cart->subtotal > $max || WC()->cart->subtotal < $min ){
-                  return false;
-              }
-              return true;
+        public function product_specific_payment_gateway($gateways) {
+            $items = WC()->cart->get_cart();
+            $prodSKUs= $this->settings['splitit_product_sku_list'];
+//            print_r($prodSKUs);
+            $skus=array();
+            foreach($items as $item => $values) { 
+//                $_product =  wc_get_product( $values['data']->get_id()); 
+                $sku = get_post_meta($values['product_id'] , '_sku', true);
+                array_push($skus, $sku);
             }
-            
-            
+//            print_r($skus);exit;
+            sort($prodSKUs);
+            sort($skus);
+            if($this->settings['splitit_product_option']==1 && $prodSKUs!=$skus){
+                unset( $gateways['splitit'] );
+            }
+            if($this->settings['splitit_product_option']==2 && count(array_intersect($prodSKUs, $skus))<1){
+                unset( $gateways['splitit'] );
+            }
+            return $gateways;
         }
 
 

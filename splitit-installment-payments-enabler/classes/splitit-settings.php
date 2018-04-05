@@ -18,6 +18,21 @@ class SplitIt_Settings {
      */
     public static function get_fields()
     {
+        $prodSKUs=array();
+        /**
+         * this method will only fetch simple products, and will not include product variations. If you want to grab those too, you'll need to update the $args to 'post_type' => array('product', 'product_variation')
+         */
+        $args = array('post_type' => 'product', 'posts_per_page' => -1);
+
+        $wcProductsArray = get_posts($args);
+
+        if (count($wcProductsArray)) {
+            foreach ($wcProductsArray as $productPost) {
+                $productSKU = get_post_meta($productPost->ID, '_sku', true);
+                if($productSKU)
+                    $prodSKUs[$productSKU]=$productSKU;
+            }
+        }
 
 
         $fields =
@@ -457,6 +472,24 @@ class SplitIt_Settings {
                 'type'    => 'multiselect',
                 'css'     => 'width: 350px; height: 185px;',
                 'options' => self::get_installment_price_sections()
+            ),
+            'splitit_product_option' => array(
+                'title' => __( 'Enable Splitit per product', 'splitit' ),
+                'type'  => 'select',
+                'class' => 'wc-enhanced-select',
+                'css' => 'width: 450px;',
+                'default' => '',
+                'options' => array(
+                    '0' => 'Disabled',
+                    '1' => 'Enable Splitit just if the selected products from the list and only they are on the cart',
+                    '2' => 'Enable Splitit if 1 or more of the selected products from the list is on cart, and the cart includes also other products'
+                )
+            ),
+            'splitit_product_sku_list' => array(
+                'title' => __( 'List of product SKUs', 'splitit' ),
+                'type'  => 'multiselect',
+                'css' => 'width: 450px;',
+                'options' => $prodSKUs
             ),
            
 

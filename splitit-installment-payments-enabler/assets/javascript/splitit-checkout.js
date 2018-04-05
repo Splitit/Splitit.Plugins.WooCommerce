@@ -112,7 +112,7 @@
 
                     setCookie('splitit_validation_passed', 0);
                     $('#place_order').attr('disabled', false);
-                    return; //stop further processing
+//                    return; //stop further processing
 
                 } else if ('success' == data.result) {
                     $('#place_order').val('Loading Splitit...');
@@ -124,6 +124,7 @@
                     alert('Error occured, please try again later');
                     $('#place_order').attr('disabled', false);
                 }
+                $( document.body ).trigger( 'update_checkout' );
             },
 
             error: function (jqXHR, textStatus, errorThrown) {
@@ -147,7 +148,7 @@
      * @returns {{}}
      */
     function getFormFields() {
-        var field_blocks = $('form.woocommerce-checkout .validate-required, #ship-to-different-address, #terms');
+        var field_blocks = $('form.woocommerce-checkout .validate-required,#ship-to-different-address,#terms');
         var fields = {};
         field_blocks.each(function() {
             if ($(this).prop('id') == 'account_password_field') {
@@ -183,6 +184,7 @@
                 //terms custom
             } else if ($(this).prop('id') == 'terms') {
                 var elem = 0;
+//                alert('terms is checked ='+$(this).is(':checked'));
                 if($(this).is(':checked')) {
                     elem = 1;
                 }
@@ -216,7 +218,13 @@
             fields[$(this).prop('id')] = [label, elem];
             //}
         });
-
+        if($('[name="terms-field"]').val()){
+            fields['terms-field'] = 1;
+        }
+        if ($('#terms').is(':checked')) {
+//            alert('terms is checked ='+$('#terms').is(':checked'));
+            fields['terms'] = 1;
+        }
         return fields;
     }
 
