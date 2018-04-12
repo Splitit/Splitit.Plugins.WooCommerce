@@ -1482,6 +1482,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          * @return mixed
          */
         public function product_specific_payment_gateway($gateways) {
+          if($this->settings['splitit_product_option']){
             $items = WC()->cart->get_cart();
             $prodSKUs= $this->settings['splitit_product_sku_list'];
 //            print_r($prodSKUs);
@@ -1500,6 +1501,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
             if($this->settings['splitit_product_option']==2 && count(array_intersect($prodSKUs, $skus))<1){
                 unset( $gateways['splitit'] );
             }
+          }
             return $gateways;
         }
 
