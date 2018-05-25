@@ -30,7 +30,7 @@ class SplitIt_Settings {
             foreach ($wcProductsArray as $productPost) {
                 $productSKU = get_post_meta($productPost->ID, '_sku', true);
                 if($productSKU)
-                    $prodSKUs[$productSKU]=$productSKU;
+                    $prodSKUs[$productSKU]=get_the_title($productPost->ID).' ('.$productSKU.')';
             }
         }
 

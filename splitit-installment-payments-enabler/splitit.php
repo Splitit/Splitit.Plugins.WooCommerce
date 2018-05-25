@@ -1493,6 +1493,9 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                 array_push($skus, $sku);
             }
 //            print_r($skus);exit;
+            if(!is_array($prodSKUs)){
+              $prodSKUs=array();
+            }
             sort($prodSKUs);
             sort($skus);
             if($this->settings['splitit_product_option']==1 && $prodSKUs!=$skus){
