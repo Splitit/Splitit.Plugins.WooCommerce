@@ -22,6 +22,11 @@
             validateFields();
         }
     });
+    $(document).ready(function($){
+        $(document.body).on('change', 'input[name="payment_method"]', function() {
+            $('body').trigger('update_checkout');
+        });
+    });
 
     //tell me more button
     $(document).on('click', '#tell-me-more', function(e){

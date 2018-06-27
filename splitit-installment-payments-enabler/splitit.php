@@ -273,6 +273,9 @@ function init_splitit_method(){
             add_action( 'woocommerce_after_checkout_form', 'SplitIt_Helper::checkout_js' );
             add_action( 'woocommerce_after_checkout_form', array($this, 'splitit_pass_cdn_urls'));
             add_action( 'woocommerce_api_splitit_scripts_on_checkout', array( $this, 'splitit_scripts_on_checkout' ) );
+            /* add splitit fees */
+            add_action( 'woocommerce_cart_calculate_fees', array( $this, 'splitit_fee_add' ));
+            /* END add splitit fees */
             add_filter( 'woocommerce_gateway_icon', array( $this, 'splitit_gateway_icons' ), 2, 3 );
             if($this->s('splitit_discount_type') == 'depending_on_cart_total') {
                 add_filter( 'woocommerce_available_payment_gateways', array( $this, 'change_payment_gateway' ), 20, 1 );
@@ -1506,6 +1509,20 @@ if(isset($notices['error'])&&!empty($notices['error'])){
             }
           }
             return $gateways;
+        }
+
+        public function splitit_fee_add(){
+          global $woocommerce;
+          $chosen_gateway = $woocommerce->session->chosen_payment_method;
+          if(($this->settings['splitit_fee_enable']=='yes') && ($chosen_gateway == 'splitit')){
+            $fees=floatval($this->settings['splitit_fee_amount']);
+            if($this->settings['splitit_fee_type']=='fixed'){
+              $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),$fees);
+            } elseif ($this->settings['splitit_fee_type']=='percent') {
+              $cartTotal=$woocommerce->cart->cart_contents_total;
+              $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),($cartTotal*$fees/100));
+            }
+          }
         }
 
 

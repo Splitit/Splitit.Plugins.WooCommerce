@@ -25,8 +25,18 @@
 		/*option to change discount type*/
 		$("#woocommerce_splitit_custom_urls").on("change",function(){
 			define_custom_url();
-		})	
+		});
 		/*option to change discount type*/ 
+		$("#woocommerce_splitit_splitit_fee_amount").on("change",function(){
+			if (parseFloat($(this).val())>50.00) {
+				alert("Fee can't be greater than 50");
+				$(this).val(50.00);
+			}
+			if (parseFloat($(this).val())<0) {
+				alert("Fee can't be less than 0");
+				$(this).val(0.00);
+			}
+		});
 		
 
 		$('#checkApiCredentials').on('click', function(e) {
