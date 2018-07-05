@@ -695,6 +695,19 @@ class SplitIt_Checkout extends WC_Checkout {
                                 $order->add_shipping($shipping_rate);                    
                             }
                             //$order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));
+                            $split=new SplitIt();
+                            $fees=$split->splitit_fee_add();
+                            $splititFees = new WC_Order_Item_Fee('splitit');
+                            $splititFees->set_order_id($order->get_id());
+                            $splititFees->set_name('Splitit Fees');
+                            $splititFees->set_amount($fees);
+                            $splititFees->set_total($fees);
+                            $splititFees->calculate_taxes();
+                            $splititFees->apply_changes();
+                            $order->add_item($splititFees);
+                            // $order->calculate_totals();
+                            // echo '<pre>';print_r($order->get_order_item_totals());
+                            // die('---------asdasda');
                             $order->calculate_totals();
                             if($coupon_code!="" && $coupon_amount!=""){
                                 $order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));

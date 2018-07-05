@@ -1518,9 +1518,11 @@ if(isset($notices['error'])&&!empty($notices['error'])){
             $fees=floatval($this->settings['splitit_fee_amount']);
             if($this->settings['splitit_fee_type']=='fixed'){
               $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),$fees);
+              return $fees;
             } elseif ($this->settings['splitit_fee_type']=='percent') {
               $cartTotal=$woocommerce->cart->cart_contents_total;
               $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),($cartTotal*$fees/100));
+              return ($cartTotal*$fees/100);
             }
           }
         }
