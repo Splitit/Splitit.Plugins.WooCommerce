@@ -1125,6 +1125,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
 
 
         public function splitit_payment_success($flag=NULL){
+          //die("--rererer");
             //print_r($);
            // print_r(WC()->session->cart);
 
@@ -1135,7 +1136,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
             $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? $_COOKIE["splitit_checkout_session_id_data"] : false;
             $exists_data_array = $this->get_post_id_by_meta_value($ipn);   
             //print_r($exists_data_array);die;       
-             if (empty($exists_data_array)) {     
+             if (empty($exists_data_array)) {   
                     $this->_API = new SplitIt_API($this->settings); //passing settings to API
                     if(!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
                         $this->settings['splitit_cancel_url'] = 'checkout/';
@@ -1165,7 +1166,17 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                         exit;
 
                     }
-            }
+               }else{
+                  if(isset($exists_data_array[0]->post_id)){
+                    $orderId = $exists_data_array[0]->post_id;
+                    $last_order = new WC_Order($orderId);
+                    $last_order_key = $last_order->order_key;
+                    
+                    wp_redirect( site_url()."/checkout/order-received/".$orderId."/?key=".$last_order_key );
+                    exit;
+                  }
+                  
+               }
 
 
         }
@@ -1517,11 +1528,11 @@ if(isset($notices['error'])&&!empty($notices['error'])){
           if(($this->settings['splitit_fee_enable']=='yes') && ($chosen_gateway == 'splitit')){
             $fees=floatval($this->settings['splitit_fee_amount']);
             if($this->settings['splitit_fee_type']=='fixed'){
-              $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),$fees);
+              $woocommerce->cart->add_fee(__('Splitit Fee','splitit'),$fees);
               return $fees;
             } elseif ($this->settings['splitit_fee_type']=='percent') {
               $cartTotal=$woocommerce->cart->cart_contents_total;
-              $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),($cartTotal*$fees/100));
+              $woocommerce->cart->add_fee(__('Splitit Fee','splitit'),($cartTotal*$fees/100));
               return ($cartTotal*$fees/100);
             }
           }
