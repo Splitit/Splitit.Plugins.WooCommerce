@@ -1133,7 +1133,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
 
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
-            $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? $_COOKIE["splitit_checkout_session_id_data"] : false;
+            $esi = (WC()->session->get('splitit_checkout_session_id_data'))?WC()->session->get('splitit_checkout_session_id_data'):false;
             $exists_data_array = $this->get_post_id_by_meta_value($ipn);   
             //print_r($exists_data_array);die;       
              if (empty($exists_data_array)) {   
