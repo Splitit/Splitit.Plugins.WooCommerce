@@ -23,10 +23,12 @@ class SplitIt_Checkout extends WC_Checkout {
     public function process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings) {
         try {          
 
+            /*
             if ( empty( $checkout_fields['_wpnonce'] ) || ! wp_verify_nonce( $checkout_fields['_wpnonce'], 'woocommerce-process_checkout' ) ) {
                 WC()->session->set( 'refresh_totals', true );
                 throw new Exception( __( 'We were unable to process your order, please try again.', 'woocommerce' ) );
             }
+            */
 
             if ( ! defined( 'WOOCOMMERCE_CHECKOUT' ) ) {
                 define( 'WOOCOMMERCE_CHECKOUT', true );
