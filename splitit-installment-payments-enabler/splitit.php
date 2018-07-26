@@ -951,7 +951,7 @@ function init_splitit_method(){
 
                 unset($_POST['account_password_field']); //not needed field
                 $checkout_fields = $_POST;
-                $validate_errors = '';
+                $validate_errors = array();
               //  print_r($checkout_fields);
                 //echo "comig";
                  if ( ! is_user_logged_in() && isset($checkout_fields['billing_email_field']) && $checkout_fields['billing_email_field'][1]!="" ) {
@@ -999,16 +999,34 @@ function init_splitit_method(){
 
                     if(count($validate_errors) == 0) {
                         // Validation rules
-                        $field_type = str_replace(array('shipping_', 'billing_'), '', $field);
-                        switch ($field_type) {
-                            case 'postcode_field' :
+                       
+                            switch($field){
+                                case 'shipping_postcode_field' :
                                 $checkout_fields[$field][1] = strtoupper(str_replace(' ', '', $data[1]));
-                                if (!WC_Validation::is_postcode($checkout_fields[$field][1], $checkout_fields[$field][1])) :
-                                    $validate_errors[] = '<li><strong>' . $data[0] . '/Postcode</strong> ' . __('is not valid.', 'woocommerce') . '</li>';
+                                if (!WC_Validation::is_postcode($checkout_fields[$field][1], $checkout_fields['shipping_country_field'][1])) :
+                                    $validate_errors[] = '<li><strong>Shipping ' . $data[0] . '</strong> ' . __('is not valid.', 'woocommerce') . '</li>';
                                 else :
-                                    $checkout_fields[$field][1] = wc_format_postcode($checkout_fields[$field][1], $checkout_fields[$field][1]);
+                                    $checkout_fields[$field][1] = wc_format_postcode($checkout_fields[$field][1], $checkout_fields['shipping_country_field'][1]);
                                 endif;
                                 break;
+                                
+                                case 'billing_postcode_field' :
+                                $checkout_fields[$field][1] = strtoupper(str_replace(' ', '', $data[1]));
+                                if (!WC_Validation::is_postcode($checkout_fields[$field][1], $checkout_fields['billing_country_field'][1])) :
+                                    $validate_errors[] = '<li><strong>Billing ' . $data[0] . '</strong> ' . __('is not valid.', 'woocommerce') . '</li>';
+                                else :
+                                    $checkout_fields[$field][1] = wc_format_postcode($checkout_fields[$field][1], $checkout_fields['billing_country_field'][1]);
+                                endif;
+                                break;
+                                default: 
+                                    
+                                    break;
+                            }
+                        
+                        
+                        $field_type = str_replace(array('shipping_', 'billing_'), '', $field);
+                        switch ($field_type) {
+     
                             case 'phone_field' :
                                 $checkout_fields[$field][1] = wc_format_phone_number($data[1]);
                                 if (!WC_Validation::is_phone($checkout_fields[$field][1]))
@@ -1057,7 +1075,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
 
                 //$checkout_fields now contain validated data
 
-                if(is_array($validate_errors)) {
+                if(is_array($validate_errors) && count($validate_errors)) {
                     $validate_errors = array_unique($validate_errors);
                     $response = array(
                         'result' => 'failure',
@@ -1124,7 +1142,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          */
 
 
-        public function splitit_payment_success($flag=NULL){
+        public function splitit_payment_success($flag=NULL){ 
             //print_r($);
            // print_r(WC()->session->cart);
 

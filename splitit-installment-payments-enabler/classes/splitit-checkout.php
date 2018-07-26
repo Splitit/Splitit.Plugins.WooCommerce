@@ -335,7 +335,7 @@ class SplitIt_Checkout extends WC_Checkout {
                 $this->check_cart_items();
 
 
-               print_r(wc_print_notices());
+               
                 // Abort if errors are present
                 if ( wc_notice_count( 'error' ) > 0 )
                     throw new Exception();
