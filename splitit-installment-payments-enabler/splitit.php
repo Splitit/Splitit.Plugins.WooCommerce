@@ -1143,6 +1143,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
 
 
         public function splitit_payment_success($flag=NULL){ 
+          die("--rerer");
             //print_r($);
            // print_r(WC()->session->cart);
 
