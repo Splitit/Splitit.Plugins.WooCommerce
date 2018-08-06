@@ -431,7 +431,7 @@ class SplitIt_API {
             $this->setError(self::ERROR_UNKNOWN_GW_RESULT_CODE, self::ERROR_UNKNOWN_GW_RESULT_MSG);
 
         } else {
-           if( isset($result->{'ResponseHeader'}->{'Errors'}) && $result->{'ResponseHeader'}->{'Errors'}[0]->{'ErrorCode'}!="" ) {               
+           if( isset($result->{'ResponseHeader'}->{'Errors'}) && !empty($result->{'ResponseHeader'}->{'Errors'}) && $result->{'ResponseHeader'}->{'Errors'}[0]->{'ErrorCode'}!="" ) {               
                 if($this->_log) { 
                     $this->_log->info(__FILE__,__LINE__,__METHOD__); 
                     $this->_log->add($this->setError((int)$result->{'ResponseHeader'}->{'Errors'}[0]->{'ErrorCode'}, $result->{'ResponseHeader'}->{'Errors'}[0]->{'Message'}));

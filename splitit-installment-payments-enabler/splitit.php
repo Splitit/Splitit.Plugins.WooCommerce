@@ -1143,12 +1143,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
 
 
         public function splitit_payment_success($flag=NULL){ 
-          die("--rererttttt");
-            //print_r($);
-           // print_r(WC()->session->cart);
-
-          // die("did not create the order it will be created automatically");
-
+          //die('----');
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
             // $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? $_COOKIE["splitit_checkout_session_id_data"] : false;
@@ -1209,6 +1204,8 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          * @access public
          */
         public function splitit_payment_success_async() {
+
+          
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
 
@@ -1218,8 +1215,10 @@ if(isset($notices['error'])&&!empty($notices['error'])){
            // echo "<pre>";print_r($exists_data_array);die;
              // do something if the meta-key-value-pair exists in another post
              if (empty($exists_data_array) ) {
+
                 $table_name = $wpdb->prefix . 'splitit_logs';
-                $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
+                $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn = %s ", $ipn ), ARRAY_A );
+              
                 if(!empty($fetch_items)){
                     $user_data = $fetch_items['user_data'];
                     $user_id   = $fetch_items['user_id'];
@@ -1555,6 +1554,20 @@ if(isset($notices['error'])&&!empty($notices['error'])){
               $cartTotal=$woocommerce->cart->cart_contents_total;
               $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),($cartTotal*$fees/100));
               return ($cartTotal*$fees/100);
+            }
+          }
+        }
+
+        public function get_splitit_fee_to_add($subtotal = 0){
+          global $woocommerce;
+
+          if(($this->settings['splitit_fee_enable']=='yes')){
+            $fees=floatval($this->settings['splitit_fee_amount']);
+            if($this->settings['splitit_fee_type']=='fixed'){
+              return $fees;
+            } elseif ($this->settings['splitit_fee_type']=='percent') {
+             
+              return ($subtotal*$fees/100);
             }
           }
         }

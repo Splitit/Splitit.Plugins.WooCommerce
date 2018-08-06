@@ -591,8 +591,7 @@ class SplitIt_Checkout extends WC_Checkout {
                         global $wpdb;
                         $fetch_ipn_data = $ipn;
                         $table_name = $wpdb->prefix . 'splitit_logs';
-                        $fetch_cart_details = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$fetch_ipn_data ), ARRAY_A );
-
+                        $fetch_cart_details = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn = %s", $fetch_ipn_data ), ARRAY_A );
                         $cart_info = json_decode($fetch_cart_details['wc_cart'],true);
                         $cart_info = $cart_info['cart_contents'];
                         $shipping_method = $fetch_cart_details['shipping_method_id'];
@@ -602,6 +601,7 @@ class SplitIt_Checkout extends WC_Checkout {
                         $coupon_code = $fetch_cart_details['coupon_code'];
                         //print_r($cart_info['cart_contents']);die;
                         $checkout_fields_array = explode('&', $fetch_cart_details['user_data']);
+                        //echo '<pre>'; print_r($checkout_fields_array ); die;
                         $checkout_fields = array();
                         foreach($checkout_fields_array as $row) {
                             $key_value = explode('=', $row);
@@ -697,8 +697,9 @@ class SplitIt_Checkout extends WC_Checkout {
                                 $order->add_shipping($shipping_rate);                    
                             }
                             //$order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));
+                            //echo ; die;
                             $split=new SplitIt();
-                            $fees=$split->splitit_fee_add();
+                        $fees=$split->get_splitit_fee_to_add($order->get_subtotal());
                             $splititFees = new WC_Order_Item_Fee('splitit');
                             $splititFees->set_order_id($order->get_id());
                             $splititFees->set_name('Splitit Fees');
