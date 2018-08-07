@@ -52,25 +52,37 @@ class SplitIt_API {
         }
         $params = array('UserName' => $this->_username,
                          'Password' => $this->_password,
-                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.1")
+                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.2")
                          );
 
         try {
             $result = $this->make_request($url, ucfirst(__FUNCTION__), $params);
             $this->_API['session_id'] = (isset($result->{'SessionId'}) && $result->{'SessionId'} != '') ? $result->{'SessionId'} : null;
+            
             if (!$this->is_logged_in()){
                // print_r($result);
                 //$this->setError(self::ERROR_UNKNOWN, $this->getError());
                 if($this->_log) { $this->_log->info(__FILE__,__LINE__,__METHOD__); $this->_log->add($this->getError()); }
                 return array('error' => $this->getError());
             }
-            if(count($this->getError())) {
+
+            $error =  $this->getError();
+            if(count((array)$error)) {
                 return array('error' => $this->getError());
             }
             //$global_session_id = $this->_API['session_id'];
             // setcookie('splitit_checkout_session_id_data', $this->_API['session_id'],time() + 3600, "/");
-            WC()->session->set( 'splitit_checkout_session_id_data', $this->_API['session_id']);
-            return $this->_API['session_id'];
+            $apiDetails= $this->_API;
+
+        if(is_admin()){
+
+                 /* setcookie('splitit_checkout_session_id_data', $this->_API['session_id'],time() + 3600, "/"); */
+            }else{
+
+                WC()->session->set('splitit_checkout_session_id_data', $apiDetails['session_id']);
+            }
+            
+            return $apiDetails['session_id'];
         } catch (Exception $e) {
             if($this->_log) { $this->_log->info(__FILE__,__LINE__,__METHOD__); $this->_log->add($e); }
             return array('error' => $e->getMessage());

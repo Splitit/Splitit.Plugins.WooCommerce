@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.1.1
+Version: 2.1.2
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -143,7 +143,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.1.1' );
+    define( 'Splitit_VERSION', '2.1.2' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -830,17 +830,22 @@ function init_splitit_method(){
         }
 
         public function splitit_customer_charge_callback($order)
-        {
-            if($this->s('splitit_payment_action') == 'shipped') {
+        { 
+          try{
+
+            if($this->settings['splitit_payment_action'] == 'shipped') {
                 //Here order id is sent as parameter
                 $order_meta = get_post_custom($order->id);
+                //echo '<pre>'; print_r($order_meta); die;
                 if (isset($order_meta['installment_plan_number']) && !empty($order_meta['installment_plan_number'][0])) {
+                  
                     if (is_null($this->_API)) {
                         $this->_API = new SplitIt_API($this->settings); //passing settings to API
                     }
-                    $session = $this->_API->login();
-                    $result = $this->_API->capture($order_meta['installment_plan_number'][0], $session);
 
+                    $session = $this->_API->login();
+                    //var_dump($session); die;
+                    $result = $this->_API->capture($order_meta['installment_plan_number'][0], $session);
                     if(is_array($result) && isset($result['error'])) { //error
                         $order->add_order_note('[Splitit] ' . $result['error']);
                     } else {
@@ -848,6 +853,11 @@ function init_splitit_method(){
                     }
                 }
             }
+
+          }catch(Exception $e){
+            print_r($e->getMessage()); die;
+          }
+            
         }
 
         public function splitit_order_status_shipped_callback($order_id)
@@ -1205,7 +1215,6 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          */
         public function splitit_payment_success_async() {
 
-          
             global $wpdb;
             $ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
 
