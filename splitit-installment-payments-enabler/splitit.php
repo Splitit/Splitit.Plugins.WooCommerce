@@ -62,70 +62,67 @@ function create_plugin_database_table()
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
     }else{
-        $row = $wpdb->get_results( "SELECT shipping_method_cost FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_cost'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_cost` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'shipping_method_cost'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `shipping_method_cost` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT shipping_method_title FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_title'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_title` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'shipping_method_title'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `shipping_method_title` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT shipping_method_id FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'shipping_method_id'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `shipping_method_id` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'shipping_method_id'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `shipping_method_id` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT coupon_amount FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'coupon_amount'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `coupon_amount` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'coupon_amount'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `coupon_amount` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT coupon_code FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'coupon_code'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `coupon_code` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'coupon_code'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `coupon_code` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT tax_amount FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'tax_amount'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `tax_amount` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'tax_amount'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `tax_amount` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT set_shipping_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_shipping_total'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_shipping_total` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'set_shipping_total'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `set_shipping_total` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT set_discount_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_discount_total'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_discount_total` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'set_discount_total'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `set_discount_total` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT set_discount_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_discount_tax'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_discount_tax` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'set_discount_tax'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `set_discount_tax` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT set_cart_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_cart_tax'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_cart_tax` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'set_cart_tax'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `set_cart_tax` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT set_shipping_tax FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_shipping_tax'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_shipping_tax` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'set_shipping_tax'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `set_shipping_tax` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT set_total FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'set_total'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `set_total` varchar(255) DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'set_total'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `set_total` varchar(255) DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT wc_cart FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'wc_cart'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `wc_cart` longtext DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'wc_cart'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `wc_cart` longtext DEFAULT NULL");
         }
-        $row = $wpdb->get_results( "SELECT get_packages FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'get_packages'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `get_packages` longtext DEFAULT NULL");
-        }
-      
-        $row = $wpdb->get_results( "SELECT chosen_shipping_methods_data FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ".$table_name." AND column_name = 'chosen_shipping_methods_data'"  );
-        if(empty($row)){
-           $wpdb->query("ALTER TABLE ".$table_name." ADD COLUMN `chosen_shipping_methods_data` longtext DEFAULT NULL");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'get_packages'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `get_packages` longtext DEFAULT NULL");
         }
 
-
-
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'chosen_shipping_methods_data'");
+        if (empty($row)) {
+            $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `chosen_shipping_methods_data` longtext DEFAULT NULL");
+        }
     }
 
 
@@ -287,9 +284,9 @@ function init_splitit_method(){
             //Installment price functionality init
             if($this->s('splitit_enable_installment_price') == 'yes') {
                 add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 10, 3);
-                add_filter('woocommerce_get_price', array($this, 'splitit_installment_price'), 10, 3);
-                add_filter('woocommerce_get_regular_price', array($this, 'splitit_installment_price'), 10, 3);
-                add_filter('woocommerce_get_sale_price', array($this, 'splitit_installment_price'), 10, 3);
+                add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 10, 3);
+                add_filter('woocommerce_product_get_regular_price', array($this, 'splitit_installment_price'), 10, 3);
+                add_filter('woocommerce_product_get_sale_price', array($this, 'splitit_installment_price'), 10, 3);
                 add_filter('woocommerce_order_amount_item_subtotal', array($this, 'splitit_installment_price'), 10, 3);
                 add_filter('woocommerce_cart_product_price', array($this, 'splitit_installment_price'), 10, 3); //cart price column
                 add_filter('woocommerce_cart_total', array($this, 'splitit_installment_total_price'), 10, 3); //cart and checkout totals
@@ -831,7 +828,6 @@ function init_splitit_method(){
 
         public function splitit_customer_charge_callback($order)
         { 
-          try{
 
             if($this->settings['splitit_payment_action'] == 'shipped') {
                 //Here order id is sent as parameter
@@ -853,10 +849,6 @@ function init_splitit_method(){
                     }
                 }
             }
-
-          }catch(Exception $e){
-            print_r($e->getMessage()); die;
-          }
             
         }
 
@@ -893,7 +885,7 @@ function init_splitit_method(){
                 $checkout_fields = array();
 
                 //add billing data to shipping if shipping is same as billing
-                $skip_shipping = $checkout_fields_post['ship-to-different-address'][1] == 1 ? false : true;
+                $skip_shipping = (isset($checkout_fields_post['ship-to-different-address'])&&isset($checkout_fields_post['ship-to-different-address'][1])&&($checkout_fields_post['ship-to-different-address'][1] == 1)) ? false : true;
                 unset($checkout_fields['ship-to-different-address']);
                 if($skip_shipping) {
                     foreach ($checkout_fields_post as $f => $d) {
@@ -938,7 +930,7 @@ function init_splitit_method(){
 
             if(!is_array($session)) {
                 $ec_session_id = $this->_API->getEcSession($order_data);
-                if(!(is_null($ec_session_id->{'EcSessionId'}))) {
+                if(isset($ec_session_id->{'EcSessionId'})) {
                     return wp_send_json(array('ec_session_id' => $ec_session_id->{'EcSessionId'}, 'sandbox_mode' => $this->settings['splitit_mode_sandbox']));
                 } else {
                     $this->log->info(__FILE__, __LINE__, __METHOD__);
@@ -974,7 +966,7 @@ function init_splitit_method(){
                 }
                 //die("done");
                 //add billing data to shipping if shipping is same as billing
-                $skip_shipping = $checkout_fields['ship-to-different-address'][1] == 1 ? false : true;
+                $skip_shipping = (isset($checkout_fields['ship-to-different-address'])&&isset($checkout_fields['ship-to-different-address'][1])&&($checkout_fields['ship-to-different-address'][1] == 1)) ? false : true;
                 unset($checkout_fields['ship-to-different-address']);
                 if($skip_shipping) {
                     foreach ($checkout_fields as $f => $d) {
@@ -1168,7 +1160,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                         $this->settings['splitit_cancel_url'] = 'checkout/';
                     }
                     $table_name = $wpdb->prefix . 'splitit_logs';
-                    $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn ), ARRAY_A );
+                    $fetch_items = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn =".$ipn, array() ), ARRAY_A );
                     //checking for user entered data
                     if(isset($fetch_items['user_data']) && $fetch_items['user_data'] !="") {
                         $checkout_fields_array = explode('&', $fetch_items['user_data']);
@@ -1337,7 +1329,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                         //$redirect  = get_permalink(6);
                         //$redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
                         global $woocommerce;
-                        $checkout_url = $woocommerce->cart->get_checkout_url();
+                        $checkout_url = wc_get_checkout_url();
                         $redirect = $checkout_url.'/order-received/' . $order_id . '/?key=' . $order_key;
 
                         wp_redirect( $redirect );
@@ -1429,7 +1421,8 @@ if(isset($notices['error'])&&!empty($notices['error'])){
             }
             if($this->settings['enabled']=='no'||!isset($enabledGateways['splitit']))
                 return;
-            $split_price = round($product->price / self::$_maxInstallments, 3);
+            $prodData=$product->get_data();
+            $split_price = round($prodData['price'] / self::$_maxInstallments, 3);
             return '<span style="display:block;" class="splitit-installment-price">' . self::$_maxInstallments . ' x ' . wc_price($split_price, array('decimals'=>2)) . ' ' . $this->s('splitit_without_interest') . '</span>';
         }
 
@@ -1498,25 +1491,31 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          */
         public function change_payment_gateway($gateways) {
 
-            foreach ($this->settings['splitit_doct']['ct_from'] as $key => $value) {
-//                                if (empty($value)) {
-                                if (trim($value)=='') {
-                                   unset($this->settings['splitit_doct']['ct_from'][$key]);
-                                }
-                            }
-            foreach ($this->settings['splitit_doct']['ct_to'] as $key1 => $value1) {
-//                                if (empty($value1)) {
-                                if (trim($value1)=='') {
-                                   unset($this->settings['splitit_doct']['ct_to'][$key1]);
-                                }
-                            }    
-              $min = min($this->settings['splitit_doct']['ct_from']);
-              $max = max($this->settings['splitit_doct']['ct_to']);
-            // Compare cart subtotal (without shipment fees)
-            if( WC()->cart->subtotal > $max or WC()->cart->subtotal < $min ){
-                unset( $gateways['splitit'] );
+            if(!isset($this->settings['splitit_doct']['ct_from'])){
+              $this->settings['splitit_doct']['ct_from']=array();
             }
-            return $gateways;
+            if(!isset($this->settings['splitit_doct']['ct_to'])){
+              $this->settings['splitit_doct']['ct_to']=array();
+            }
+            foreach ($this->settings['splitit_doct']['ct_from'] as $key => $value) {
+    //                                if (empty($value)) {
+                if (trim($value)=='') {
+                 unset($this->settings['splitit_doct']['ct_from'][$key]);
+               }
+            }
+            foreach ($this->settings['splitit_doct']['ct_to'] as $key1 => $value1) {
+    //                                if (empty($value1)) {
+              if (trim($value1)=='') {
+               unset($this->settings['splitit_doct']['ct_to'][$key1]);
+              }
+            }
+            $min = !empty($this->settings['splitit_doct']['ct_from'])?min($this->settings['splitit_doct']['ct_from']):0;
+            $max = !empty($this->settings['splitit_doct']['ct_to'])?max($this->settings['splitit_doct']['ct_to']):0;
+                // Compare cart subtotal (without shipment fees)
+            if( WC()->cart->subtotal > $max or WC()->cart->subtotal < $min ){
+              unset( $gateways['splitit'] );
+            }
+          return $gateways;
         }
         
         /**

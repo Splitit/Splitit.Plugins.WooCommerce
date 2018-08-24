@@ -19,6 +19,7 @@ class SplitIt_Settings {
     public static function get_fields()
     {
         $prodSKUs=array();
+        $noOfIns=36;
         /**
          * this method will only fetch simple products, and will not include product variations. If you want to grab those too, you'll need to update the $args to 'post_type' => array('product', 'product_variation')
          */
@@ -30,8 +31,12 @@ class SplitIt_Settings {
             foreach ($wcProductsArray as $productPost) {
                 $productSKU = get_post_meta($productPost->ID, '_sku', true);
                 if($productSKU)
-                    $prodSKUs[$productSKU]=get_the_title($productPost->ID).' ('.$productSKU.')';
+                    $prodSKUs[$productSKU]=($productPost->post_title).' ('.$productSKU.')';
             }
+        }
+        $insArr=array();
+        for($i=2;$i<=$noOfIns;$i++){
+            $insArr[$i]=$i.' Installments';
         }
 
 
@@ -94,19 +99,7 @@ class SplitIt_Settings {
                     'desc_tip' => true,
                     'type'    => 'multiselect',
                     'css'     => 'width: 350px; height: 185px;',
-                    'options' => array(
-                        '2'   => '2 Installments',
-                        '3'   => '3 Installments',
-                        '4'   => '4 Installments',
-                        '5'   => '5 Installments',
-                        '6'   => '6 Installments',
-                        '7'   => '7 Installments',
-                        '8'   => '8 Installments',
-                        '9'   => '9 Installments',
-                        '10'  => '10 Installments',
-                        '11'  => '11 Installments',
-                        '12'  => '12 Installments' 
-                    )
+                    'options' => $insArr
                 ),
                 'splitit_doct' => array(
                     array( 
@@ -126,19 +119,7 @@ class SplitIt_Settings {
                             'title' => __( 'test3', 'splitit' ),
                             'type' => 'multiselect',
                             'class' => 'doctv_installments',
-                            'options' => array(
-                                '2'   => '2 Installments',
-                                '3'   => '3 Installments',
-                                '4'   => '4 Installments',
-                                '5'   => '5 Installments',
-                                '6'   => '6 Installments',
-                                '7'   => '7 Installments',
-                                '8'   => '8 Installments',
-                                '9'   => '9 Installments',
-                                '10'  => '10 Installments',
-                                '11'  => '11 Installments',
-                                '12'  => '12 Installments'
-                            ),
+                            'options' => $insArr,
                             'default' => array('2','3')
                         ),
                         'ct_currency' => array( 
@@ -164,19 +145,7 @@ class SplitIt_Settings {
                             'title' => __( 'test32', 'splitit' ),
                             'type' => 'multiselect',
                             'class' => 'doctv_installments',
-                            'options' => array(
-                                '2'   => '2 Installments',
-                                '3'   => '3 Installments',
-                                '4'   => '4 Installments',
-                                '5'   => '5 Installments',
-                                '6'   => '6 Installments',
-                                '7'   => '7 Installments',
-                                '8'   => '8 Installments',
-                                '9'   => '9 Installments',
-                                '10'  => '10 Installments',
-                                '11'  => '11 Installments',
-                                '12'  => '12 Installments'
-                            ),
+                            'options' => $insArr,
                             'default' => array('2','3','4')
                         ),
                         'ct_currency' => array( 
@@ -202,19 +171,7 @@ class SplitIt_Settings {
                             'title' => __( 'test32', 'splitit' ),
                             'type' => 'multiselect',
                             'class' => 'doctv_installments',
-                            'options' => array(
-                                '2'   => '2 Installments',
-                                '3'   => '3 Installments',
-                                '4'   => '4 Installments',
-                                '5'   => '5 Installments',
-                                '6'   => '6 Installments',
-                                '7'   => '7 Installments',
-                                '8'   => '8 Installments',
-                                '9'   => '9 Installments',
-                                '10'  => '10 Installments',
-                                '11'  => '11 Installments',
-                                '12'  => '12 Installments'
-                            ),
+                            'options' => $insArr,
                             'default' => array('2','3','4','5')
                         ),
                         'ct_currency' => array( 
@@ -240,19 +197,7 @@ class SplitIt_Settings {
                             'title' => __( 'test32', 'splitit' ),
                             'type' => 'multiselect',
                             'class' => 'doctv_installments',
-                            'options' => array(
-                                '2'   => '2 Installments',
-                                '3'   => '3 Installments',
-                                '4'   => '4 Installments',
-                                '5'   => '5 Installments',
-                                '6'   => '6 Installments',
-                                '7'   => '7 Installments',
-                                '8'   => '8 Installments',
-                                '9'   => '9 Installments',
-                                '10'  => '10 Installments',
-                                '11'  => '11 Installments',
-                                '12'  => '12 Installments'
-                            ),
+                            'options' => $insArr,
                             'default' => array('2','3','4','5','6','7')
 
                         ),
@@ -279,19 +224,7 @@ class SplitIt_Settings {
                             'title' => __( 'test32', 'splitit' ),
                             'type' => 'multiselect',
                             'class' => 'doctv_installments',
-                            'options' => array(
-                                '2'   => '2 Installments',
-                                '3'   => '3 Installments',
-                                '4'   => '4 Installments',
-                                '5'   => '5 Installments',
-                                '6'   => '6 Installments',
-                                '7'   => '7 Installments',
-                                '8'   => '8 Installments',
-                                '9'   => '9 Installments',
-                                '10'  => '10 Installments',
-                                '11'  => '11 Installments',
-                                '12'  => '12 Installments'
-                            ),
+                            'options' => $insArr,
                             'default' => array('2','3','4','5','6','7','8','9','10','11','12')
                         ),
                         'ct_currency' => array( 
@@ -576,7 +509,7 @@ class SplitIt_Settings {
      */
     private static function get_available_installments() {
         $installments_left_limit = 2;
-        $installments_right_limit = 12;
+        $installments_right_limit = 36;
         $installments = array();
         for($i = $installments_left_limit; $i <= $installments_right_limit; $i++) {
             $installments[$i] = $i . ' Installments';

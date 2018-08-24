@@ -47,7 +47,7 @@ class SplitIt_Helper
      */
     public static function sanitize_redirect_url($url) {
         if($url != '') {
-            $checkout_url = explode('checkout', WC()->cart->get_checkout_url()); //using this way to get index.php if needed
+            $checkout_url = explode('checkout', wc_get_checkout_url()); //using this way to get index.php if needed
             $base_url = rtrim($checkout_url[0],'/');
             if(strpos($url,'.') !== false) { //url contain file extension, like .php/.html etc.
                 $url = strip_tags(trim($url,'/'));

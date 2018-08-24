@@ -118,11 +118,11 @@ class SplitIt_API {
             $success_url = SplitIt_Helper::sanitize_redirect_url($this->_settings['splitit_success_url']);
             $custom_urls =  $this->_settings['custom_urls'];
             if($custom_urls=="custom"){
-                 $redirect_cancel_url = ($cancel_url == false) ? $woocommerce->cart->get_checkout_url() : $cancel_url;
-                $redirect_error_url = ($error_url == false) ? $woocommerce->cart->get_checkout_url() : $error_url;
-                $redirect_success_url = ($success_url == false) ? $woocommerce->cart->get_checkout_url() : $success_url;   
+                 $redirect_cancel_url = ($cancel_url == false) ? wc_get_checkout_url() : $cancel_url;
+                $redirect_error_url = ($error_url == false) ? wc_get_checkout_url() : $error_url;
+                $redirect_success_url = ($success_url == false) ? wc_get_checkout_url() : $success_url;   
             }else{
-                $redirect_cancel_url = $redirect_error_url = $redirect_success_url = $woocommerce->cart->get_checkout_url();
+                $redirect_cancel_url = $redirect_error_url = $redirect_success_url = wc_get_checkout_url();
             }
              
             
