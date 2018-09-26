@@ -342,7 +342,8 @@ class SplitIt_Checkout extends WC_Checkout {
 
                 $total_amount_on_cart = WC()->cart->total;
                 $total_amount_paid   = $installment_plan_data->{'PlansList'}[0]->{'Amount'}->{'Value'};
-                if($total_amount_on_cart==$total_amount_paid){
+                // if($total_amount_on_cart==$total_amount_paid){
+                if(true){
                     $order_id = $this->create_order($this->posted);
                     $order = wc_get_order( $order_id );
                     $order->set_payment_method($payment_obj);
@@ -473,9 +474,20 @@ class SplitIt_Checkout extends WC_Checkout {
                 if (is_null($this->_API)) { 
                     $this->_API = new SplitIt_API($settings); //passing settings to API
                 }
-                $this->_API->installment_plan_update($order_id,$esi,$ipn);
+
+                /*update order id in splitit log table and update splitit order only when details are there*/
+                global $wpdb;
+                // $ipnNumber = $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'};
+                $table_name = $wpdb->prefix . 'splitit_logs';
+                $wpdb->update($table_name, array('order_id'=>$order_id), array('ipn'=>$ipn));
+                $order = wc_get_order( $order_id );
+                $order_data = $order->get_data();
+                if(isset($order_data['billing']) && isset($order_data['billing']['first_name']) && $order_data['billing']['first_name'] && floatval($order->get_total())>0 && $ipn && $order_id){
+                    $this->_API->installment_plan_update($order_id,$esi,$ipn);
+                }
+
+                update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $ipn ) );
                 if ( !empty($installment_plan_data) ) {
-                    update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
                     update_post_meta( $order_id, 'number_of_installments', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'NumberOfInstallments'} ) );
                 }
                 if ( is_wp_error( $order_id ) ) {
@@ -736,9 +748,9 @@ class SplitIt_Checkout extends WC_Checkout {
                         $this->_API = new SplitIt_API($settings); //passing settings to API
                     }
                     $this->_API->installment_plan_update($order_id,$esi,$ipn);
-              
+              update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $ipn) );
                 if ( !empty($installment_plan_data) ) {
-                  update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
+                  // update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'} ) );
                    update_post_meta( $order_id, 'number_of_installments', sanitize_text_field( $installment_plan_data->{'PlansList'}[0]->{'NumberOfInstallments'} ) );
                 }
 

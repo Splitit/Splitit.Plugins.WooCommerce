@@ -52,7 +52,7 @@ class SplitIt_API {
         }
         $params = array('UserName' => $this->_username,
                          'Password' => $this->_password,
-                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.2")
+                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.4")
                          );
 
         try {
@@ -200,10 +200,13 @@ class SplitIt_API {
 
                                                 "SuccessExitURL"=>$redirect_success_url . '?wc-api=splitit_payment_success',
 
-                                                "CancelExitURL"=>$redirect_cancel_url . '?wc-api=splitit_payment_error',
+                                                "CancelExitURL"=>$redirect_cancel_url . '?wc-api=splitit_payment_error'
 
-                                                "SuccessAsyncURL"=>$site_url . '?wc-api=splitit_payment_success_async'
                                             );
+            if($this->_settings['splitit_async_enable']=='yes'){
+                $params['PaymentWizardData']["SuccessAsyncURL"] = $site_url . '?wc-api=splitit_payment_success_async';
+            }
+
             define( 'WOOCOMMERCE_CHECKOUT', true );
             define( 'WOOCOMMERCE_CART', true );
             $fetch_session_item = WC()->session->get( 'chosen_shipping_methods' );

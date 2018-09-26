@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.1.2
+Version: 2.1.4
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -34,6 +34,7 @@ function create_plugin_database_table()
         $sql = "CREATE TABLE ".$table_name." (
              `id` int(11) NOT NULL AUTO_INCREMENT,
              `user_id` int(11) DEFAULT 0,
+             `order_id` int(11) unsigned NULL,
               `shipping_method_cost` varchar(255) DEFAULT NULL,
               `shipping_method_title` varchar(255) DEFAULT NULL,
               `shipping_method_id` varchar(255) DEFAULT NULL,
@@ -123,6 +124,10 @@ function create_plugin_database_table()
         if (empty($row)) {
             $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `chosen_shipping_methods_data` longtext DEFAULT NULL");
         }
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'chosen_shipping_methods_data'");
+        if (empty($row)) {
+          $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `order_id` int(11) unsigned NULL AFTER `user_id`");
+        }       
     }
 
 
@@ -140,7 +145,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.1.2' );
+    define( 'Splitit_VERSION', '2.1.4' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -909,7 +914,7 @@ function init_splitit_method(){
                     'ConsumerFullName' => trim( $checkout_fields['billing_first_name_field'] . ' ' . $checkout_fields['billing_last_name_field'] ),
                     'Email'      => trim( $checkout_fields['billing_email_field'] ),
                     'City'=> trim( $checkout_fields['billing_city_field'] ),
-                    'State'=> trim( $checkout_fields['billing_state_field'] ),
+                    'State'=> trim( isset($checkout_fields['billing_state_field'])?$checkout_fields['billing_state_field']:'' ),
                     'Country'=>trim( $checkout_fields['billing_country_field'] ),
                     'Phone'=>trim( $checkout_fields['billing_phone_field'] )
                 );
@@ -1190,7 +1195,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                     $last_order = new WC_Order($orderId);
                     $last_order_key = $last_order->order_key;
                     
-                    wp_redirect( site_url()."/checkout/order-received/".$orderId."/?key=".$last_order_key );
+                    wp_redirect( site_url("checkout/order-received/".$orderId."/?key=".$last_order_key) );
                     exit;
                   }
                   

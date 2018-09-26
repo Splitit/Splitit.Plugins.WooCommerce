@@ -234,6 +234,15 @@ class SplitIt_Settings {
                         )
                     ),
                 ),
+                'splitit_async_enable' => array(
+                    'title' => __('Enable Async Call', 'splitit'),
+                    'type' => 'select',
+                    'options' => array(
+                        'yes' => 'Yes',
+                        'no' => 'No'
+                    ),
+                    'default'=>'yes'
+                ),
                 'splitit_fee_enable' => array(
                     'title' => __('Enable Splitit fees', 'splitit'),
                     'type' => 'select',
