@@ -124,7 +124,7 @@ function create_plugin_database_table()
         if (empty($row)) {
             $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `chosen_shipping_methods_data` longtext DEFAULT NULL");
         }
-        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'chosen_shipping_methods_data'");
+        $row = $wpdb->get_results("SHOW columns from " . $table_name . " like 'order_id'");
         if (empty($row)) {
           $wpdb->query("ALTER TABLE " . $table_name . " ADD COLUMN `order_id` int(11) unsigned NULL AFTER `user_id`");
         }       
@@ -1517,7 +1517,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
             $min = !empty($this->settings['splitit_doct']['ct_from'])?min($this->settings['splitit_doct']['ct_from']):0;
             $max = !empty($this->settings['splitit_doct']['ct_to'])?max($this->settings['splitit_doct']['ct_to']):0;
                 // Compare cart subtotal (without shipment fees)
-            if( WC()->cart->subtotal > $max or WC()->cart->subtotal < $min ){
+            if( WC()->cart->total > $max or WC()->cart->total < $min ){
               unset( $gateways['splitit'] );
             }
           return $gateways;
@@ -1529,7 +1529,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          * @return mixed
          */
         public function product_specific_payment_gateway($gateways) {
-          if($this->settings['splitit_product_option']){
+          if(isset($this->settings['splitit_product_option']) && $this->settings['splitit_product_option']){
             $items = WC()->cart->get_cart();
             $prodSKUs= $this->settings['splitit_product_sku_list'];
 //            print_r($prodSKUs);
