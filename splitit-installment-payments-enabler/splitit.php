@@ -897,13 +897,13 @@ function init_splitit_method(){
                         $type = explode('_', $f);
                         if($type[0] == 'shipping') {
                             $billing_field = str_replace('shipping', 'billing', $f);
-                            $checkout_fields_post[$field] = $checkout_fields_post[$billing_field];
+                            $checkout_fields_post[$f] = $checkout_fields_post[$billing_field];
                         }
                     }
                 }
 
                 foreach ($checkout_fields_post as $field_name => $label_value) {
-                    $checkout_fields[$field_name] = $label_value[1];
+                    $checkout_fields[$field_name] = isset($label_value[1])?$label_value[1]:$label_value;
                 }
                //echo "<pre>"; print_r($checkout_fields);die;
                 $order_data = array(
@@ -982,7 +982,7 @@ function init_splitit_method(){
                         }
                         if($type == 'shipping') {
                             $billing_field = str_replace('shipping', 'billing', $f);
-                            $checkout_fields[$f] = $checkout_fields[$billing_field];
+                            $checkout_fields[$f] = isset($checkout_fields[$billing_field])?$checkout_fields[$billing_field]:'';
                         }
                     }
                 }
@@ -1046,7 +1046,7 @@ function init_splitit_method(){
                                 break;
                             case 'state_field' :
                                 // Get valid states
-                                $valid_states = WC()->countries->get_states(isset($checkout_fields[$field]) ? $checkout_fields[$field][1] : WC()->customer->get_country());
+                                $valid_states = WC()->countries->get_states(isset($checkout_fields[$field]) ? $checkout_fields[$field][1] : WC()->customer->get_billing_country());
                                 if (!empty($valid_states) && is_array($valid_states)) {
                                     $valid_state_values = array_flip(array_map('strtolower', $valid_states));
                                     // Convert value to key if set
