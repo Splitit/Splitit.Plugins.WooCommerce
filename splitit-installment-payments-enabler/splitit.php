@@ -1558,7 +1558,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
         public function splitit_fee_add(){
           global $woocommerce;
           $chosen_gateway = $woocommerce->session->chosen_payment_method;
-          if(($this->settings['splitit_fee_enable']=='yes') && ($chosen_gateway == 'splitit')){
+          if((isset($this->settings['splitit_fee_enable']) && $this->settings['splitit_fee_enable']=='yes') && ($chosen_gateway == 'splitit')){
             $fees=floatval($this->settings['splitit_fee_amount']);
             if($this->settings['splitit_fee_type']=='fixed'){
               $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),$fees);
