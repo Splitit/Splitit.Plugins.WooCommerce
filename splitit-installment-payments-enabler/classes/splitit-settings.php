@@ -35,7 +35,7 @@ class SplitIt_Settings {
             }
         }
         $insArr=array();
-        for($i=2;$i<=$noOfIns;$i++){
+        for($i=1;$i<=$noOfIns;$i++){
             $insArr[$i]=$i.' Installments';
         }
 
@@ -517,7 +517,7 @@ class SplitIt_Settings {
      * @return array
      */
     private static function get_available_installments() {
-        $installments_left_limit = 2;
+        $installments_left_limit = 1;
         $installments_right_limit = 36;
         $installments = array();
         for($i = $installments_left_limit; $i <= $installments_right_limit; $i++) {
