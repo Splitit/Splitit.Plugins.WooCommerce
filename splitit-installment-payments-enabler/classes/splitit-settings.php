@@ -35,7 +35,7 @@ class SplitIt_Settings {
             }
         }
         $insArr=array();
-        for($i=1;$i<=$noOfIns;$i++){
+        for($i=2;$i<=$noOfIns;$i++){
             $insArr[$i]=$i.' Installments';
         }
 
@@ -321,6 +321,11 @@ class SplitIt_Settings {
                     'type' => 'text',
                     'default' => __( 'Tell me more', 'splitit' ),
                 ),
+                'splitit_help_title_link' => array(
+                    'title' => __( 'Help link URL', 'splitit' ),
+                    'type' => 'text',
+                    'default' => __( 'https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit' ),
+                ),
 //                'splitit_order_status' => array(
 //                    'title' => __( 'New order status', 'splitit' ),
 //                    'type' => 'select',
@@ -517,7 +522,7 @@ class SplitIt_Settings {
      * @return array
      */
     private static function get_available_installments() {
-        $installments_left_limit = 1;
+        $installments_left_limit = 2;
         $installments_right_limit = 36;
         $installments = array();
         for($i = $installments_left_limit; $i <= $installments_right_limit; $i++) {

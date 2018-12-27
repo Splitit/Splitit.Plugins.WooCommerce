@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.1.4
+Version: 2.1.5
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -21,6 +21,32 @@ function add_notice_function(){
     if(is_checkout()==false && is_cart() ==false ){
         wc_print_notices();
     }
+}
+
+add_filter( 'woocommerce_locate_template', 'woo_adon_plugin_template', 1, 3 );
+function woo_adon_plugin_template( $template, $template_name, $template_path ) {
+     global $woocommerce;
+     $_template = $template;
+     if ( ! $template_path ) 
+        $template_path = $woocommerce->template_url;
+ 
+     $plugin_path  = untrailingslashit( plugin_dir_path( __FILE__ ) )  . '/template/woocommerce/';
+ 
+    // Look within passed path within the theme - this is priority
+    $template = locate_template(
+    array(
+      $template_path . $template_name,
+      $template_name
+    )
+   );
+ 
+   if( ! $template && file_exists( $plugin_path . $template_name ) )
+    $template = $plugin_path . $template_name;
+ 
+   if ( ! $template )
+    $template = $_template;
+
+   return $template;
 }
 
 /*code to create new table and maintain IPN logss for Async*/
@@ -145,7 +171,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.1.4' );
+    define( 'Splitit_VERSION', '2.1.5' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -1046,14 +1072,7 @@ function init_splitit_method(){
                                 break;
                             case 'state_field' :
                                 // Get valid states
-                                $valid_states = WC()->countries->get_states(isset($checkout_fields[$field]) ? $checkout_fields[$field][1] : WC()->customer->get_billing_country());
-                                if (!empty($valid_states) && is_array($valid_states)) {
-                                    $valid_state_values = array_flip(array_map('strtolower', $valid_states));
-                                    // Convert value to key if set
-                                    if (isset($valid_state_values[strtolower($data[1])])) {
-                                        $checkout_fields[$field][1] = $valid_state_values[strtolower($data[1])];
-                                    }
-                                }
+                                $valid_states = WC()->countries->get_states(WC()->customer->get_country());
                                 // Only validate if the country has specific state options
                                 if (!empty($valid_states) && is_array($valid_states) && sizeof($valid_states) > 0) {
                                     if (!in_array($checkout_fields[$field][1], array_keys($valid_states))) {
@@ -1483,7 +1502,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                     }
                 }
 
-                $icon .= '<a href="#" id="tell-me-more">' . $this->s('splitit_help_title') . '</a>';
+                $icon .= '<a href="'.$this->s('splitit_help_title_link').'" id="tell-me-more">' . $this->s('splitit_help_title') . '</a>';
             }
 
             return $icon;
@@ -1605,7 +1624,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          */
         public function splitit_help()
         {
-            return wp_send_json( plugin_dir_url( __FILE__ ).'assets/images/tellmemore.png' );
+            return wp_send_json( plugin_dir_url( __FILE__ ).'assets/images/spl_tell_more.png' );
         }
 
         /**

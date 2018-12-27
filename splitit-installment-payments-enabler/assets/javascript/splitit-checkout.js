@@ -31,8 +31,8 @@
     //tell me more button
     $(document).on('click', '#tell-me-more', function(e){
         e.preventDefault();
-        var win= window.open('/wp-content/plugins/splitit-installment-payments-enabler/assets/images/tellme.png',"Tell me more","width=433,height=607,left=0,top=0,location=no,status=no,scrollbars=no,resizable=no");
-        win.document.writeln("<body style='margin:0px'><img width=100% src='/wp-content/plugins/splitit-installment-payments-enabler/assets/images/tellme.png' />");
+        var win= window.open(this.href,"Tell me more","width=433,height=607,left=0,top=0,location=no,status=no,scrollbars=no,resizable=no");
+        win.document.writeln("<body style='margin:0px'><img width=100% src='"+this.href+"' />");
         win.document.writeln("</body>");
         
         return;
@@ -157,16 +157,16 @@
         var fields = {};
         field_blocks.each(function() {
             if ($(this).prop('id') == 'account_password_field') {
-                return false;
+                return true;
             }
             if ($(this).prop('id') == 'account_username_field') {
                  if(!$("#createaccount").is(':checked')){
-                    return false;
+                    return true;
                  }
                 
             }
             if($(this).closest("#payment").attr('id')=="payment"){   
-                return false;
+                return true;
             }
             //billing custom
             if ($(this).prop('id') == 'billing_country_field') {
