@@ -923,13 +923,13 @@ function init_splitit_method(){
                         $type = explode('_', $f);
                         if($type[0] == 'shipping') {
                             $billing_field = str_replace('shipping', 'billing', $f);
-                            $checkout_fields_post[$field] = $checkout_fields_post[$billing_field];
+                            $checkout_fields_post[$f] = $checkout_fields_post[$billing_field];
                         }
                     }
                 }
 
                 foreach ($checkout_fields_post as $field_name => $label_value) {
-                    $checkout_fields[$field_name] = $label_value[1];
+                    $checkout_fields[$field_name] = isset($label_value[1])?$label_value[1]:$label_value;
                 }
                //echo "<pre>"; print_r($checkout_fields);die;
                 $order_data = array(
@@ -1008,7 +1008,7 @@ function init_splitit_method(){
                         }
                         if($type == 'shipping') {
                             $billing_field = str_replace('shipping', 'billing', $f);
-                            $checkout_fields[$f] = $checkout_fields[$billing_field];
+                            $checkout_fields[$f] = isset($checkout_fields[$billing_field])?$checkout_fields[$billing_field]:'';
                         }
                     }
                 }
@@ -1502,7 +1502,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                     }
                 }
 
-                $icon .= '<a href="#" id="tell-me-more">' . $this->s('splitit_help_title') . '</a>';
+                $icon .= '<a href="'.$this->s('splitit_help_title_link').'" id="tell-me-more">' . $this->s('splitit_help_title') . '</a>';
             }
 
             return $icon;
@@ -1577,7 +1577,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
         public function splitit_fee_add(){
           global $woocommerce;
           $chosen_gateway = $woocommerce->session->chosen_payment_method;
-          if(($this->settings['splitit_fee_enable']=='yes') && ($chosen_gateway == 'splitit')){
+          if((isset($this->settings['splitit_fee_enable']) && $this->settings['splitit_fee_enable']=='yes') && ($chosen_gateway == 'splitit')){
             $fees=floatval($this->settings['splitit_fee_amount']);
             if($this->settings['splitit_fee_type']=='fixed'){
               $woocommerce->cart->add_fee(__('Splitit Fees','splitit'),$fees);
@@ -1624,7 +1624,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          */
         public function splitit_help()
         {
-            return wp_send_json( plugin_dir_url( __FILE__ ).'assets/images/tellmemore.png' );
+            return wp_send_json( plugin_dir_url( __FILE__ ).'assets/images/spl_tell_more.png' );
         }
 
         /**

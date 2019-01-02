@@ -31,8 +31,8 @@
     //tell me more button
     $(document).on('click', '#tell-me-more', function(e){
         e.preventDefault();
-        var win= window.open('/wp-content/plugins/splitit-installment-payments-enabler/assets/images/spl_tell_more.png',"Tell me more","width=433,height=607,left=0,top=0,location=no,status=no,scrollbars=no,resizable=no");
-        win.document.writeln("<body style='margin:0px'><img width=100% src='/wp-content/plugins/splitit-installment-payments-enabler/assets/images/tellme.png' />");
+        var win= window.open(this.href,"Tell me more","width=433,height=607,left=0,top=0,location=no,status=no,scrollbars=no,resizable=no");
+        win.document.writeln("<body style='margin:0px'><img width=100% src='"+this.href+"' />");
         win.document.writeln("</body>");
         
         return;
