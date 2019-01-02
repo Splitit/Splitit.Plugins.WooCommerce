@@ -321,11 +321,6 @@ class SplitIt_Settings {
                     'type' => 'text',
                     'default' => __( 'Tell me more', 'splitit' ),
                 ),
-                'splitit_help_title_link' => array(
-                    'title' => __( 'Help link URL', 'splitit' ),
-                    'type' => 'text',
-                    'default' => __( 'https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit' ),
-                ),
 //                'splitit_order_status' => array(
 //                    'title' => __( 'New order status', 'splitit' ),
 //                    'type' => 'select',

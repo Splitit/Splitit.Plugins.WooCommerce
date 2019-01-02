@@ -31,9 +31,9 @@ if ( is_plugin_active( 'splitit-installment-payments-enabler/splitit.php' ) ) {
 $splitit = new SplitIt();
 $settings = $splitit->settings;
 }
-if($settings['enabled']!='yes'){
+//if($settings['enabled']!='yes'){
 $settings['splitit_enable_installment_price']=null;
-}
+//}
 ?>
 <div class="<?php echo ($settings['splitit_enable_installment_price']=='yes')?'cart_total_pricing':''; ?> cart_totals <?php echo ($settings['splitit_enable_installment_price']=='yes')?'clearfix':''; ?> <?php echo ( WC()->customer->has_calculated_shipping() ) ? 'calculated_shipping' : ''; ?>">
 
