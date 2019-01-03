@@ -1072,7 +1072,7 @@ function init_splitit_method(){
                                 break;
                             case 'state_field' :
                                 // Get valid states
-                                $valid_states = WC()->countries->get_states(WC()->customer->get_country());
+                                $valid_states = WC()->countries->get_states(WC()->customer->get_billing_country());
                                 // Only validate if the country has specific state options
                                 if (!empty($valid_states) && is_array($valid_states) && sizeof($valid_states) > 0) {
                                     if (!in_array($checkout_fields[$field][1], array_keys($valid_states))) {
