@@ -339,8 +339,65 @@ class SplitIt_API {
         }
         return $result;
     }
+    
+    /**
+     * Cancel order by transaction id ($InstallmentPlanNumber)
+     *
+     * @param $InstallmentPlanNumber
+     * @return array|bool
+     */
+    public function cancel($InstallmentPlanNumber) {
+        $params = array(
+                "RequestHeader" => array(
+                    "SessionId" => $this->login(),
+                ),
+                "InstallmentPlanNumber" => $InstallmentPlanNumber,
+                "RefundUnderCancelation" => "OnlyIfAFullRefundIsPossible"
+            );
+        $result = $this->make_request($this->_API['url'], 'InstallmentPlan/Cancel', $params);
+        if(count($this->getError())) {
+            if(!is_admin()) {
+                wc_clear_notices();
+                wc_add_notice(SplitIt_Helper::format_error($this->getError()), 'error');
+                return false;
+            } 
+        }
+        return $result;
+    }
+    
+    /**
+     * Refund order by transaction id ($InstallmentPlanNumber)
+     *
+     * @param $InstallmentPlanNumber
+     * @param $amount
+     * @param $reason
+     * @return array|bool
+     */
+    public function refund($InstallmentPlanNumber, $amount, $reason) {
+        $params = array(
+                "RequestHeader" => array(
+                    "SessionId" => $this->login(),
+                    /*"ApiKey" => $this->_API['terminal_key']*/
+                ),
+                "InstallmentPlanNumber" => $InstallmentPlanNumber,
+                "Amount" => array("Value" => $amount),
+                "_RefundStrategy" => "FutureInstallmentsFirst"
+            );
+        /*print_r($params);*/
+        $result = $this->make_request($this->_API['url'], 'InstallmentPlan/Refund', $params);
+        /*print_r($result);*/
+        if(count($this->getError())) {
+            if(!is_admin()) {
+                wc_clear_notices();
+                wc_add_notice(SplitIt_Helper::format_error($this->getError()), 'error');
+                return false;
+            } 
+        }
+        return $result;
+    }
 
-      /**
+
+    /**
      * Installment plan update
      *
      * @param $OrderID
@@ -438,6 +495,7 @@ class SplitIt_API {
             'InstallmentPlan/Cancel' != $method &&
             'Login' != $method &&
             'InstallmentPlan/Initiate' != $method &&
+            'InstallmentPlan/Refund' != $method &&
             'InstallmentPlan/Update' != $method ) {
            
             if($this->_log) { 
