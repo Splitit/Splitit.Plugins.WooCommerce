@@ -1216,7 +1216,9 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                         $checkout->process_splitit_checkout($checkout_fields, $this, $installment_data,$ipn,$esi,$this->settings);
                         setcookie('splitit_checkout', null, strtotime('-1 day'));
                         setcookie('splitit_checkout_session_id_data', null, strtotime('-1 day'));
-                        wc_clear_notices();                     
+                        wc_clear_notices();  
+                        wp_redirect( wc_get_checkout_url().'?wc-api=splitit_payment_success_async&InstallmentPlanNumber='.$ipn );
+                        exit;                    
                     } else {
                         wc_clear_notices();
                         wc_add_notice('Sorry, there was no checkout data received to create order! It was not placed. Please try to order again.','error');
