@@ -266,6 +266,14 @@ class SplitIt_Settings {
                     'type' => 'text',
                     'default' => '0.00'
                 ),
+                'splitit_3d_secure' => array(
+                    'title' => __('Enable 3D Secure', 'splitit'),
+                    'type' => 'select',
+                    'options' => array(
+                        'no' => 'No',
+                        'yes' => 'Yes'
+                    )
+                ),
 
                 'splitit_mode_sandbox' => array(
                     'title' => __('Sandbox Mode', 'splitit'),

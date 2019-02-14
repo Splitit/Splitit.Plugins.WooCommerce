@@ -207,6 +207,15 @@ class SplitIt_API {
                 $params['PaymentWizardData']["SuccessAsyncURL"] = $site_url . '?wc-api=splitit_payment_success_async';
             }
 
+            if(isset($this->_settings['splitit_3d_secure']) && $this->_settings['splitit_3d_secure'] != "" && $this->_settings['splitit_3d_secure'] == "yes"){
+                $params['PlanData']["Attempt3DSecure"] = true;
+                $params["RedirectUrls"]= array(
+                    "Succeeded"=> $redirect_success_url . '?wc-api=splitit_payment_success',
+                    "Failed"=> $redirect_cancel_url . '?wc-api=splitit_payment_error',
+                    "Canceled"=> $redirect_cancel_url . '?wc-api=splitit_payment_error'
+                );
+            }
+
             define( 'WOOCOMMERCE_CHECKOUT', true );
             define( 'WOOCOMMERCE_CART', true );
             $fetch_session_item = WC()->session->get( 'chosen_shipping_methods' );
