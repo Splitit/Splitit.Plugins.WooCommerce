@@ -274,6 +274,10 @@ class SplitIt_Settings {
                         'yes' => 'Yes'
                     )
                 ),
+                'splitit_3d_secure_min_amount' => array(
+                    'title' => __('Minimal amount for 3D attempt', 'splitit'),
+                    'type' => 'number'
+                ),
 
                 'splitit_mode_sandbox' => array(
                     'title' => __('Sandbox Mode', 'splitit'),

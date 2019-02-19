@@ -208,12 +208,14 @@ class SplitIt_API {
             }
 
             if(isset($this->_settings['splitit_3d_secure']) && $this->_settings['splitit_3d_secure'] != "" && $this->_settings['splitit_3d_secure'] == "yes"){
-                $params['PlanData']["Attempt3DSecure"] = true;
-                $params["RedirectUrls"]= array(
-                    "Succeeded"=> $redirect_success_url . '?wc-api=splitit_payment_success',
-                    "Failed"=> $redirect_cancel_url . '?wc-api=splitit_payment_error',
-                    "Canceled"=> $redirect_cancel_url . '?wc-api=splitit_payment_error'
-                );
+                if(isset($this->_settings['splitit_3d_secure_min_amount']) && ($this->_settings['splitit_3d_secure_min_amount'] != "") && (floatval($params['PlanData']['Amount']['Value']) >= floatval($this->_settings['splitit_3d_secure_min_amount']))){
+                    $params['PlanData']["Attempt3DSecure"] = true;
+                    $params["RedirectUrls"]= array(
+                        "Succeeded"=> $redirect_success_url . '?wc-api=splitit_payment_success',
+                        "Failed"=> $redirect_cancel_url . '?wc-api=splitit_payment_error',
+                        "Canceled"=> $redirect_cancel_url . '?wc-api=splitit_payment_error'
+                    );
+                }
             }
 
             define( 'WOOCOMMERCE_CHECKOUT', true );
