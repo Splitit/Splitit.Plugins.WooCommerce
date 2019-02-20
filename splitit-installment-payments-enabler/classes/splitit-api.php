@@ -52,7 +52,7 @@ class SplitIt_API {
         }
         $params = array('UserName' => $this->_username,
                          'Password' => $this->_password,
-                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.6")
+                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.7")
                          );
 
         try {

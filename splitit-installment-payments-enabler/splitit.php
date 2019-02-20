@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.1.6
+Version: 2.1.7
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -171,7 +171,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.1.6' );
+    define( 'Splitit_VERSION', '2.1.7' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
