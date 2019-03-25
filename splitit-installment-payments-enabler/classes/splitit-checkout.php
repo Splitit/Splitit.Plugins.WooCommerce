@@ -307,7 +307,7 @@ class SplitIt_Checkout extends WC_Checkout {
                     if ( is_wp_error( $new_customer ) ) {
                         throw new Exception( $new_customer->get_error_message() );
                     }
-
+                    wp_set_current_user($new_customer);
                     $this->customer_id = $new_customer;
 
                     wc_set_customer_auth_cookie( $this->customer_id );
@@ -346,6 +346,10 @@ class SplitIt_Checkout extends WC_Checkout {
                 if(true){
                     $order_id = $this->create_order($this->posted);
                     $order = wc_get_order( $order_id );
+                    if(!$order->get_customer_id()){
+                        $order->set_customer_id($this->customer_id);
+                        // update_post_meta($order->id, '_customer_user', $this->customer_id);
+                    }
                     $order->set_payment_method($payment_obj);
                     $order->update_status('processing');
                 }else{
