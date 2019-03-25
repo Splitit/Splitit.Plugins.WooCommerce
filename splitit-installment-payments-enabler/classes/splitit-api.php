@@ -52,7 +52,7 @@ class SplitIt_API {
         }
         $params = array('UserName' => $this->_username,
                          'Password' => $this->_password,
-                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.7")
+                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.8")
                          );
 
         try {
@@ -203,7 +203,7 @@ class SplitIt_API {
                                                 "CancelExitURL"=>$redirect_cancel_url . '?wc-api=splitit_payment_error'
 
                                             );
-            if($this->_settings['splitit_async_enable']=='yes'){
+            if(isset($this->_settings['splitit_async_enable']) && $this->_settings['splitit_async_enable']=='yes'){
                 $params['PaymentWizardData']["SuccessAsyncURL"] = $site_url . '?wc-api=splitit_payment_success_async';
             }
 
