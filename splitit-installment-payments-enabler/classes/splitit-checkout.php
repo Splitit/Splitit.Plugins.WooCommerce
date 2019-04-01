@@ -152,16 +152,7 @@ class SplitIt_Checkout extends WC_Checkout {
                                         break;
                                     case 'state' :
                                         // Get valid states
-                                        $valid_states = WC()->countries->get_states( isset( $checkout_fields[ $fieldset_key . '_country' ] ) ? $checkout_fields[ $fieldset_key . '_country' ] : ( 'billing' === $fieldset_key ? WC()->customer->get_country() : WC()->customer->get_shipping_country() ) );
-
-                                        if ( ! empty( $valid_states ) && is_array( $valid_states ) ) {
-                                            $valid_state_values = array_flip( array_map( 'strtolower', $valid_states ) );
-
-                                            // Convert value to key if set
-                                            if ( isset( $valid_state_values[ strtolower( $this->posted[ $key ] ) ] ) ) {
-                                                $this->posted[ $key ] = $valid_state_values[ strtolower( $this->posted[ $key ] ) ];
-                                            }
-                                        }
+                                        $valid_states = WC()->countries->get_states(WC()->customer->get_shipping_country());
 
                                         // Only validate if the country has specific state options
                                         if ( ! empty( $valid_states ) && is_array( $valid_states ) && sizeof( $valid_states ) > 0 ) {
@@ -189,7 +180,7 @@ class SplitIt_Checkout extends WC_Checkout {
             }
 
             // Shipping Information
-           
+           // var_dump($skipped_shipping);die('----akjhgasdjkhgas');
 
             if ( ! $skipped_shipping ) {
 
@@ -242,11 +233,14 @@ class SplitIt_Checkout extends WC_Checkout {
                 if ( isset( $this->posted['billing_postcode'] ) ) {
                     $this->posted['shipping_postcode'] =  $this->posted['billing_postcode'];
                 }
+                if ( isset( $this->posted['billing_country'] ) ) {
+                    $this->posted['shipping_country'] =  $this->posted['billing_country'];
+                }
                 /*custom pushing billing information into shipping*/
 
 
             }
-          //  print_r($this->posted);die;
+           // print_r($this->posted);die;
             // Update cart totals now we have customer address
             WC()->cart->calculate_totals();
 
