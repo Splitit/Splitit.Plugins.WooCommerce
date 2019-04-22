@@ -35,7 +35,7 @@ class SplitIt_Settings {
             }
         }*/
         $insArr=array();
-        for($i=2;$i<=$noOfIns;$i++){
+        for($i=1;$i<=$noOfIns;$i++){
             $insArr[$i]=$i.' Installments';
         }
 
@@ -284,6 +284,7 @@ class SplitIt_Settings {
                     'type' => 'select',
                     'options' => array(
                         'monthly' => 'Equal to Monthly Payment',
+                        'shipping' => 'Only Shipping',
                         'percent' => 'Equal to percentage of the order [X]'
                     )
                 ),

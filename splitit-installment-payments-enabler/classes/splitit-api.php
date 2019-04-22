@@ -183,6 +183,8 @@ class SplitIt_API {
                     $firstInstallmentAmount = (($order_data['AmountBeforeFees']*$percentageOfOrder)/100);
                     // var_dump($firstInstallmentAmount);
                 }
+            } elseif($firstPayment == "shipping"){
+                $firstInstallmentAmount = WC()->cart->shipping_total;
             }
             // var_dump($firstInstallmentAmount);die;
 
