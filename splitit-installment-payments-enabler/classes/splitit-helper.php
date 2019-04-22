@@ -15,7 +15,11 @@ class SplitIt_Helper
      * Ajax handler for check api settings
      */
     public static function admin_js() {
-        wp_enqueue_script( 'splitit-admin', plugins_url( '/assets/javascript/splitit-admin.js', dirname( __FILE__ ) ), array( 'jquery' ) );
+        if(isset($_GET['section']) && $_GET['section']=='splitit'){
+            wp_enqueue_style( 'splitit_admin_css', plugins_url( '/assets/css/jquery-ui.css', dirname( __FILE__ ) ) );
+            wp_enqueue_style( 'splitit_prodlist_admin_css', plugins_url( '/assets/css/prodlist.css', dirname( __FILE__ ) ) );
+            wp_enqueue_script( 'splitit-admin', plugins_url( '/assets/javascript/splitit-admin.js', dirname( __FILE__ ) ), array( 'jquery' ) );            
+        }
     }
 
     /**

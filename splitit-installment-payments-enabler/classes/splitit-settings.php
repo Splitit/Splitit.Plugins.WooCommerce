@@ -18,12 +18,12 @@ class SplitIt_Settings {
      */
     public static function get_fields()
     {
-        $prodSKUs=array();
+        // $prodSKUs=array();
         $noOfIns=36;
         /**
          * this method will only fetch simple products, and will not include product variations. If you want to grab those too, you'll need to update the $args to 'post_type' => array('product', 'product_variation')
          */
-        $args = array('post_type' => 'product', 'posts_per_page' => -1);
+        /*$args = array('post_type' => 'product', 'posts_per_page' => -1);
 
         $wcProductsArray = get_posts($args);
 
@@ -33,7 +33,7 @@ class SplitIt_Settings {
                 if($productSKU)
                     $prodSKUs[$productSKU]=($productPost->post_title).' ('.$productSKU.')';
             }
-        }
+        }*/
         $insArr=array();
         for($i=2;$i<=$noOfIns;$i++){
             $insArr[$i]=$i.' Installments';
@@ -279,6 +279,18 @@ class SplitIt_Settings {
                     'type' => 'number'
                 ),
 
+                'splitit_first_installment' => array(
+                    'title' => __('First Payment', 'splitit'),
+                    'type' => 'select',
+                    'options' => array(
+                        'monthly' => 'Equal to Monthly Payment',
+                        'percent' => 'Equal to percentage of the order [X]'
+                    )
+                ),
+                'splitit_first_installment_percent' => array(
+                    'title' => __('Percentage Of Order Value', 'splitit'),
+                    'type' => 'number'
+                ),
                 'splitit_mode_sandbox' => array(
                     'title' => __('Sandbox Mode', 'splitit'),
                     'description' => __('Sandbox Mode for testing purposes (uses API Sandbox URL).', 'splitit'),
@@ -468,9 +480,10 @@ class SplitIt_Settings {
             ),
             'splitit_product_sku_list' => array(
                 'title' => __( 'List of product SKUs', 'splitit' ),
-                'type'  => 'multiselect',
-                'css' => 'width: 450px;',
-                'options' => $prodSKUs
+                /*'type'  => 'multiselect',*/
+                'type' => 'text'
+                /*'css' => 'width: 450px;',
+                'options' => $prodSKUs*/
             ),
            
 

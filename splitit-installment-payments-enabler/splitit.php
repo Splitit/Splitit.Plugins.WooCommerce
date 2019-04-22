@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.1.9
+Version: 2.2.0
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -171,7 +171,7 @@ function init_splitit_method(){
 
     if ( ! class_exists( 'WC_Payment_Gateway' )) { return; }
 
-    define( 'Splitit_VERSION', '2.1.9' );
+    define( 'Splitit_VERSION', '2.2.0' );
 
     // Import helper classes
     require_once('classes/splitit-log.php');
@@ -286,6 +286,7 @@ function init_splitit_method(){
                 add_action( 'admin_enqueue_scripts', 'SplitIt_Helper::admin_js' );
                 //add_action( 'wp_ajax_my_action', 'check_credentials' );
                 add_action( 'wp_ajax_my_action', array($this, 'splitit_check_api_credentials') );
+                add_action( 'wp_ajax_fetch_prods', array($this, 'splitit_fetch_prods') );
                 add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options' ) );
                 add_action( 'woocommerce_admin_order_data_after_billing_address', array($this, 'splitit_add_installment_plan_number_data'), 10, 1 );
 
@@ -1568,21 +1569,26 @@ if(isset($notices['error'])&&!empty($notices['error'])){
         public function product_specific_payment_gateway($gateways) {
           if(isset($this->settings['splitit_product_option']) && $this->settings['splitit_product_option']){
             $items = WC()->cart->get_cart();
-            $prodSKUs= $this->settings['splitit_product_sku_list'];
-//            print_r($prodSKUs);
+            $prodSKUs = $this->settings['splitit_product_sku_list'];
+            $prodSKUs = explode(',', $prodSKUs);
+           // print_r($prodSKUs);
             $skus=array();
             foreach($items as $item => $values) { 
 //                $_product =  wc_get_product( $values['data']->get_id()); 
-                $sku = get_post_meta($values['product_id'] , '_sku', true);
-                array_push($skus, $sku);
+                // $sku = get_post_meta($values['product_id'] , '_sku', true);
+                array_push($skus, $values['product_id']);
             }
-//            print_r($skus);exit;
+           // print_r($skus);
+           // var_dump(count(array_intersect($prodSKUs, $skus)));
+           // var_dump(count($skus));
+           // var_dump(count(array_intersect($prodSKUs, $skus))==count($skus));
+           // exit;
             if(!is_array($prodSKUs)){
               $prodSKUs=array();
             }
             sort($prodSKUs);
             sort($skus);
-            if($this->settings['splitit_product_option']==1 && $prodSKUs!=$skus){
+            if($this->settings['splitit_product_option']==1 && count(array_intersect($prodSKUs, $skus))!=count($skus)){
                 unset( $gateways['splitit'] );
             }
             if($this->settings['splitit_product_option']==2 && count(array_intersect($prodSKUs, $skus))<1){
@@ -1759,6 +1765,45 @@ if(isset($notices['error'])&&!empty($notices['error'])){
                 $errorMsg = $result["serverError"];
             }
             return $errorMsg;
+        }
+
+        /**
+         * Called from admin settings when a product is searched
+         * provide list of searched products and also saved products
+         *
+         * @access public
+         */
+        public function splitit_fetch_prods() {
+          // print_r($_POST);
+          // print_r($_GET);
+          $prodSKUs=array();
+          // $args = array('post_type' => 'product', 'posts_per_page' => -1, 'orderby' => 'title');
+          $where = "post_type='product' and post_status = 'publish' and meta_key='_sku'";
+          if(isset($_GET['term'])&&$_GET['term']){
+            // $args['title']=array('like'=>$_GET['term']);
+            $where.=" AND (post_title like '%{$_GET['term']}%' OR meta_value like '%{$_GET['term']}%') ORDER BY post_title";
+          } elseif (isset($_POST['prodIds'])&&$_POST['prodIds']) {
+            // $args['include'] = explode(',', $_POST['prodIds']);
+            $where.=" AND ID IN({$_POST['prodIds']})";
+          } else {
+            echo json_encode(array());exit;
+          }
+          global $wpdb;
+
+          $wcProductsArray = $wpdb->get_results("SELECT ID,post_title,post_content,post_author,post_date_gmt,`" . $wpdb->prefix . "postmeta`.meta_value as sku FROM `" . $wpdb->prefix . "posts` JOIN `" . $wpdb->prefix . "postmeta` ON `" . $wpdb->prefix . "postmeta`.post_id=`" . $wpdb->prefix . "posts`.ID where $where");
+          /*echo "SELECT ID,post_title,post_content,post_author,post_date_gmt,`" . $wpdb->prefix . "postmeta`.meta_value as sku FROM `" . $wpdb->prefix . "posts` JOIN `" . $wpdb->prefix . "postmeta` ON `" . $wpdb->prefix . "postmeta`.post_id=`" . $wpdb->prefix . "posts`.ID where $where";
+          print_r($wcProductsArray);exit;*/
+
+          if (count($wcProductsArray)) {
+              foreach ($wcProductsArray as $productPost) {
+                 // $productSKU = get_post_meta($productPost->ID, '_sku', true);
+                $productSKU=($productPost->sku)?$productPost->sku:'-SKU not defined-';
+                // if($productSKU)
+                $prodSKUs[]=array('value'=>$productPost->ID, 'label' => $productPost->post_title.' ('.$productSKU.')');
+              }
+          }
+          echo json_encode($prodSKUs);
+          wp_die();
         }
     }
 

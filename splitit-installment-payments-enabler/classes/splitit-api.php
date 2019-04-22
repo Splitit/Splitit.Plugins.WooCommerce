@@ -52,7 +52,7 @@ class SplitIt_API {
         }
         $params = array('UserName' => $this->_username,
                          'Password' => $this->_password,
-                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.1.9")
+                         'TouchPoint' => array("Code" =>"WooCommercePlugin","Version" => "2.2.0")
                          );
 
         try {
@@ -168,6 +168,24 @@ class SplitIt_API {
                 $CurrencyCode = get_woocommerce_currency();
             }
 
+            $firstInstallmentAmount = 0;
+            $firstPayment = $this->_settings['splitit_first_installment'];
+
+            // var_dump($firstPayment);
+            // var_dump($this->_settings['splitit_first_installment_percent']);
+
+            if($firstPayment == "percent"){
+                $percentageOfOrder = $this->_settings['splitit_first_installment_percent'];
+                if($percentageOfOrder){
+                    if($percentageOfOrder > 50){
+                        $percentageOfOrder = 50;
+                    }
+                    $firstInstallmentAmount = (($order_data['AmountBeforeFees']*$percentageOfOrder)/100);
+                    // var_dump($firstInstallmentAmount);
+                }
+            }
+            // var_dump($firstInstallmentAmount);die;
+
             $params['RequestHeader']= array(
                                             "SessionId"=>$this->_API['session_id'],
                                             "ApiKey"=>$this->_API['terminal_key']
@@ -203,6 +221,13 @@ class SplitIt_API {
                                                 "CancelExitURL"=>$redirect_cancel_url . '?wc-api=splitit_payment_error'
 
                                             );
+            // var_dump($firstInstallmentAmount);die;
+            if($firstInstallmentAmount>0){
+                $params['PlanData']['FirstInstallmentAmount']=array(
+                    "Value" => $firstInstallmentAmount,
+                    "CurrencyCode" => $CurrencyCode
+                );
+            }
             if(isset($this->_settings['splitit_async_enable']) && $this->_settings['splitit_async_enable']=='yes'){
                 $params['PaymentWizardData']["SuccessAsyncURL"] = $site_url . '?wc-api=splitit_payment_success_async';
             }
