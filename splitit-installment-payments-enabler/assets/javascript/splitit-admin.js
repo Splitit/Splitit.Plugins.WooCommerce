@@ -133,7 +133,47 @@
 		$("#woocommerce_splitit_custom_urls").on("change",function(){
 			define_custom_url();
 		});
-		/*option to change discount type*/ 
+		/*option to change discount type*/
+
+		/*show field 3d amount when enable*/
+		$("#woocommerce_splitit_splitit_3d_secure").on("change",function(){
+			if($(this).val()=='yes'){
+				$('#woocommerce_splitit_splitit_3d_secure_min_amount').closest('tr').show();
+			} else {
+				$('#woocommerce_splitit_splitit_3d_secure_min_amount').closest('tr').hide();		
+			}
+		});
+		$("#woocommerce_splitit_splitit_3d_secure").trigger('change');
+		/*show field fees when enable*/
+		$("#woocommerce_splitit_splitit_fee_enable").on("change",function(){
+			if($(this).val()=='yes'){
+				$('#woocommerce_splitit_splitit_fee_type').closest('tr').show();
+				$("#woocommerce_splitit_splitit_fee_type").trigger('change');
+			} else {
+				$('#woocommerce_splitit_splitit_fee_type').closest('tr').hide();
+				$('#woocommerce_splitit_splitit_fee_amount').closest('tr').hide();				
+			}
+		});
+		$("#woocommerce_splitit_splitit_fee_enable").trigger('change');
+		/*show field fees percent when percent*/
+		$("#woocommerce_splitit_splitit_fee_type").on("change",function(){
+			if($(this).val()=='percent'){
+				$('#woocommerce_splitit_splitit_fee_amount').closest('tr').show();
+			} else {
+				$('#woocommerce_splitit_splitit_fee_amount').closest('tr').hide();				
+			}
+		});
+		$("#woocommerce_splitit_splitit_fee_type").trigger('change');
+		/*show field order percent when percent*/
+		$("#woocommerce_splitit_splitit_first_installment").on("change",function(){
+			if($(this).val()=='percent'){
+				$('#woocommerce_splitit_splitit_first_installment_percent').closest('tr').show();
+			} else {
+				$('#woocommerce_splitit_splitit_first_installment_percent').closest('tr').hide();				
+			}
+		});
+		$("#woocommerce_splitit_splitit_first_installment").trigger('change');
+		/*check if fees is more than 50% */
 		$("#woocommerce_splitit_splitit_fee_amount").on("change",function(){
 			if (parseFloat($(this).val())>50.00) {
 				alert("Fee can't be greater than 50");

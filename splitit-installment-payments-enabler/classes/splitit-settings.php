@@ -53,6 +53,42 @@ class SplitIt_Settings {
                     'label' => __( 'Enable Splitit Payment', 'splitit' ),
                     'default' => 'yes'
                 ),
+                'splitit_api_terminal_key' => array(
+                    'title' => __( 'Terminal API key', 'splitit' ),
+                    'type' => 'text'
+                ),
+                'splitit_api_username' => array(
+                    'title' => __( 'API Username', 'splitit' ),
+                    'type' => 'text'
+                ),
+                'splitit_api_password' => array(
+                    'title' => __( 'API Password', 'splitit' ),
+                    'type' => 'text'
+                ),
+                'splitit_mode_sandbox' => array(
+                    'title' => __('Sandbox Mode', 'splitit'),
+                    'description' => __('Sandbox Mode for testing purposes (uses API Sandbox URL).', 'splitit'),
+                    'desc_tip' => true,
+                    'type' => 'select',
+                    'options' => array(
+                        'no' => 'No',
+                        'yes' => 'Yes'
+                    )
+                ),
+                'splitit_mode_debug' => array(
+                    'title' => __('Debug Mode', 'splitit'),
+                    'description' => __('Enables Splitit request data logging.', 'splitit'),
+                    'desc_tip' => true,
+                    'type' => 'select',
+                    'options' => array(
+                        'no' => 'No',
+                        'yes' => 'Yes'
+                    )
+                ),
+                'splitit_test_api' => array(
+                    'title' => '<a href="" id="checkApiCredentials">Check Credential API</a>',
+                    'css' => 'display:none;'
+                ),
                 'splitit_api_prod_url' => array(
                     'title' => __( 'API Production URL', 'splitit' ),
                     'type' => 'text',
@@ -72,18 +108,6 @@ class SplitIt_Settings {
                     'title' => __( 'CDN Sandbox URL', 'splitit' ),
                     'type' => 'text',
                     'default' => 'https://cdn-sandbox.splitit.com/'
-                ),
-                'splitit_api_terminal_key' => array(
-                    'title' => __( 'Terminal API key', 'splitit' ),
-                    'type' => 'text'
-                ),
-                'splitit_api_username' => array(
-                    'title' => __( 'API Username', 'splitit' ),
-                    'type' => 'text'
-                ),
-                'splitit_api_password' => array(
-                    'title' => __( 'API Password', 'splitit' ),
-                    'type' => 'text'
                 ),
                 'splitit_discount_type' => array(
                     'title' => __('Select installment setup', 'splitit'),
@@ -291,30 +315,6 @@ class SplitIt_Settings {
                 'splitit_first_installment_percent' => array(
                     'title' => __('Percentage Of Order Value', 'splitit'),
                     'type' => 'number'
-                ),
-                'splitit_mode_sandbox' => array(
-                    'title' => __('Sandbox Mode', 'splitit'),
-                    'description' => __('Sandbox Mode for testing purposes (uses API Sandbox URL).', 'splitit'),
-                    'desc_tip' => true,
-                    'type' => 'select',
-                    'options' => array(
-                        'no' => 'No',
-                        'yes' => 'Yes'
-                    )
-                ),
-                'splitit_mode_debug' => array(
-                    'title' => __('Debug Mode', 'splitit'),
-                    'description' => __('Enables Splitit request data logging.', 'splitit'),
-                    'desc_tip' => true,
-                    'type' => 'select',
-                    'options' => array(
-                        'no' => 'No',
-                        'yes' => 'Yes'
-                    )
-                ),
-                'splitit_test_api' => array(
-                    'title' => '<a href="" id="checkApiCredentials">Check Credential API</a>',
-                    'css' => 'display:none;'
                 ),
 
                 '_Shop_setup' => array(
