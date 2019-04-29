@@ -188,6 +188,8 @@
 
 		$('#checkApiCredentials').on('click', function(e) {
 			e.preventDefault();
+			var $this = $(this);
+			$this.closest('tr').find('td').append('<div class="lds-dual-ring"></div>');
 			var data = {
 				'action': 'my_action',
 			
@@ -195,6 +197,7 @@
 			};
 			// We can also pass the url value separately from ajaxurl for front end AJAX implementations
 			jQuery.post(ajaxurl, data, function(response) {
+				$this.closest('tr').find('td').find('.lds-dual-ring').remove();
 				alert(response);
 			});
 		});
