@@ -230,6 +230,28 @@ class SplitIt_API {
                     "CurrencyCode" => $CurrencyCode
                 );
             }
+
+            $items = WC()->cart->get_cart();
+            $itemsArr = array();
+            foreach($items as $item => $values) { 
+                $_product =  wc_get_product( $values['data']->get_id());
+                array_push($itemsArr, array(
+                    'Name'=>$_product->get_title(),
+                    'SKU'=>get_post_meta($values['product_id'] , '_sku', true),
+                    'Price'=>get_post_meta($values['product_id'] , '_price', true),
+                    'Quantity'=>$values['quantity'],
+                    'Description'=>$_product->get_short_description()
+                ));
+            }
+            $params['CartData'] = array(
+                "Items" => $itemsArr,
+                "AmountDetails" => array(
+                    "Subtotal" => round(WC()->cart->subtotal, 2),
+                    "Tax" => round(WC()->cart->total_tax, 2),
+                    "Shipping" => round(WC()->cart->shipping_total, 2)
+                )
+            );
+
             if(isset($this->_settings['splitit_async_enable']) && $this->_settings['splitit_async_enable']=='yes'){
                 $params['PaymentWizardData']["SuccessAsyncURL"] = $site_url . '?wc-api=splitit_payment_success_async';
             }
