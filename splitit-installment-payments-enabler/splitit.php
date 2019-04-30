@@ -1534,6 +1534,10 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          */
         public function change_payment_gateway($gateways) {
 
+            if(empty(WC()->cart)){
+              return $gateways;
+            }
+
             if(!isset($this->settings['splitit_doct']['ct_from'])){
               $this->settings['splitit_doct']['ct_from']=array();
             }
@@ -1567,7 +1571,7 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          * @return mixed
          */
         public function product_specific_payment_gateway($gateways) {
-          if(isset($this->settings['splitit_product_option']) && $this->settings['splitit_product_option']){
+          if(isset($this->settings['splitit_product_option']) && $this->settings['splitit_product_option'] && !empty(WC()->cart)){
             $items = WC()->cart->get_cart();
             $prodSKUs = $this->settings['splitit_product_sku_list'];
             $prodSKUs = explode(',', $prodSKUs);
