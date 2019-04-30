@@ -309,6 +309,7 @@ class SplitIt_Settings {
                     'options' => array(
                         'monthly' => 'Equal to Monthly Payment',
                         'shipping' => 'Only Shipping',
+                        'shipping_taxes' => 'Only Shipping + Taxes',
                         'percent' => 'Equal to percentage of the order [X]'
                     )
                 ),

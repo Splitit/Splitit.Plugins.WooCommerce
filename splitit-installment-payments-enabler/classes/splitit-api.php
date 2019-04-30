@@ -184,7 +184,9 @@ class SplitIt_API {
                     // var_dump($firstInstallmentAmount);
                 }
             } elseif($firstPayment == "shipping"){
-                $firstInstallmentAmount = WC()->cart->shipping_total;
+                $firstInstallmentAmount = round(WC()->cart->shipping_total, 2);
+            } elseif($firstPayment == "shipping_taxes"){
+                $firstInstallmentAmount = round(WC()->cart->shipping_total, 2) + round(WC()->cart->tax_total, 2);
             }
             // var_dump($firstInstallmentAmount);die;
 
@@ -233,21 +235,20 @@ class SplitIt_API {
 
             $items = WC()->cart->get_cart();
             $itemsArr = array();
-            foreach($items as $item => $values) { 
-                $_product =  wc_get_product( $values['data']->get_id());
+            foreach($items as $item => $values) {
                 array_push($itemsArr, array(
-                    'Name'=>$_product->get_title(),
-                    'SKU'=>get_post_meta($values['product_id'] , '_sku', true),
-                    'Price'=>get_post_meta($values['product_id'] , '_price', true),
+                    'Name'=>$values['data']->get_name(),
+                    'SKU'=>$values['data']->get_sku(),
+                    'Price'=>array('Value'=>$values['data']->get_price(),'CurrencyCode'=>$CurrencyCode),
                     'Quantity'=>$values['quantity'],
-                    'Description'=>$_product->get_short_description()
+                    'Description'=>$values['data']->get_short_description()
                 ));
             }
             $params['CartData'] = array(
                 "Items" => $itemsArr,
                 "AmountDetails" => array(
                     "Subtotal" => round(WC()->cart->subtotal, 2),
-                    "Tax" => round(WC()->cart->total_tax, 2),
+                    "Tax" => round(WC()->cart->tax_total, 2),
                     "Shipping" => round(WC()->cart->shipping_total, 2)
                 )
             );
@@ -324,13 +325,13 @@ class SplitIt_API {
             }
             
             try {
-
+                // print_r($params);
                 $result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
                 $userid="0";
                 if(is_user_logged_in()){
                     $userid = get_current_user_id();
                 }
-
+                // print_r($result);die;
                 if(isset($result) && isset($result->InstallmentPlan) && isset($result->InstallmentPlan->InstallmentPlanNumber)){
                     $table_name = $wpdb->prefix . 'splitit_logs';
                     $ipn = $result->InstallmentPlan->InstallmentPlanNumber;
