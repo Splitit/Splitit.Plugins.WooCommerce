@@ -327,14 +327,14 @@ class SplitIt_Settings {
                     'title' => __( 'Title', 'splitit' ),
                     'type' => 'text',
                     'description' => __( 'This controls the title which the user sees during checkout.', 'splitit' ),
-                    'default' => __( 'INTEREST FREE Monthly Payment', 'splitit' ),
+                    'default' => __( 'Interest Free Monthly Payments', 'splitit' ),
                     'desc_tip' => true
                 ),
                 'description' => array(
                     'title' => __( 'Customer Message', 'splitit' ),
                     'type' => 'textarea',
                     'description' => __( 'This controls the description which the user sees during checkout.', 'splitit' ),
-                    'default' => 'Split your purchase easily into Free Interest Monthly Payment, using your existing credit card - Instantly and without credit check.',
+                    'default' => 'Split your purchase easily on your existing credit card (no credit check, no fees)',
                     'desc_tip' => true
                 ),
                 'splitit_enable_help' => array(
