@@ -545,6 +545,9 @@ function init_splitit_method(){
                                 }
                                 $textValue = implode(',', $textOptionIds);
                               }
+                            } elseif ($key=='splitit_product_sku_list' && strstr($textValue, "Array")!==false) {
+                              $textValue = str_replace("Array", "", $textValue);
+                              $textValue = implode(',', array_filter(explode(',', $textValue)));
                             }
                             ?>
                             <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="<?php echo esc_attr( $data['type'] ); ?>" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo $textValue; ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); ?> />
