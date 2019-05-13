@@ -533,7 +533,21 @@ function init_splitit_method(){
                     <td class="forminp">
                         <fieldset>
                             <legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
-                            <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="<?php echo esc_attr( $data['type'] ); ?>" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); ?> />
+                            <?php
+                            $textValue = esc_attr( $this->get_option( $key ) );
+                            if($key=='splitit_product_sku_list' && $textValue=="Array"){
+                              /*print_r($this->get_option( $key,array() ));*/
+                              $textOptions = $this->get_option($key,array());
+                              $textOptionIds = array();
+                              if(is_array($textOptions)){
+                                foreach ($textOptions as $textOption) {
+                                  array_push($textOptionIds, wc_get_product_id_by_sku($textOption));
+                                }
+                                $textValue = implode(',', $textOptionIds);
+                              }
+                            }
+                            ?>
+                            <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="<?php echo esc_attr( $data['type'] ); ?>" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo $textValue; ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); ?> />
                             <?php echo $this->get_description_html( $data ); ?>
                         </fieldset>
                     </td>

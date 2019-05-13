@@ -63,7 +63,7 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 == Changelog ==
 
 = 2.2.2 =
-*check for payment method added for order cancel and refund hooks
+*check for payment method added for order cancel and refund hooks and added backward compatibility for per product functionality.
 
 = 2.2.1 =
 *small check added for logging
