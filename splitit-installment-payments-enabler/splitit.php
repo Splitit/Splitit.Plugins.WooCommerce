@@ -1694,63 +1694,69 @@ if(isset($notices['error'])&&!empty($notices['error'])){
          */
         public function process_refund( $order_id, $amount = null, $reason = '' ) {
           $order = wc_get_order( $order_id );
-
-          if ( ! $this->can_refund_order( $order ) ) {
-            return new WP_Error( 'error', __( 'Refund failed.', 'woocommerce' ) );
-          }
-
-          $ipn = get_post_meta( $order->id, 'installment_plan_number', true );
+          if($order->get_payment_method()=='splitit'){
           
-          if (is_null($this->_API)) {
-              $this->_API = new SplitIt_API($this->settings); //passing settings to API
-          }
-          /*var_dump($ipn);
-          var_dump($amount);
-          var_dump($reason);*/
-          $result = $this->_API->refund( $ipn, $amount, $reason );
-          /*echo '<pre>';print_r($result);die;*/
-          $error = $this->getAPIerrorJSON($result);
-          $this->log->info(__FILE__, __LINE__, __METHOD__);
-
-          if ( is_wp_error( $result ) ) {
-            $this->log->add('ERROR : ' . var_export($result, true));
+            if ( ! $this->can_refund_order( $order ) ) {
+              return new WP_Error( 'error', __( 'Refund failed.', 'woocommerce' ) );
+            }
+  
+            $ipn = get_post_meta( $order->id, 'installment_plan_number', true );
+            
+            if (is_null($this->_API)) {
+                $this->_API = new SplitIt_API($this->settings); //passing settings to API
+            }
+            /*var_dump($ipn);
+            var_dump($amount);
+            var_dump($reason);*/
+            $result = $this->_API->refund( $ipn, $amount, $reason );
+            /*echo '<pre>';print_r($result);die;*/
+            $error = $this->getAPIerrorJSON($result);
+            $this->log->info(__FILE__, __LINE__, __METHOD__);
+  
+            if ( is_wp_error( $result ) ) {
+              $this->log->add('ERROR : ' . var_export($result, true));
+              $this->log->separator();
+              return new WP_Error( 'error', $error );
+            }
+  
+            $this->log->add( 'Refund Result: ' . wc_print_r( $result, true ) );
             $this->log->separator();
-            return new WP_Error( 'error', $error );
+  
+            if (isset($result->ResponseHeader->Succeeded) && $result->ResponseHeader->Succeeded) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+                $order->add_order_note(
+                  /* translators: 1: Refund amount, 2: Refund ID */
+                  sprintf( __( 'Refunded %1$s - Refund ID: %2$s', 'woocommerce' ), $result->CurrentRefundAmount->Value.' '.$result->CurrentRefundAmount->Currency->Code, "same as IPN" ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
+                );
+                return true;
+            }
+  
+            return isset( $result['code'] ) ? new WP_Error( 'error', $result['message'] ) : false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
           }
-
-          $this->log->add( 'Refund Result: ' . wc_print_r( $result, true ) );
-          $this->log->separator();
-
-          if (isset($result->ResponseHeader->Succeeded) && $result->ResponseHeader->Succeeded) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
-              $order->add_order_note(
-                /* translators: 1: Refund amount, 2: Refund ID */
-                sprintf( __( 'Refunded %1$s - Refund ID: %2$s', 'woocommerce' ), $result->CurrentRefundAmount->Value.' '.$result->CurrentRefundAmount->Currency->Code, "same as IPN" ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
-              );
-              return true;
-          }
-
-          return isset( $result['code'] ) ? new WP_Error( 'error', $result['message'] ) : false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
         }
 
         public function splitit_cancel_order($order_get_id)
         {
-          $ipn = get_post_meta( $order_get_id, 'installment_plan_number', true );
-          /*var_dump($ipn);exit;*/
-          if (is_null($this->_API)) {
-              $this->_API = new SplitIt_API($this->settings); //passing settings to API
-          }
-          $result = $this->_API->cancel($ipn);
-          /*var_dump($result);die;*/
-          $error = $this->getAPIerrorJSON($result);
-          $this->log->info(__FILE__, __LINE__, __METHOD__);
-          if ( is_wp_error( $result ) || $error ) {
-            $this->log->add('ERROR : ' . var_export($result, true));
-            $this->log->separator();
-            return new WP_Error( 'error', $error );
-          }
+          global $woocommerce;
+          $chosen_gateway = $woocommerce->session->chosen_payment_method;
+          if($chosen_gateway == 'splitit'){
+            $ipn = get_post_meta( $order_get_id, 'installment_plan_number', true );
+            /*var_dump($ipn);exit;*/
+            if (is_null($this->_API)) {
+                $this->_API = new SplitIt_API($this->settings); //passing settings to API
+            }
+            $result = $this->_API->cancel($ipn);
+            /*var_dump($result);die;*/
+            $error = $this->getAPIerrorJSON($result);
+            $this->log->info(__FILE__, __LINE__, __METHOD__);
+            if ( is_wp_error( $result ) || $error ) {
+              $this->log->add('ERROR : ' . var_export($result, true));
+              $this->log->separator();
+              return new WP_Error( 'error', $error );
+            }
 
-          $this->log->add( 'Refund Result: ' . wc_print_r( $result, true ) );
-          $this->log->separator();
+            $this->log->add( 'Refund Result: ' . wc_print_r( $result, true ) );
+            $this->log->separator();
+          }
           return true;
         }
 
