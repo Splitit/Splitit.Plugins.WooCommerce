@@ -1439,7 +1439,7 @@ $textValue = esc_attr($this->get_option($key));
 					$split_price = round($woocommerce->cart->total / self::$_maxInstallments, 3);
 					$textToDisplay = $this->settings['splitit_without_interest'];
 					if (isset($this->settings['splitit_logo_src']) && isset($this->settings['splitit_logo_background_href']) && $this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
-						$replace = "<a href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img style='height: 30px;display: inline-block;margin-bottom: -12px;' class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
+						$replace = "<a style='-webkit-box-shadow: none !important;box-shadow:  none !important;' href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img style='height: 24px;display: inline-block;margin-bottom: -8px;' class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 						$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 					}
 					return $price . '<span style="display:block;" class="splitit-installment-price">' . self::$_maxInstallments . ' x ' . wc_price($split_price, array('decimals' => 2)) . ' ' . $textToDisplay . '</span>';
@@ -1466,7 +1466,7 @@ $textValue = esc_attr($this->get_option($key));
 			}
 			$textToDisplay = $this->settings['splitit_without_interest'];
 			if (isset($this->settings['splitit_logo_src']) && isset($this->settings['splitit_logo_background_href']) && $this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
-				$replace = "<a href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img style='height: 30px;display: inline-block;margin-bottom: -12px;' class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
+				$replace = "<a style='-webkit-box-shadow: none !important;box-shadow:  none !important;' href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img style='height: 24px;display: inline-block;margin-bottom: -8px;' class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 				$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 			}
 
