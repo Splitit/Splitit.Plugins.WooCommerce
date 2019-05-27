@@ -1438,7 +1438,7 @@ $textValue = esc_attr($this->get_option($key));
 				if ((is_cart() && in_array('cart', $sections)) || (is_checkout() && in_array('checkout', $sections))) {
 					$split_price = round($woocommerce->cart->total / self::$_maxInstallments, 3);
 					$textToDisplay = $this->settings['splitit_without_interest'];
-					if ($this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
+					if (isset($this->settings['splitit_logo_src']) && isset($this->settings['splitit_logo_background_href']) && $this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
 						$replace = "<a href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img style='height: 30px;display: inline-block;margin-bottom: -12px;' class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 						$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 					}
@@ -1465,7 +1465,7 @@ $textValue = esc_attr($this->get_option($key));
 				return;
 			}
 			$textToDisplay = $this->settings['splitit_without_interest'];
-			if ($this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
+			if (isset($this->settings['splitit_logo_src']) && isset($this->settings['splitit_logo_background_href']) && $this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
 				$replace = "<a href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img style='height: 30px;display: inline-block;margin-bottom: -12px;' class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 				$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 			}
