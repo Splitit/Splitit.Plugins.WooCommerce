@@ -247,9 +247,9 @@ class SplitIt_API {
             $params['CartData'] = array(
                 "Items" => $itemsArr,
                 "AmountDetails" => array(
-                    "Subtotal" => round(WC()->cart->subtotal, 2),
-                    "Tax" => round(WC()->cart->tax_total, 2),
-                    "Shipping" => round(WC()->cart->shipping_total, 2)
+                    "Subtotal" => round(WC()->cart->get_subtotal(), 2),
+                    "Tax" => round(WC()->cart->get_total_tax(), 2),
+                    "Shipping" => round(WC()->cart->get_shipping_total(), 2)
                 )
             );
 
@@ -326,6 +326,22 @@ class SplitIt_API {
             
             try {
                 // print_r($params);
+                /*if($this->_log) { 
+                    $this->_log->info(__FILE__,__LINE__,__METHOD__."REQUEST: "); 
+                    $this->_log->add($params); 
+                    $this->_log->add("get_subtotal===".round(WC()->cart->get_subtotal(), 2)); 
+                    $this->_log->add("get_subtotal_tax===".round(WC()->cart->get_subtotal_tax(), 2)); 
+                    $this->_log->add("get_shipping_total===".round(WC()->cart->get_shipping_total(), 2)); 
+                    $this->_log->add("get_shipping_tax===".round(WC()->cart->get_shipping_tax(), 2)); 
+                    $this->_log->add("get_cart_contents_tax===".round(WC()->cart->get_cart_contents_tax(), 2)); 
+                    $this->_log->add("get_total_tax===".round(WC()->cart->get_total_tax(), 2)); 
+                    $this->_log->add("get_shipping_taxes===".round(WC()->cart->get_shipping_taxes(), 2)); 
+                    $this->_log->add("get_taxes===".round(WC()->cart->get_taxes(), 2)); 
+                    $this->_log->add("get_tax_totals===".round(WC()->cart->get_tax_totals(), 2)); 
+                    $this->_log->add("get_cart_subtotal===".round(WC()->cart->get_cart_subtotal(), 2)); 
+                    $this->_log->add("get_cart_total===".round(WC()->cart->get_cart_total(), 2)); 
+                    $this->_log->add("get_cart_tax===".round(WC()->cart->get_cart_tax(), 2)); 
+                }*/
                 $result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
                 $userid="0";
                 if(is_user_logged_in()){
