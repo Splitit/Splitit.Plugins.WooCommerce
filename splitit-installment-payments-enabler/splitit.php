@@ -1466,7 +1466,7 @@ $textValue = esc_attr($this->get_option($key));
 			}
 			$textToDisplay = $this->settings['splitit_without_interest'];
 			if (isset($this->settings['splitit_logo_src']) && isset($this->settings['splitit_logo_background_href']) && $this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
-				$replace = "<a style='-webkit-box-shadow: none !important;box-shadow:  none !important;' href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img style='height: 24px;display: inline-block;margin-bottom: -8px;' class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
+				$replace = "<a href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 				$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 			}
 
