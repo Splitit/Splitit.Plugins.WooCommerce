@@ -613,7 +613,5 @@ class SplitIt_API {
     {
         $this->_error = array('code' => $errorCode, 'message' => $errorMsg);
     }
-   
 
-   
 }
