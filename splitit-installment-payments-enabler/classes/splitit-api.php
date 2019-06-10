@@ -238,7 +238,7 @@ class SplitIt_API {
 					'SKU' => $values['data']->get_sku(),
 					'Price' => array('Value' => $values['data']->get_price(), 'CurrencyCode' => $CurrencyCode),
 					'Quantity' => $values['quantity'],
-					'Description' => $values['data']->get_short_description(),
+					'Description' => strip_tags($values['data']->get_short_description()),
 				));
 			}
 			$params['CartData'] = array(
