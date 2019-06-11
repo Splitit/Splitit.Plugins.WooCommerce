@@ -353,7 +353,7 @@ class SplitIt_Settings {
 			'splitit_logo_src' => array(
 				'title' => __('Split It Logo', 'splitit'),
 				'type' => 'text',
-				'default' => __('https://www.splitit.com/wp-content/uploads/2018/10/splitit_dark.svg', 'splitit'),
+				'default' => __('https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png'),
 			),
 			'splitit_logo_background_href' => array(
 				'title' => __('Split It Logo Link', 'splitit'),
