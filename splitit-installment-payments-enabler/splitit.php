@@ -170,7 +170,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.2.2');
+	define('Splitit_VERSION', '2.2.3');
 
 	// Import helper classes
 	require_once 'classes/splitit-log.php';

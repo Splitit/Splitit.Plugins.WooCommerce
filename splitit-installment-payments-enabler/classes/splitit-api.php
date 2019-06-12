@@ -52,7 +52,7 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.2"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.3"),
 		);
 
 		try {
@@ -242,13 +242,13 @@ class SplitIt_API {
 				));
 			}
 			$params['CartData'] = array(
-                "Items" => $itemsArr,
-                "AmountDetails" => array(
-                    "Subtotal" => round(WC()->cart->get_subtotal(), 2),
-                    "Tax" => round(WC()->cart->get_total_tax(), 2),
-                    "Shipping" => round(WC()->cart->get_shipping_total(), 2)
-                )
-            );
+				"Items" => $itemsArr,
+				"AmountDetails" => array(
+					"Subtotal" => round(WC()->cart->get_subtotal(), 2),
+					"Tax" => round(WC()->cart->get_total_tax(), 2),
+					"Shipping" => round(WC()->cart->get_shipping_total(), 2),
+				),
+			);
 
 			if (isset($this->_settings['splitit_async_enable']) && $this->_settings['splitit_async_enable'] == 'yes') {
 				$params['PaymentWizardData']["SuccessAsyncURL"] = $site_url . '?wc-api=splitit_payment_success_async';
