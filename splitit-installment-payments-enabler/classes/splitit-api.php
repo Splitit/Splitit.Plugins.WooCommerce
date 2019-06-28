@@ -543,7 +543,7 @@ class SplitIt_API {
 		$response = $request->request(trim($url, '/') . '/api/' . $method . '?format=JSON', $args);
 		$result = json_decode($response['body']);
 		if ('InstallmentPlan/Update' == $method) {
-			setcookie("mk_method1", $response);
+			//setcookie("mk_method1", $result);
 		}
 		if ('InstallmentPlan/StartInstallments' != $method &&
 			'InstallmentPlan/Get' != $method &&

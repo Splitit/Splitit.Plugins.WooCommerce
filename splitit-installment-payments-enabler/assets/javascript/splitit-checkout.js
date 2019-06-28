@@ -6,11 +6,11 @@
      *****************************************************************************************************************/
 
         //resetting cookies
-    setCookie('splitit_ec_session_id', 0);
+   /* setCookie('splitit_ec_session_id', 0);
     setCookie('splitit_button_loaded', 0);
     setCookie('splitit_validation_passed', 0);
     //setCookie('splitit_checkout', 0);
-    setCookie('splitit_checkout_session_id_data',0);
+    setCookie('splitit_checkout_session_id_data',0);*/
 
     //on Place Order button:
     // - validate checkout fields
@@ -115,7 +115,7 @@
                         scrollTop: ( $('form.woocommerce-checkout').offset().top - 100 )
                     }, 1000);
 
-                    setCookie('splitit_validation_passed', 0);
+                   // setCookie('splitit_validation_passed', 0);
                     $('#place_order').attr('disabled', false);
 //                    return; //stop further processing
 
@@ -124,7 +124,7 @@
                     
                     saveFieldsToCookie();
                     initEcSession();
-                    setCookie('splitit_validation_passed', 1);
+                  //  setCookie('splitit_validation_passed', 1);
                 } else {
                     alert('Error occured, please try again later');
                     $('#place_order').attr('disabled', false);
