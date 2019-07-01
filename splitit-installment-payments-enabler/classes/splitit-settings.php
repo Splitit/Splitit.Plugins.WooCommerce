@@ -350,16 +350,7 @@ class SplitIt_Settings {
 				'type' => 'text',
 				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
 			),
-			'splitit_logo_src' => array(
-				'title' => __('Split It Logo', 'splitit'),
-				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png'),
-			),
-			'splitit_logo_background_href' => array(
-				'title' => __('Split It Logo Link', 'splitit'),
-				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
-			),
+
 //                'splitit_order_status' => array(
 			//                    'title' => __( 'New order status', 'splitit' ),
 			//                    'type' => 'select',
@@ -466,6 +457,17 @@ class SplitIt_Settings {
 				'type' => 'checkbox',
 				'label' => __('Enable Installment price functionality', 'splitit'),
 				'default' => 'yes',
+			),
+
+			'splitit_logo_src' => array(
+				'title' => __('Splitit logo source', 'splitit'),
+				'type' => 'text',
+				'default' => __('https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png'),
+			),
+			'splitit_logo_background_href' => array(
+				'title' => __('Splitit Logo Link', 'splitit'),
+				'type' => 'text',
+				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
 			),
 
 			'splitit_installment_price_sections' => array(
