@@ -12,9 +12,32 @@
 }
 #tell-me-more {
     float: right;
-    font-size: 15px;
-    line-height: 26px;
-    padding: 5px 0 0;
+    text-decoration: none !important;
 }
-.logoWidthSrc{ height: 20px !important; display: inline-block !important; margin-bottom: -5px !important;}
-.woocommerce-checkout img.logoWidthSrc {   margin-left: 7px;}
+
+.splitit-installment-price-checkout #tell-me-more {
+    float:none !important; color:#000; box-shadow:none !important; width: 45px;
+    display: inline-block;
+}
+.logoWidthSrc{ height: 18px !important; display: inline-block !important; margin-bottom: -5px !important;}
+/*.woocommerce-checkout img.logoWidthSrc {   margin-left: 7px;}*/
+span.splitit-installment-price { font-size: 11px;   color: #000;}
+span.splitit-installment-price a{ color: #000;   text-decoration: : underline;}
+/*span.splitit-installment-price-checkout img{margin-left: 0px !important;}
+*/
+span.payment-title-checkout img.paymentlogoWidthSrc {float: none !important;vertical-align: middle; display: inline;}
+span.payment-title-checkout  .tell-me-more-image{ width: 12px;
+    margin-bottom: 3px;
+    margin-left: 6px;}
+span.payment-title-checkout { font-size: 13px; }
+span.payment-title-checkout #tell-me-more{ float:none !important; color:#6d6d6d;  box-shadow:none !important;}
+span.splitit-installment-price-product #tell-me-more{ float: none; text-decoration: none !important; box-shadow:none !important;}
+.tell-me-more-image { float: none !important; vertical-align: middle; }
+.splitit-installment-price-checkout .tell-me-more-image{ width: 12px;margin-bottom:2px; }
+.splitit-installment-price-product .tell-me-more-image {width: 12px;margin-bottom: 4px;}
+span.splitit-installment-price-checkout {    font-size: 15px !important;}
+span.splitit-installment-price-checkout img.logoWidthSrc{/* width:44px !important; */ -webkit-box-shadow:none; box-shadow: none;}
+.powered-by-splitit {display: none;}
+.woocommerce-order-received img.paymentlogoWidthSrc {
+    width: 42px;
+}

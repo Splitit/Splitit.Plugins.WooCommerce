@@ -40,17 +40,18 @@ class SplitIt_Settings {
 
 		$fields =
 		array(
-			'_General_settings' => array(
-				'type' => 'title',
-				'title' => __('General settings', 'splitit'),
-				'description' => __('Api and debug settings'),
-			),
 			'enabled' => array(
 				'title' => __('Enable/Disable', 'splitit'),
 				'type' => 'checkbox',
 				'label' => __('Enable Splitit Payment', 'splitit'),
 				'default' => 'yes',
 			),
+			'_General_settings' => array(
+				'type' => 'title',
+				'title' => __('General settings', 'splitit'),
+				'description' => __('Api and debug settings'),
+			),
+
 			'splitit_api_terminal_key' => array(
 				'title' => __('Terminal API key', 'splitit'),
 				'type' => 'text',
@@ -84,7 +85,7 @@ class SplitIt_Settings {
 				),
 			),
 			'splitit_test_api' => array(
-				'title' => '<a href="" id="checkApiCredentials">Check Credential API</a>',
+				'title' => '<a href="" id="checkApiCredentials">Verify API Credentials</a>',
 				'css' => 'display:none;',
 			),
 			'splitit_api_prod_url' => array(
@@ -107,12 +108,76 @@ class SplitIt_Settings {
 				'type' => 'text',
 				'default' => 'https://cdn-sandbox.splitit.com/',
 			),
+			'custom_urls' => array(
+				'title' => __('Define default/custom URL', 'splitit'),
+				'desc_tip' => true,
+				'type' => 'select',
+				'options' => array(
+					'default' => 'Default',
+					'custom' => 'Custom',
+				),
+			),
+			'splitit_async_enable' => array(
+				'title' => __('Enable Async Call', 'splitit'),
+				'type' => 'select',
+				'options' => array(
+					'yes' => 'Yes',
+					'no' => 'No',
+				),
+				'default' => 'yes',
+			),
+
+			'_Payment Setup' => array(
+				'type' => 'title',
+				'title' => __('Payment Setup', 'splitit'),
+				'description' => __('Payment settings'),
+			),
+
+			'splitit_cc' => array(
+				'title' => __('Card types', 'splitit'),
+				'type' => 'multiselect',
+				'description' => __('Choose the card icons you wish to show next to the Splitit payment option in your shop.', 'splitit'),
+				'desc_tip' => true,
+				'class' => 'wc-enhanced-select',
+				'css' => 'width: 450px;',
+				'custom_attributes' => array(
+					'data-placeholder' => __('Choose credit cards', 'splitit'),
+				),
+				'options' => array(
+					'visa' => 'Visa',
+					'mastercard' => 'Mastercard',
+					'unionpay' => 'Union Pay',
+				),
+				'default' => array('visa', 'mastercard', 'unionpay'),
+			),
+
+			'splitit_payment_action' => array(
+				'title' => __('Payment action', 'splitit'),
+				'type' => 'select',
+				'class' => 'wc-enhanced-select',
+				'css' => 'width: 450px;',
+//                    'custom_attributes' => array(
+				//                        'data-placeholder' => __( 'Select order status', 'splitit' )
+				//                    ),
+				'default' => '',
+				'options' => array(
+					'purchase' => 'Charge my consumer at the time of purchase',
+					'shipped' => 'Charge my consumer when the shipment is ready',
+				),
+			),
+
+			'_Installment Setup' => array(
+				'type' => 'title',
+				'title' => __('Installment Setup', 'splitit'),
+				'description' => __('Installment settings'),
+			),
+
 			'splitit_discount_type' => array(
 				'title' => __('Select installment setup', 'splitit'),
 				'desc_tip' => true,
 				'type' => 'select',
 				'options' => array(
-					'fixed' => 'Fixed',
+					'fixed' => 'Set number of installments',
 					'depending_on_cart_total' => 'Depending on cart total',
 				),
 			),
@@ -265,29 +330,167 @@ class SplitIt_Settings {
 				),
 				'default' => 'yes',
 			),
-			'splitit_fee_enable' => array(
-				'title' => __('Enable Splitit fees', 'splitit'),
+
+			'splitit_first_installment' => array(
+				'title' => __('First Payment', 'splitit'),
 				'type' => 'select',
 				'options' => array(
-					'no' => 'No',
-					'yes' => 'Yes',
+					'monthly' => 'Equal to Monthly Payment',
+					'shipping' => 'Only Shipping',
+					'shipping_taxes' => 'Only Shipping and Taxes',
+					'percent' => 'Equal to percentage of the order [X]',
 				),
 			),
-			'splitit_fee_type' => array(
-				'title' => __('Splitit fee type', 'splitit'),
+			'splitit_first_installment_percent' => array(
+				'title' => __('Percentage Of Order  %', 'splitit'),
+				'type' => 'number',
+			),
+			/* only to be enabled if approved by merchant*/
+			/*'splitit_fee_enable' => array(
+					'title' => __('Enable Splitit fees', 'splitit'),
+					'type' => 'select',
+					'options' => array(
+						'no' => 'No',
+						'yes' => 'Yes',
+					),
+				),
+				'splitit_fee_type' => array(
+					'title' => __('Splitit fee type', 'splitit'),
+					'type' => 'select',
+					'options' => array(
+						'fixed' => 'Fixed',
+						'percent' => 'Percentage',
+					),
+				),
+				'splitit_fee_amount' => array(
+					'title' => __('Splitit Fees Amount/Percentage', 'splitit'),
+					'description' => __("Fee can't be greater than 50.00 or less than 0.00", 'splitit'),
+					'desc_tip' => true,
+					'type' => 'text',
+					'default' => '0.00',
+			*/
+
+			'_Enable Splitit Per Product' => array(
+				'type' => 'title',
+				'title' => __('Enable Splitit Per Product', 'splitit'),
+				'description' => __('Splitit Per Product settings'),
+			),
+
+			'splitit_product_option' => array(
+				'title' => __('Enable Splitit per product', 'splitit'),
 				'type' => 'select',
+				'class' => 'wc-enhanced-select',
+				'css' => 'width: 450px;',
+				'default' => '',
 				'options' => array(
-					'fixed' => 'Fixed',
-					'percent' => 'Percentage',
+					'0' => 'Disabled',
+					'1' => 'Enable Splitit if the cart consists only of products from the list below',
+					'2' => 'Enable Splitit if the cart consists of at least one of the products from the list below',
 				),
 			),
-			'splitit_fee_amount' => array(
-				'title' => __('Splitit Fees Amount/Percentage', 'splitit'),
-				'description' => __("Fee can't be greater than 50.00 or less than 0.00", 'splitit'),
-				'desc_tip' => true,
+			'splitit_product_sku_list' => array(
+				'title' => __('List of product SKUs', 'splitit'),
+				/*'type'  => 'multiselect',*/
 				'type' => 'text',
-				'default' => '0.00',
+				/*'css' => 'width: 450px;',
+                'options' => $prodSKUs*/
 			),
+
+			'_Display Setup ' => array(
+				'type' => 'title',
+				'title' => __('Display Setup ', 'splitit'),
+				'description' => __('Display settings'),
+			),
+
+			'splitit_enable_installment_price' => array(
+				'title' => __('Enable/Disable', 'splitit'),
+				'description' => __(''),
+				'type' => 'checkbox',
+				'label' => __('Advertise Splitit installment option throughout my store', 'splitit'),
+				'default' => 'yes',
+			),
+
+			'splitit_max_installments_limit' => array(
+				'title' => __('Number of installment for display', 'splitit'),
+				'type' => 'select',
+				'default' => 6,
+				'class' => 'wc-enhanced-select',
+				'css' => 'width: 450px;',
+				'options' => self::get_available_installments(),
+			),
+
+			'splitit_installment_price_sections' => array(
+				'title' => __('Sections/pages where to display installment price', 'splitit'),
+				'description' => __('Select pages to show installment prices.', 'splitit'),
+				'desc_tip' => true,
+				'type' => 'multiselect',
+				'css' => 'width: 350px; height: 185px;',
+				'options' => self::get_installment_price_sections(),
+			),
+
+			/*'splitit_without_interest' => array(
+				'title' => __('Installment price text', 'splitit'),
+				'type' => 'text',
+				'description' => 'X is no. of installments, Y is price, SPLITIT will be replaced by SplitIt Logo',
+				'default' => 'or {X}interest-free payments of {Y}with SPLITIT +LearnMore',
+				'custom_attributes' => array('readonly' => 'readonly')
+			),*/
+
+			'_Checkout ' => array(
+				'type' => 'title',
+				'title' => __('Checkout ', 'splitit'),
+				'description' => __('Checkout settings'),
+			),
+
+			'splitit_logo_src' => array(
+				'title' => __('Splitit logo source', 'splitit'),
+				'type' => 'text',
+				'default' => __('https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png'),
+			),
+
+			/*'title' => array(
+				'title' => __('Title', 'splitit'),
+				'type' => 'text',
+				'description' => __('This controls the title which the user sees during checkout.', 'splitit'),
+				'default' => __('Splitit Logo 0% Interest Monthly Payments', 'splitit'),
+				'desc_tip' => true,
+				'custom_attributes' => array('readonly' => 'readonly'),
+			),*/
+			/*'description' => array(
+				'title' => __('Customer Message', 'splitit'),
+				'type' => 'textarea',
+				'description' => __('This controls the description which the user sees during checkout.', 'splitit'),
+				'default' => 'Split your purchase easily on your existing credit card (no credit check, no fees)',
+				'desc_tip' => true,
+				'custom_attributes' => array('readonly' => 'readonly'),
+			),*/
+			/*'splitit_enable_help' => array(
+					'title' => __('Help link enabled', 'splitit'),
+					'type' => 'checkbox',
+					'default' => 'yes',
+				),
+				'splitit_help_title' => array(
+					'title' => __('Help link title', 'splitit'),
+					'type' => 'text',
+					'default' => __('Tell me more', 'splitit'),
+					'custom_attributes' => array('readonly' => 'readonly'),
+			*/
+			'splitit_help_title_link' => array(
+				'title' => __('Learn More Link', 'splitit'),
+				'type' => 'text',
+				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
+			),
+			/*'splitit_logo_background_href' => array(
+				'title' => __('Splitit Logo Link', 'splitit'),
+				'type' => 'text',
+				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
+			),*/
+			'_3dSecure ' => array(
+				'type' => 'title',
+				'title' => __('3D Secure ', 'splitit'),
+				/*'description' => __('Checkout settings'),*/
+			),
+
 			'splitit_3d_secure' => array(
 				'title' => __('Enable 3D Secure', 'splitit'),
 				'type' => 'select',
@@ -299,57 +502,14 @@ class SplitIt_Settings {
 			'splitit_3d_secure_min_amount' => array(
 				'title' => __('Minimal amount for 3D attempt', 'splitit'),
 				'type' => 'number',
+				'default' => 0,
 			),
 
-			'splitit_first_installment' => array(
-				'title' => __('First Payment', 'splitit'),
-				'type' => 'select',
-				'options' => array(
-					'monthly' => 'Equal to Monthly Payment',
-					'shipping' => 'Only Shipping',
-					'shipping_taxes' => 'Only Shipping + Taxes',
-					'percent' => 'Equal to percentage of the order [X]',
-				),
-			),
-			'splitit_first_installment_percent' => array(
-				'title' => __('Percentage Of Order Value', 'splitit'),
-				'type' => 'number',
-			),
-
-			'_Shop_setup' => array(
+			/*'_Shop_setup' => array(
 				'type' => 'title',
 				'title' => __('Shop setup', 'splitit'),
 				'description' => __('Splitit settings visible on frontend'),
-			),
-			'title' => array(
-				'title' => __('Title', 'splitit'),
-				'type' => 'text',
-				'description' => __('This controls the title which the user sees during checkout.', 'splitit'),
-				'default' => __('Interest Free Monthly Payments', 'splitit'),
-				'desc_tip' => true,
-			),
-			'description' => array(
-				'title' => __('Customer Message', 'splitit'),
-				'type' => 'textarea',
-				'description' => __('This controls the description which the user sees during checkout.', 'splitit'),
-				'default' => 'Split your purchase easily on your existing credit card (no credit check, no fees)',
-				'desc_tip' => true,
-			),
-			'splitit_enable_help' => array(
-				'title' => __('Help link enabled', 'splitit'),
-				'type' => 'checkbox',
-				'default' => 'yes',
-			),
-			'splitit_help_title' => array(
-				'title' => __('Help link title', 'splitit'),
-				'type' => 'text',
-				'default' => __('Tell me more', 'splitit'),
-			),
-			'splitit_help_title_link' => array(
-				'title' => __('Help link URL', 'splitit'),
-				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
-			),
+			),*/
 
 //                'splitit_order_status' => array(
 			//                    'title' => __( 'New order status', 'splitit' ),
@@ -364,59 +524,7 @@ class SplitIt_Settings {
 			//                    'default' => '',
 			//                    'options' => wc_get_order_statuses()
 			//                ),
-			'splitit_payment_action' => array(
-				'title' => __('Payment action', 'splitit'),
-				'type' => 'select',
-				'class' => 'wc-enhanced-select',
-				'css' => 'width: 450px;',
-//                    'custom_attributes' => array(
-				//                        'data-placeholder' => __( 'Select order status', 'splitit' )
-				//                    ),
-				'default' => '',
-				'options' => array(
-					'purchase' => 'Charge my consumer at the time of the purchase',
-					'shipped' => 'Charge my consumer when the shipment is ready',
-				),
-			),
-			'splitit_cc' => array(
-				'title' => __('Credit card types', 'splitit'),
-				'type' => 'multiselect',
-				'description' => __('Choose the card icons you wish to show next to the Splitit payment option in your shop.', 'splitit'),
-				'desc_tip' => true,
-				'class' => 'wc-enhanced-select',
-				'css' => 'width: 450px;',
-				'custom_attributes' => array(
-					'data-placeholder' => __('Choose credit cards', 'splitit'),
-				),
-				'options' => array(
-					'visa' => 'Visa',
-					'mastercard' => 'Mastercard',
-				),
-				'default' => array('visa', 'mastercard'),
-			),
-			'splitit_max_installments_limit' => array(
-				'title' => __('Number of installment for display', 'splitit'),
-				'type' => 'select',
-				'default' => 12,
-				'class' => 'wc-enhanced-select',
-				'css' => 'width: 450px;',
-				'options' => self::get_available_installments(),
-			),
-			'splitit_without_interest' => array(
-				'title' => __('Installment price text', 'splitit'),
-				'type' => 'text',
-				'description' => 'Default is "without interest", SPLITIT will be replaced by Split It Logo',
-				'default' => 'without interest',
-			),
-			'custom_urls' => array(
-				'title' => __('Define default/custom URL', 'splitit'),
-				'desc_tip' => true,
-				'type' => 'select',
-				'options' => array(
-					'default' => 'Default',
-					'custom' => 'Custom',
-				),
-			),
+
 			'splitit_cancel_url' => array(
 				'title' => __('Cancel payment url', 'splitit'),
 				'type' => 'text',
@@ -445,58 +553,11 @@ class SplitIt_Settings {
 				'desc_tip' => true,
 			),
 
-			'_Installment_price_setup' => array(
+			/*'_Installment_price_setup' => array(
 				'type' => 'title',
 				'title' => __('Installment price setup', 'splitit'),
 				'description' => __('Installment price functionality settings'),
-			),
-
-			'splitit_enable_installment_price' => array(
-				'title' => __('Enable/Disable', 'splitit'),
-				'description' => __('Installment price will be calculated based on max installment value'),
-				'type' => 'checkbox',
-				'label' => __('Enable Installment price functionality', 'splitit'),
-				'default' => 'yes',
-			),
-
-			'splitit_logo_src' => array(
-				'title' => __('Splitit logo source', 'splitit'),
-				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png'),
-			),
-			'splitit_logo_background_href' => array(
-				'title' => __('Splitit Logo Link', 'splitit'),
-				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
-			),
-
-			'splitit_installment_price_sections' => array(
-				'title' => __('Sections/pages where to display installment price', 'splitit'),
-				'description' => __('Select pages to show installment prices.', 'splitit'),
-				'desc_tip' => true,
-				'type' => 'multiselect',
-				'css' => 'width: 350px; height: 185px;',
-				'options' => self::get_installment_price_sections(),
-			),
-			'splitit_product_option' => array(
-				'title' => __('Enable Splitit per product', 'splitit'),
-				'type' => 'select',
-				'class' => 'wc-enhanced-select',
-				'css' => 'width: 450px;',
-				'default' => '',
-				'options' => array(
-					'0' => 'Disabled',
-					'1' => 'Enable Splitit just if the selected products from the list and only they are on the cart',
-					'2' => 'Enable Splitit if 1 or more of the selected products from the list is on cart, and the cart includes also other products',
-				),
-			),
-			'splitit_product_sku_list' => array(
-				'title' => __('List of product SKUs', 'splitit'),
-				/*'type'  => 'multiselect',*/
-				'type' => 'text',
-				/*'css' => 'width: 450px;',
-                'options' => $prodSKUs*/
-			),
+			),*/
 
 			'_Splitit_banners' => array(
 				'type' => 'title',
@@ -586,7 +647,6 @@ class SplitIt_Settings {
 	private static function get_installment_price_sections() {
 		return array(
 			'product' => 'Product page',
-			'category' => 'Category page',
 			'cart' => 'Shopping cart',
 			'checkout' => 'Checkout',
 		);

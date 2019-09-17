@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.2.3
+Version: 2.2.4
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -170,7 +170,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.2.3');
+	define('Splitit_VERSION', '2.2.4');
 
 	// Import helper classes
 	require_once 'classes/splitit-log.php';
@@ -233,14 +233,34 @@ function init_splitit_method() {
 
 			// Get gateway variables: displayed as payment method title and description on front
 			//$this->title = $this->s('title') . '<span id="pis_anchor" style="display:none;"></span>';
-			$this->title = $this->s('title');
-			$this->description = $this->s('description');
+
+			//echo $this->settings['splitit_help_title_link'];die;
+			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg" >';
+			$textToDisplay = "<span class='payment-title-checkout'><img  class='paymentlogoWidthSrc' src='" . $this->s('splitit_logo_src') . "' alt='SPLITIT'/> 0% INTEREST MONTHLY PAYMENTS <a href='" . $this->s('splitit_help_title_link') . "' id='tell-me-more'>" . $learnmoreImage . "</a></span>";
+			$descriptionImage = '<span class="description_image"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/description.png" ></span>';
+			//echo $textToDisplay;die;
+			$this->title = $textToDisplay;
+			$this->description = $descriptionImage;
 			$this->instructions = $this->s('instructions');
 			// if($this->s('splitit_max_installments') && $this->s('splitit_max_installments') != '' && $this->s('splitit_max_installments') <= $this->s('splitit_max_installments_limit')) {
 			//     self::$_maxInstallments = $this->settings['splitit_max_installments'];
 			// } else {
 			self::$_maxInstallments = $this->s('splitit_max_installments_limit'); //set maximum installments //number by default
 			// }
+		}
+
+		/**
+		 * Return the title for Checkout page and Admin
+		 *
+		 * @access public
+		 * @return string
+		 */
+		public function get_title() {
+			if (is_admin()) {
+				return "SplitIt 0% INTEREST MONTHLY PAYMENTS";
+			} else {
+				return $this->title;
+			}
 		}
 
 		/**
@@ -306,7 +326,7 @@ function init_splitit_method() {
 			add_action('woocommerce_api_splitit_help', array($this, 'splitit_help'));
 
 			//SplitIt session init and button inserting, gateway cc icons
-			add_action('woocommerce_after_checkout_form', 'SplitIt_Helper::checkout_js');
+			add_action('wp_enqueue_scripts', 'SplitIt_Helper::checkout_js');
 			add_action('woocommerce_after_checkout_form', array($this, 'splitit_pass_cdn_urls'));
 			add_action('woocommerce_api_splitit_scripts_on_checkout', array($this, 'splitit_scripts_on_checkout'));
 			/* add splitit fees */
@@ -1084,6 +1104,9 @@ $textValue = esc_attr($this->get_option($key));
 							if (!WC_Validation::is_phone($checkout_fields[$field][1])) {
 								$validate_errors[] = '<li><strong>' . $data[0] . '</strong> ' . __('is not a valid phone number.', 'woocommerce') . '</li>';
 							}
+							if (strlen($data[1]) < 5 || strlen($data[1]) > 10) {
+								$validate_errors[] = '<li><strong>' . $data[0] . '</strong> ' . __('should be greater than 5 and less than 10 digits', 'woocommerce') . '</li>';
+							}
 
 							break;
 						case 'email_field':
@@ -1313,19 +1336,26 @@ $textValue = esc_attr($this->get_option($key));
 		 */
 		public function splitit_check_api_credentials() {
 
-			if (is_null($this->_API)) {
-				$this->_API = new SplitIt_API($this->settings); //passing settings to API
-			}
-
-			$session = $this->_API->login();
-
-			$message = ($this->s('splitit_mode_sandbox') == 'yes') ? '[Sandbox Mode] ' : '[Production mode] ';
-			if (!isset($session['error'])) {
-				$message .= 'Successfully login! API available!';
+			if (!$this->s('splitit_api_terminal_key') || !$this->s('splitit_api_username') || !$this->s('splitit_api_password')) {
+				$message = "Please enter the credentials and save settings";
 			} else {
-				$message .= 'code: ' . $session['error']['code'] . ' - ERROR: ' . $session['error']['message'];
-			}
+				if (!$this->s('splitit_api_terminal_key') || !$this->s('splitit_api_username') || !$this->s('splitit_api_password')) {
+					echo "Please enter the credentials and save settings";die;
+				}
 
+				if (is_null($this->_API)) {
+					$this->_API = new SplitIt_API($this->settings); //passing settings to API
+				}
+
+				$session = $this->_API->login();
+
+				$message = ($this->s('splitit_mode_sandbox') == 'yes') ? '[Sandbox Mode] ' : '[Production mode] ';
+				if (!isset($session['error'])) {
+					$message .= 'Successfully login! API available!';
+				} else {
+					$message .= 'code: ' . $session['error']['code'] . ' - ERROR: ' . $session['error']['message'];
+				}
+			}
 			echo $message;
 			wp_die();
 		}
@@ -1410,7 +1440,7 @@ $textValue = esc_attr($this->get_option($key));
 						return $price . $this->get_formatted_installment_price($product);
 					}
 					if (is_cart() && in_array('cart', $sections)) {
-						return $price . $this->get_formatted_installment_price($product);
+						return $price;
 					}
 					if (is_checkout() && in_array('checkout', $sections)) {
 						return $price . $this->get_formatted_installment_price($product);
@@ -1435,14 +1465,37 @@ $textValue = esc_attr($this->get_option($key));
 			}
 			if (($this->settings['enabled'] == 'yes' && isset($enabledGateways['splitit'])) && is_array($this->settings['splitit_installment_price_sections'])) {
 				$sections = $this->settings['splitit_installment_price_sections'];
-				if ((is_cart() && in_array('cart', $sections)) || (is_checkout() && in_array('checkout', $sections))) {
+/*				if () {
+$split_price = round($woocommerce->cart->total / self::$_maxInstallments, 3);
+$textToDisplay = '<span style="display:block;" class="splitit-installment-price">' . self::$_maxInstallments . ' X ' . wc_price($split_price, array('decimals' => 2)) . ' without interest </span>';
+return $price . "<br/>" . $textToDisplay;
+}*/
+
+				if ((is_cart() && in_array('cart', $sections)) || is_checkout() && in_array('checkout', $sections)) {
 					$split_price = round($woocommerce->cart->total / self::$_maxInstallments, 3);
-					$textToDisplay = $this->settings['splitit_without_interest'];
-					if (isset($this->settings['splitit_logo_src']) && isset($this->settings['splitit_logo_background_href']) && $this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
+					//$textToDisplay = $this->settings['splitit_without_interest'];
+					/*if (isset($this->settings['splitit_logo_src']) && isset($this->settings['splitit_logo_background_href']) && $this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
 						$replace = "<a href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 						$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 					}
-					return $price . '<span style="display:block;" class="splitit-installment-price">' . self::$_maxInstallments . ' x ' . wc_price($split_price, array('decimals' => 2)) . ' ' . $textToDisplay . '</span>';
+					if (isset($this->settings['splitit_help_title']) && isset($this->settings['splitit_help_title_link']) && $this->settings['splitit_help_title'] && $this->settings['splitit_help_title_link']) {
+						$helpLink = '<a href="' . $this->settings['splitit_help_title_link'] . '" id="tell-me-more">' . $this->s('splitit_help_title') . '</a>';
+						$textToDisplay = str_replace('+LearnMore', $helpLink, $textToDisplay);
+					}
+					$textToDisplay = str_replace('{X}', self::$_maxInstallments, $textToDisplay);
+					$textToDisplay = str_replace('{Y}', wc_price($split_price, array('decimals' => 2)), $textToDisplay);*/
+					$textToDisplay = $this->settings['splitit_without_interest'];
+					if (isset($this->settings['splitit_logo_src']) && $this->settings['splitit_logo_src']) {
+						//echo $this->settings['splitit_help_title_link'];die;
+						$replace = "<a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
+						$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
+					}
+					$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg">';
+					$learnmore = " <a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' target='_blank'>" . $learnmoreImage . "</a>";
+					//$prodData = $product->get_data();
+					//$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
+					$textToDisplay = '<span style="display:block;" class="splitit-installment-price-checkout">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
+					return $price . "<br/>" . $textToDisplay;
 				}
 			}
 			return $price;
@@ -1465,14 +1518,16 @@ $textValue = esc_attr($this->get_option($key));
 				return;
 			}
 			$textToDisplay = $this->settings['splitit_without_interest'];
-			if (isset($this->settings['splitit_logo_src']) && isset($this->settings['splitit_logo_background_href']) && $this->settings['splitit_logo_src'] && $this->settings['splitit_logo_background_href']) {
-				$replace = "<a href='" . $this->settings['splitit_logo_background_href'] . "' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
+			if (isset($this->settings['splitit_logo_src']) && $this->settings['splitit_logo_src']) {
+				//echo $this->settings['splitit_help_title_link'];die;
+				$replace = "<a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 				$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 			}
-
+			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg">';
+			$learnmore = " <a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
 			$prodData = $product->get_data();
 			$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
-			return '<span style="display:block;" class="splitit-installment-price">' . self::$_maxInstallments . ' x ' . wc_price($split_price, array('decimals' => 2)) . ' ' . $textToDisplay . '</span>';
+			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
 		}
 
 		/***************************************************************************************************************
@@ -1525,7 +1580,7 @@ $textValue = esc_attr($this->get_option($key));
 					}
 				}
 
-				$icon .= '<a href="' . $this->s('splitit_help_title_link') . '" id="tell-me-more">' . $this->s('splitit_help_title') . '</a>';
+				// $icon .= '<a href="' . $this->s('splitit_help_title_link') . '" id="tell-me-more">' . $this->s('splitit_help_title') . '</a>';
 			}
 
 			return $icon;

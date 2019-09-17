@@ -52,19 +52,20 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.3"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.4"),
 		);
 
 		try {
 			$result = $this->make_request($url, ucfirst(__FUNCTION__), $params);
 			$this->_API['session_id'] = (isset($result->{'SessionId'}) && $result->{'SessionId'} != '') ? $result->{'SessionId'} : null;
 
-			if (!$this->is_logged_in()) {
+			if (is_null($this->_API['session_id'])) {
 				// print_r($result);
 				//$this->setError(self::ERROR_UNKNOWN, $this->getError());
 				if ($this->_log) {
 					$this->_log->info(__FILE__, __LINE__, __METHOD__);
-					$this->_log->add($this->getError());}
+					$this->_log->add($this->getError());
+				}
 				return array('error' => $this->getError());
 			}
 
@@ -112,6 +113,16 @@ class SplitIt_API {
 		} else {
 
 			if ($this->_log) {$this->_log->info(__FILE__, __LINE__, __METHOD__);}
+
+			/*$validateAddress = $this->checkForBillingFieldsEmpty($order_data);
+				if (!$validateAddress['status']) {
+					$response["status"] = false;
+					$response["error"] = true;
+					$response["errorMsg"] = $validateAddress['errorMsg'];
+					$this->setError(self::ERROR_UNKNOWN, $validateAddress['errorMsg']);
+
+					return $response;
+			*/
 
 			$cancel_url = SplitIt_Helper::sanitize_redirect_url($this->_settings['splitit_cancel_url']);
 			$error_url = SplitIt_Helper::sanitize_redirect_url($this->_settings['splitit_error_url']);
@@ -518,6 +529,9 @@ class SplitIt_API {
 	 * @return bool
 	 */
 	public function is_logged_in() {
+		if (is_null($this->_API['session_id'])) {
+			$this->login();
+		}
 		return (!is_null($this->_API['session_id']));
 	}
 
