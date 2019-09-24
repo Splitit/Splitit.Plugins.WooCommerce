@@ -1339,9 +1339,6 @@ $textValue = esc_attr($this->get_option($key));
 			if (!$this->s('splitit_api_terminal_key') || !$this->s('splitit_api_username') || !$this->s('splitit_api_password')) {
 				$message = "Please enter the credentials and save settings";
 			} else {
-				if (!$this->s('splitit_api_terminal_key') || !$this->s('splitit_api_username') || !$this->s('splitit_api_password')) {
-					echo "Please enter the credentials and save settings";die;
-				}
 
 				if (is_null($this->_API)) {
 					$this->_API = new SplitIt_API($this->settings); //passing settings to API
