@@ -171,6 +171,14 @@ class SplitIt_API {
 
 			}
 
+			$splitit_default_selected_installment = $this->_settings['splitit_default_selected_installment'];
+			$installmentOptionsArr = explode(',', $instOptions);
+
+			if (!$splitit_default_selected_installment || !in_array($splitit_default_selected_installment, $installmentOptionsArr)) {
+				$index = floor(count($installmentOptionsArr) / 2);
+				$splitit_default_selected_installment = $installmentOptionsArr[$index];
+			}
+
 			$CurrencyCode = "USD";
 			if (get_woocommerce_currency() != "") {
 				$CurrencyCode = get_woocommerce_currency();
@@ -207,7 +215,7 @@ class SplitIt_API {
 					"Value" => $order_data['AmountBeforeFees'],
 					"CurrencyCode" => $CurrencyCode,
 				),
-				"NumberOfInstallments" => ($this->_settings['splitit_default_selected_installment']) ? $this->_settings['splitit_default_selected_installment'] : 10,
+				"NumberOfInstallments" => $splitit_default_selected_installment,
 				"RefOrderNumber" => "",
 				"AutoCapture" => $acpature,
 			);
