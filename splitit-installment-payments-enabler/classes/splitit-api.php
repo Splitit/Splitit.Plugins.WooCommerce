@@ -207,6 +207,7 @@ class SplitIt_API {
 					"Value" => $order_data['AmountBeforeFees'],
 					"CurrencyCode" => $CurrencyCode,
 				),
+				"NumberOfInstallments" => ($this->_settings['splitit_default_selected_installment']) ? $this->_settings['splitit_default_selected_installment'] : 10,
 				"RefOrderNumber" => "",
 				"AutoCapture" => $acpature,
 			);

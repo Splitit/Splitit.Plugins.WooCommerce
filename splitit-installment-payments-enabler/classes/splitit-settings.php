@@ -331,6 +331,14 @@ class SplitIt_Settings {
 				'default' => 'yes',
 			),
 
+			'splitit_default_selected_installment' => array(
+				'title' => __('Default Selected Installment', 'splitit'),
+				'desc_tip' => 'Selected installment will be by default selected on Splitit Payment page',
+				'type' => 'select',
+				'options' => $insArr,
+				'default' => '10',
+			),
+
 			'splitit_first_installment' => array(
 				'title' => __('First Payment', 'splitit'),
 				'type' => 'select',
