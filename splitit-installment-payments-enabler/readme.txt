@@ -3,7 +3,7 @@ Contributors: splitit
 Tags: ecommerce, e-commerce, commerce, wordpress ecommerce, sales, sell, shop, shopping, checkout, payment, splitit
 Requires at least: 3.0.1
 Tested up to: 5.2.3
-Stable tag: 2.2.5
+Stable tag: 2.2.6
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -61,6 +61,9 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 4. Customer charge action
 
 == Changelog ==
+
+= 2.2.5 =
+*Fix logo issue on checkout page.
 
 = 2.2.5 =
 *To set the default installment selected when redirected to SplitIt payment page.

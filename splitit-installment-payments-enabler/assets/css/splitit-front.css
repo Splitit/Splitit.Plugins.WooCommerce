@@ -25,7 +25,7 @@ span.splitit-installment-price { font-size: 11px;   color: #000;}
 span.splitit-installment-price a{ color: #000;   text-decoration: : underline;}
 /*span.splitit-installment-price-checkout img{margin-left: 0px !important;}
 */
-span.payment-title-checkout img.paymentlogoWidthSrc {float: none !important;vertical-align: middle; display: inline;}
+span.payment-title-checkout img.paymentlogoWidthSrc {margin-left: 0 !important;float: none !important;vertical-align: middle; display: inline;width: 42px;}
 span.payment-title-checkout  .tell-me-more-image{ width: 12px;
     margin-bottom: 3px;
     margin-left: 6px;}
@@ -33,11 +33,12 @@ span.payment-title-checkout { font-size: 13px; }
 span.payment-title-checkout #tell-me-more{ float:none !important; color:#6d6d6d;  box-shadow:none !important;}
 span.splitit-installment-price-product #tell-me-more{ float: none; text-decoration: none !important; box-shadow:none !important;}
 .tell-me-more-image { float: none !important; vertical-align: middle; }
-.splitit-installment-price-checkout .tell-me-more-image{ width: 12px;margin-bottom:2px; }
-.splitit-installment-price-product .tell-me-more-image {width: 12px;margin-bottom: 4px;}
+.splitit-installment-price-checkout .tell-me-more-image{ width: 12px; }
+.splitit-installment-price-product .tell-me-more-image {width: 12px;margin-bottom:5px;}
 span.splitit-installment-price-checkout {    font-size: 15px !important;}
 span.splitit-installment-price-checkout img.logoWidthSrc{/* width:44px !important; */ -webkit-box-shadow:none; box-shadow: none;}
 .powered-by-splitit {display: none;}
 .woocommerce-order-received img.paymentlogoWidthSrc {
     width: 42px;
 }
+.related .splitit-installment-price-product, .related #tell-me-more {display: none !important;}
