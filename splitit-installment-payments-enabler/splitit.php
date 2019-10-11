@@ -1104,8 +1104,8 @@ $textValue = esc_attr($this->get_option($key));
 							if (!WC_Validation::is_phone($checkout_fields[$field][1])) {
 								$validate_errors[] = '<li><strong>' . $data[0] . '</strong> ' . __('is not a valid phone number.', 'woocommerce') . '</li>';
 							}
-							if (strlen($data[1]) < 5 || strlen($data[1]) > 10) {
-								$validate_errors[] = '<li><strong>' . $data[0] . '</strong> ' . __('should be greater than 5 and less than 10 digits', 'woocommerce') . '</li>';
+							if (strlen($data[1]) < 5 || strlen($data[1]) > 14) {
+								$validate_errors[] = '<li><strong>' . $data[0] . '</strong> ' . __('should be greater than 5 and less than 14 digits', 'woocommerce') . '</li>';
 							}
 
 							break;
