@@ -283,7 +283,7 @@ class SplitIt_Checkout extends WC_Checkout {
             }
 
             // Action after validation
-            do_action( 'woocommerce_after_checkout_validation', $this->posted );
+            do_action( 'woocommerce_after_checkout_validation', $this->posted, 10, 1);
             //print_r($this->posted);die;
 
             if ( ! isset( $checkout_fields['woocommerce_checkout_update_totals'] ) && wc_notice_count( 'error' ) == 0 ) {

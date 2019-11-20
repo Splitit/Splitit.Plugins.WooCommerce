@@ -30,7 +30,7 @@ span.payment-title-checkout  .tell-me-more-image{ width: 12px;
     margin-bottom: 3px;
     margin-left: 6px;}
 span.payment-title-checkout { font-size: 13px; }
-span.payment-title-checkout #tell-me-more{ float:none !important; color:#6d6d6d;  box-shadow:none !important;}
+span.payment-title-checkout #tell-me-more{ float:none !important; color:#6d6d6d;  box-shadow:none !important;display: inline-block;vertical-align: middle;}
 span.splitit-installment-price-product #tell-me-more{ float: none; text-decoration: none !important; box-shadow:none !important;}
 .tell-me-more-image { float: none !important; vertical-align: middle; }
 .splitit-installment-price-checkout .tell-me-more-image{ width: 12px; }

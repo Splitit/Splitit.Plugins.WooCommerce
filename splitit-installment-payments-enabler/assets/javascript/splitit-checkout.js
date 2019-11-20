@@ -32,7 +32,7 @@
     $(document).on('click', '#tell-me-more', function(e){
         e.preventDefault();
         var left = (screen.width - 433)/2;
-  var top = (screen.height/2)-(window.innerHeight/2);
+        var top = (screen.height/2)-(window.innerHeight/2);
         var win= window.open(this.href,"Tell me more","width=433,height=607,left="+left+",top="+top+",location=no,status=no,scrollbars=no,resizable=no");
         win.document.writeln("<body style='margin:0px'><img width=100% src='"+this.href+"' />");
         win.document.writeln("</body>");
@@ -50,6 +50,17 @@
                 return false;
             }
         });
+    });
+
+    var decodeHTML = function (html) {
+        var txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
+    };
+    $(document).ready(function(){
+        var elem = jQuery('.order_details').find(':contains(payment-title-checkout)').closest('td');
+
+        elem.html(decodeHTML(elem.html()));        
     });
 
     function initEcSession() {

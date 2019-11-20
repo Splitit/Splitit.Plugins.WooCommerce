@@ -1514,11 +1514,11 @@ return $price . "<br/>" . $textToDisplay;
 			if ($this->settings['enabled'] == 'no' || !isset($enabledGateways['splitit'])) {
 				return;
 			}
-			$textToDisplay = $this->settings['splitit_without_interest'];
+			$textToDisplay = isset($this->settings['splitit_without_interest'])?$this->settings['splitit_without_interest']:'';
 			if (isset($this->settings['splitit_logo_src']) && $this->settings['splitit_logo_src']) {
 				//echo $this->settings['splitit_help_title_link'];die;
 				$replace = "<a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
-				$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
+				$textToDisplay = str_replace('SPLITIT', $replace, isset($this->settings['splitit_without_interest'])?$this->settings['splitit_without_interest']:'');
 			}
 			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg">';
 			$learnmore = " <a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'>" . $learnmoreImage . "</a>";

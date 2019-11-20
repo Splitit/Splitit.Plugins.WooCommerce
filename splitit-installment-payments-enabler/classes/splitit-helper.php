@@ -19,6 +19,8 @@ class SplitIt_Helper {
 			wp_enqueue_style('splitit_prodlist_admin_css', plugins_url('/assets/css/prodlist.css', dirname(__FILE__)));
 			wp_enqueue_script('splitit-admin', plugins_url('/assets/javascript/splitit-admin.js', dirname(__FILE__)), array('jquery'));
 		}
+		wp_enqueue_style('splitit_order_admin_css', plugins_url('/assets/css/splitit-admin-order.css', dirname(__FILE__)));
+		wp_enqueue_script('splitit-admin-order', plugins_url('/assets/javascript/splitit-admin-order.js', dirname(__FILE__)), array('jquery'));
 		if (isset($_GET['page']) && $_GET['page'] == 'wc-settings' && isset($_GET['tab']) && $_GET['tab'] == 'checkout') {
 			wp_enqueue_style('splitit_prodlist_admin_css', plugins_url('/assets/css/splitit-admin.css', dirname(__FILE__)));
 		}
