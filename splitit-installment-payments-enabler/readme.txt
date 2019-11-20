@@ -62,7 +62,7 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 
 == Changelog ==
 
-= 2.2.5 =
+= 2.2.6 =
 *Fix logo issue on checkout page.
 
 = 2.2.5 =
