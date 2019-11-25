@@ -236,7 +236,7 @@ function init_splitit_method() {
 
 			//echo $this->settings['splitit_help_title_link'];die;
 			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg" >';
-			$textToDisplay = "<span class='payment-title-checkout'><img  class='paymentlogoWidthSrc' src='" . $this->s('splitit_logo_src') . "' alt='SPLITIT'/> 0% INTEREST MONTHLY PAYMENTS <a href='" . $this->s('splitit_help_title_link') . "' id='tell-me-more'>" . $learnmoreImage . "</a></span>";
+			$textToDisplay = "<span class='payment-title-checkout'><img  class='paymentlogoWidthSrc' src='" . $this->s('splitit_logo_src') . "' alt='SPLITIT'/> ".__("0% INTEREST MONTHLY PAYMENTS")." <a href='" . $this->s('splitit_help_title_link') . "' id='tell-me-more'>" . $learnmoreImage . "</a></span>";
 			$descriptionImage = '<span class="description_image"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/description.png" ></span>';
 			//echo $textToDisplay;die;
 			$this->title = $textToDisplay;
