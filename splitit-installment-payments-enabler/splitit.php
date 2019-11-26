@@ -1116,6 +1116,13 @@ $textValue = esc_attr($this->get_option($key));
 							}
 
 							break;
+						case 'address_1_field':
+							$checkout_fields[$field][1] = strtolower($data[1]);
+							if (!isset($checkout_fields[$field][1]) || strlen(trim($checkout_fields[$field][1]))<=0) {
+								$validate_errors[] = '<li><strong>' . $data[0] . '</strong> ' . __('is a required field.', 'woocommerce') . '</li>';
+							}
+
+							break;
 						case 'state_field':
 							// Get valid states
 							$valid_states = WC()->countries->get_states(WC()->customer->get_billing_country());
