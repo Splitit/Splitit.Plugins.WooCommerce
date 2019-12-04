@@ -59,8 +59,9 @@
     };
     $(document).ready(function(){
         var elem = jQuery('.order_details').find(':contains(payment-title-checkout)').closest('td');
-
-        elem.html(decodeHTML(elem.html()));        
+        if(elem != undefined){
+            elem.html(decodeHTML(elem.html()));
+        }
     });
 
     function initEcSession() {

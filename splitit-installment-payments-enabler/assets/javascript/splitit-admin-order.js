@@ -9,10 +9,14 @@
 
 	$(document).ready(function(){
 		var mainElem = jQuery('.column-billing_address .description:contains(payment-title-checkout)');
-		var splititHTML = mainElem.html();
-		var viaText = splititHTML.substr(0,splititHTML.indexOf(' '));
-		var elem = splititHTML.substr(splititHTML.indexOf(' ')+1);
-		mainElem.html(viaText + ' ' + decodeHTML(elem));
+		if(mainElem != undefined){
+			var splititHTML = mainElem.html();
+			if(splititHTML != undefined){
+				var viaText = splititHTML.substr(0,splititHTML.indexOf(' '));
+				var elem = splititHTML.substr(splititHTML.indexOf(' ')+1);
+				mainElem.html(viaText + ' ' + decodeHTML(elem));
+			}
+		}
 	});
 
 })(jQuery);
