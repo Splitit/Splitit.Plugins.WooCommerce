@@ -1438,7 +1438,11 @@ $textValue = esc_attr($this->get_option($key));
 				//checking if any options selected in admin
 				if (is_array($sections)) {
 					if (is_product() && in_array('product', $sections)) {
-						return $price . $this->get_formatted_installment_price($product);
+						if($this->isSplititTextVisibleOnProduct($product->get_id())){
+							return $price . $this->get_formatted_installment_price($product);
+						} else {
+							return $price;
+						}
 					}
 					if (is_shop() && in_array('category', $sections)) {
 						return $price . $this->get_formatted_installment_price($product);
@@ -1663,6 +1667,24 @@ return $price . "<br/>" . $textToDisplay;
 				}
 			}
 			return $gateways;
+		}
+
+		/**
+		 * remove splitit gateway if product conditions met
+		 * @param $gateways
+		 * @return mixed
+		 */
+		public function isSplititTextVisibleOnProduct($productId) {
+			$show = true;
+			if (isset($this->settings['splitit_product_option']) && $this->settings['splitit_product_option']!=0) {
+				$show = false;
+				$prodSKUs = $this->settings['splitit_product_sku_list'];
+				$prodSKUs = explode(',', $prodSKUs);
+				if (in_array($productId, $prodSKUs)) {
+					$show = TRUE;
+				}
+			}
+			return $show;
 		}
 
 		public function splitit_fee_add() {
