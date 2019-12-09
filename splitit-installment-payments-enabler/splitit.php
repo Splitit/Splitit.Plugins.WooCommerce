@@ -23,6 +23,18 @@ function add_notice_function() {
 	}
 }
 
+$isCustomPLugin = false;
+
+if($isCustomPLugin){
+	function prefix_plugin_update_message( $data, $response ) {
+		printf(
+			'<div class="update-message"><p>%s <strong style="color:red;">%s</strong></p></div>',
+			__('Dear user, your Splitit plugin version has been customized specifically for your needs.', 'splitit' ),__('Please do not update the plugin version without consulting first with your Splitit Customer Success manager. The consequences might be LOSING the modification done specifically for you!', 'splitit' )
+		);
+	}
+	add_action( 'in_plugin_update_message-splitit-installment-payments-enabler/splitit.php', 'prefix_plugin_update_message', 10, 2 );
+}
+
 add_filter('woocommerce_locate_template', 'woo_adon_plugin_template', 1, 3);
 function woo_adon_plugin_template($template, $template_name, $template_path) {
 	global $woocommerce;
