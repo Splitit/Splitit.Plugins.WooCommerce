@@ -1826,13 +1826,17 @@ return $price . "<br/>" . $textToDisplay;
 					return true;
 				}
 
+				if(is_object($result)){
+					$result = json_decode(json_encode($result), true);
+				}
+
 				return isset($result['code']) ? new WP_Error('error', $result['message']) : false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar
 			}
 		}
 
 		public function splitit_cancel_order($order_get_id) {
 			global $woocommerce;
-			$chosen_gateway = $woocommerce->session->chosen_payment_method;
+			$chosen_gateway = get_post_meta( $order_get_id, '_payment_method', true );
 			if ($chosen_gateway == 'splitit') {
 				$ipn = get_post_meta($order_get_id, 'installment_plan_number', true);
 				/*var_dump($ipn);exit;*/
@@ -1859,6 +1863,8 @@ return $price . "<br/>" . $textToDisplay;
 			$result = $json;
 			if (is_string($json)) {
 				$result = json_decode($json, true);
+			} elseif (is_object($json)) {
+				$result = json_decode(json_encode($json), true);
 			}
 			//            print_r($result);exit;
 			$errorMsg = "";
