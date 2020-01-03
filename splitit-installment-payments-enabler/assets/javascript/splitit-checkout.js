@@ -65,6 +65,7 @@
     });
 
     function initEcSession() {
+        $("#place_order").addClass("loader_div");
         var fields = getFormFields();
 
         $.ajax({
@@ -73,7 +74,19 @@
             data: fields,
             success: function (data) {
                 if(data.CheckoutUrl) {
-                    window.location.href = data.CheckoutUrl;
+                    //checks if id presents
+                    if( $('#splitit-payment-form').length )        
+                    {
+                       console.log("condition is true");
+                       loadSplititPaymentForm(data.CheckoutUrl);    
+                    }
+                    else{
+                        console.log("condition is false");
+                       window.location.href = data.CheckoutUrl;
+                    }
+                    //$("#place_order").addClass("loader_div");
+                    
+                    //window.location.href = data.CheckoutUrl;
                 } else {
                     if(data.message) {
                         alert(data.message);
@@ -103,12 +116,14 @@
     function validateFields() {
         //disable button to avoid double sending
         $('#place_order').attr('disabled', true);
+        $("#place_order").addClass("loader_div");
         var fields = getFormFields();
         $.ajax({
             url: '?wc-api=splitit_checkout_validate',
             type: 'post',
             data: fields,
             success: function (data) {
+                $("#place_order").addClass("loader_div");
                 $('.woocommerce-error, .woocommerce-message').remove();
 
                 // Check for error
@@ -131,17 +146,20 @@
                     }, 1000);
 
                    // setCookie('splitit_validation_passed', 0);
+                   $("#place_order").addClass("loader_div");
                     $('#place_order').attr('disabled', false);
 //                    return; //stop further processing
 
                 } else if ('success' == data.result) {
-                    $('#place_order').val('Loading Splitit...');
+                    $("body").addClass("loader_div");
+                    //$('#place_order').val('Loading Splitit...');
                     
                     saveFieldsToCookie();
                     initEcSession();
                   //  setCookie('splitit_validation_passed', 1);
                 } else {
                     alert('Error occured, please try again later');
+                    $("#place_order").addClass("loader_div");
                     $('#place_order').attr('disabled', false);
                 }
                 $( document.body ).trigger( 'update_checkout' );
@@ -249,6 +267,7 @@
     }
 
     function saveFieldsToCookie() {
+        //$("#place_order").addClass("loader_div");
         var post_data = $('form.woocommerce-checkout').serialize();
         setCookie('splitit_checkout', post_data);
     }

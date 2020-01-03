@@ -33,7 +33,12 @@ class SplitIt_Helper {
 	 */
 	public static function checkout_js() {
 		wp_enqueue_script('splitit-checkout', plugins_url('/assets/javascript/splitit-checkout.js', dirname(__FILE__)), array('jquery'));
-	}
+
+		if(is_checkout()){
+			$tag = '<script id="splitit-form-loader" src="https://checkout-sandbox.splitit.com/js/payment-form-loader.js"></script>';
+			echo $tag;
+		}
+	}	
 
 	/**
 	 * Styles to hide checkout subtotal installment price
@@ -72,3 +77,4 @@ class SplitIt_Helper {
 	}
 
 }
+

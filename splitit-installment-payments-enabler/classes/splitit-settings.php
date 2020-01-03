@@ -488,6 +488,14 @@ class SplitIt_Settings {
 				'type' => 'text',
 				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
 			),
+			'splitit_enable_iframe' => array(
+					'title' => __('Enable iframe', 'splitit'),
+					'type' => 'select',
+					'options' => array(
+						'no' => 'No',
+						'yes' => 'Yes',
+					),
+				),
 			/*'splitit_logo_background_href' => array(
 				'title' => __('Splitit Logo Link', 'splitit'),
 				'type' => 'text',
@@ -498,7 +506,6 @@ class SplitIt_Settings {
 				'title' => __('3D Secure ', 'splitit'),
 				/*'description' => __('Checkout settings'),*/
 			),
-
 			'splitit_3d_secure' => array(
 				'title' => __('Enable 3D Secure', 'splitit'),
 				'type' => 'select',
@@ -512,14 +519,13 @@ class SplitIt_Settings {
 				'type' => 'number',
 				'default' => 0,
 			),
-
 			/*'_Shop_setup' => array(
 				'type' => 'title',
 				'title' => __('Shop setup', 'splitit'),
 				'description' => __('Splitit settings visible on frontend'),
 			),*/
 
-//                'splitit_order_status' => array(
+			//                'splitit_order_status' => array(
 			//                    'title' => __( 'New order status', 'splitit' ),
 			//                    'type' => 'select',
 			//                    'description' => __('Select status for PayItSimple orders', 'splitit'),
