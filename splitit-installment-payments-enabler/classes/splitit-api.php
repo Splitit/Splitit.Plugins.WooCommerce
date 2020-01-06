@@ -52,7 +52,7 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.9"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.10"),
 		);
 
 		try {
@@ -277,7 +277,6 @@ class SplitIt_API {
 			if (isset($this->_settings['splitit_3d_secure']) && $this->_settings['splitit_3d_secure'] != "" && $this->_settings['splitit_3d_secure'] == "yes") {
 				if (isset($this->_settings['splitit_3d_secure_min_amount']) && ($this->_settings['splitit_3d_secure_min_amount'] == "")) {
 					$this->_settings['splitit_3d_secure_min_amount'] = 0;
-
 				}
 				if (floatval($params['PlanData']['Amount']['Value']) >= floatval($this->_settings['splitit_3d_secure_min_amount'])) {
 					$params['PlanData']["Attempt3DSecure"] = true;
