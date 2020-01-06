@@ -275,7 +275,7 @@ class SplitIt_API {
 			}
 
 			if (isset($this->_settings['splitit_3d_secure']) && $this->_settings['splitit_3d_secure'] != "" && $this->_settings['splitit_3d_secure'] == "yes") {
-				if (isset($this->_settings['splitit_3d_secure_min_amount']) && ($this->_settings['splitit_3d_secure_min_amount'] != "")) {
+				if (isset($this->_settings['splitit_3d_secure_min_amount']) && ($this->_settings['splitit_3d_secure_min_amount'] == "")) {
 					$this->_settings['splitit_3d_secure_min_amount'] = 0;
 
 				}if (floatval($params['PlanData']['Amount']['Value']) >= floatval($this->_settings['splitit_3d_secure_min_amount'])) {
