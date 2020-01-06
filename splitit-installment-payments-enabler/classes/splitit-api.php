@@ -274,6 +274,10 @@ class SplitIt_API {
 				$params['PaymentWizardData']["SuccessAsyncURL"] = $site_url . '?wc-api=splitit_payment_success_async';
 			}
 
+			if(isset($this->_settings['splitit_enable_iframe']) && $this->_settings['splitit_enable_iframe'] == 'yes'){
+				$params['PaymentWizardData']['IsOpenedInIframe'] = true;
+			}
+
 			if (isset($this->_settings['splitit_3d_secure']) && $this->_settings['splitit_3d_secure'] != "" && $this->_settings['splitit_3d_secure'] == "yes") {
 				if (isset($this->_settings['splitit_3d_secure_min_amount']) && ($this->_settings['splitit_3d_secure_min_amount'] == "")) {
 					$this->_settings['splitit_3d_secure_min_amount'] = 0;
