@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.2.10
+Version: 2.2.11
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -182,7 +182,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.2.10');
+	define('Splitit_VERSION', '2.2.11');
 
 	// Import helper classes
 	require_once 'classes/splitit-log.php';
@@ -990,7 +990,7 @@ $textValue = esc_attr($this->get_option($key));
 				$order_data = array(
 					'Address' => trim($checkout_fields['billing_address_1_field']),
 					'Address2' => trim(isset($checkout_fields['billing_address_2_field']) ? $checkout_fields['billing_address_2_field'] : ''),
-					'Zip' => trim($checkout_fields['billing_postcode_field']),
+					'Zip' => (isset($checkout_fields['billing_postcode_field'])&&$checkout_fields['billing_postcode_field'])?trim($checkout_fields['billing_postcode_field']):(WC()->customer->get_shipping_country() == 'IE'?'00000':''),
 					'AmountBeforeFees' => WC()->cart->total,
 					'ConsumerFullName' => trim($checkout_fields['billing_first_name_field'] . ' ' . $checkout_fields['billing_last_name_field']),
 					'Email' => trim($checkout_fields['billing_email_field']),
@@ -1085,7 +1085,7 @@ $textValue = esc_attr($this->get_option($key));
 						}
 					}
 
-					if (count($validate_errors) == 0) {
+					if (count($validate_errors) == 0 && WC()->customer->get_shipping_country() != 'IE') {
 						// Validation rules
 
 						switch ($field) {
