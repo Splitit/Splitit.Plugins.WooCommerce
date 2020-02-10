@@ -52,7 +52,7 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.9"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.12"),
 		);
 
 		try {
@@ -272,19 +272,26 @@ class SplitIt_API {
 
 			if (isset($this->_settings['splitit_async_enable']) && $this->_settings['splitit_async_enable'] == 'yes') {
 				$params['PaymentWizardData']["SuccessAsyncURL"] = $site_url . '?wc-api=splitit_payment_success_async';
+				$params["EventsEndpoints"] = array(
+						"CreateSucceeded" => $site_url . '?wc-api=splitit_payment_success_async'
+					);
 			}
 
 			if (isset($this->_settings['splitit_3d_secure']) && $this->_settings['splitit_3d_secure'] != "" && $this->_settings['splitit_3d_secure'] == "yes") {
 				if (isset($this->_settings['splitit_3d_secure_min_amount']) && ($this->_settings['splitit_3d_secure_min_amount'] == "")) {
 					$this->_settings['splitit_3d_secure_min_amount'] = 0;
-
-				}if (floatval($params['PlanData']['Amount']['Value']) >= floatval($this->_settings['splitit_3d_secure_min_amount'])) {
+				}
+				if (floatval($params['PlanData']['Amount']['Value']) >= floatval($this->_settings['splitit_3d_secure_min_amount'])) {
 					$params['PlanData']["Attempt3DSecure"] = true;
 					$params["RedirectUrls"] = array(
 						"Succeeded" => $redirect_success_url . '?wc-api=splitit_payment_success',
 						"Failed" => $redirect_cancel_url . '?wc-api=splitit_payment_error',
 						"Canceled" => $redirect_cancel_url . '?wc-api=splitit_payment_error',
 					);
+					
+					unset($params['PaymentWizardData']['SuccessExitURL']);
+					unset($params['PaymentWizardData']['CancelExitURL']);
+					unset($params['PaymentWizardData']['SuccessAsyncURL']);
 				}
 			}
 

@@ -84,6 +84,17 @@ class SplitIt_Settings {
 					'yes' => 'Yes',
 				),
 			),
+			'splitit_thankyou_page' => array(
+				'title' => __('Are you using a custom thank you page', 'splitit'),
+				'description' => __('using a custom thank you page', 'splitit'),
+				'desc_tip' => false,
+				'type' => 'select',
+				'options' => array(
+					'no' => 'No',
+					'yes' => 'Yes',
+				),
+				'default' => 'no',
+			),
 			'splitit_test_api' => array(
 				'title' => '<a href="" id="checkApiCredentials">Verify API Credentials</a>',
 				'css' => 'display:none;',
