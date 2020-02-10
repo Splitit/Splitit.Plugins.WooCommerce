@@ -1416,7 +1416,7 @@ $textValue = esc_attr($this->get_option($key));
 						//$redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
 						global $woocommerce;
 						$checkout_url = wc_get_checkout_url();
-
+						
 						if($this->s('splitit_thankyou_page') == 'no'){
 							$redirect = $checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
 						} else {
