@@ -1420,7 +1420,7 @@ $textValue = esc_attr($this->get_option($key));
 						if($this->s('splitit_thankyou_page') == 'no'){
 							$redirect = $checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
 						} else {
-							$redirect = $order->get_checkout_order_received_url();
+							$redirect = ($order->get_checkout_order_received_url())?$order->get_checkout_order_received_url():$checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
 						}
 
 						wp_redirect($redirect);
