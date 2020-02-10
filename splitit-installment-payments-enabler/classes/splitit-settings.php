@@ -85,7 +85,7 @@ class SplitIt_Settings {
 				),
 			),
 			'splitit_thankyou_page' => array(
-				'title' => __('Are you using a custom thank you page', 'splitit'),
+				'title' => __('Are you using a custom \'Thank You\' page?', 'splitit'),
 				'description' => __('using a custom thank you page', 'splitit'),
 				'desc_tip' => false,
 				'type' => 'select',
