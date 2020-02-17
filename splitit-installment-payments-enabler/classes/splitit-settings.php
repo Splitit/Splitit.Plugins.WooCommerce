@@ -91,7 +91,7 @@ class SplitIt_Settings {
 			'splitit_api_prod_url' => array(
 				'title' => __('API Production URL', 'splitit'),
 				'type' => 'text',
-				'default' => 'https://web-api.splitit.com/',
+				'default' => 'https://webapi.production.com/',
 			),
 			'splitit_cdn_prod_url' => array(
 				'title' => __('CDN Production URL', 'splitit'),
@@ -101,7 +101,7 @@ class SplitIt_Settings {
 			'splitit_api_sand_url' => array(
 				'title' => __('API Sandbox URL', 'splitit'),
 				'type' => 'text',
-				'default' => 'https://web-api-sandbox.splitit.com/',
+				'default' => 'https://webapi.sandbox.com/',
 			),
 			'splitit_cdn_sand_url' => array(
 				'title' => __('CDN Sandbox URL', 'splitit'),
