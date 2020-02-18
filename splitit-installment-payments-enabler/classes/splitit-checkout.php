@@ -492,7 +492,7 @@ class SplitIt_Checkout extends WC_Checkout {
                     throw new Exception( $order_id->get_error_message() );
                 }
 
-                do_action( 'woocommerce_checkout_order_processed', $order_id, $this->posted );
+                do_action( 'woocommerce_checkout_order_processed', $order_id, $this->posted, $order);
 
                 // Process payment
                 if ( WC()->cart->needs_payment() ) {
@@ -756,7 +756,7 @@ class SplitIt_Checkout extends WC_Checkout {
                     throw new Exception( $order_id->get_error_message() );
                 }
 
-                do_action( 'woocommerce_checkout_order_processed', $order_id, $this->posted );
+                do_action( 'woocommerce_checkout_order_processed', $order_id, $this->posted, $order );
 
                 // Process payment
               
