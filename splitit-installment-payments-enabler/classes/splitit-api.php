@@ -171,8 +171,8 @@ class SplitIt_API {
 
 			}
 
-			$splitit_default_selected_installment = $this->_settings['splitit_default_selected_installment'];
 			$installmentOptionsArr = explode(',', $instOptions);
+			$splitit_default_selected_installment = isset($this->_settings['splitit_default_selected_installment'])?$this->_settings['splitit_default_selected_installment']:array_rand($installmentOptionsArr);
 
 			if (!$splitit_default_selected_installment || !in_array($splitit_default_selected_installment, $installmentOptionsArr)) {
 				$index = floor(count($installmentOptionsArr) / 2);

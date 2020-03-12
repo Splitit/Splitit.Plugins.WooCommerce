@@ -336,8 +336,9 @@ class SplitIt_Checkout extends WC_Checkout {
 
                 $total_amount_on_cart = WC()->cart->total;
                 $total_amount_paid   = $installment_plan_data->{'PlansList'}[0]->{'Amount'}->{'Value'};
-                // if($total_amount_on_cart==$total_amount_paid){
-                if(true){
+                /*die("($total_amount_on_cart==$total_amount_paid)===".($total_amount_on_cart==$total_amount_paid));*/
+                if($total_amount_on_cart==$total_amount_paid){
+                // if(true){
                     $order_id = $this->create_order($this->posted);
                     $order = wc_get_order( $order_id );
                     if(!$order->get_customer_id()){
@@ -346,7 +347,8 @@ class SplitIt_Checkout extends WC_Checkout {
                     }
                     $order->set_payment_method($payment_obj);
                     $order->update_status('processing');
-                }else{
+                    do_action( 'woocommerce_payment_complete', $order_id); 
+                } else {
                     /*created orders from the database values*/
                         global $wpdb;
                         $fetch_ipn_data = $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'};
