@@ -455,7 +455,7 @@ class SplitIt_Settings {
 				'custom_attributes' => array('readonly' => 'readonly')
 			),*/
 
-			'_Checkout ' => array(
+			/*'_Checkout ' => array(
 				'type' => 'title',
 				'title' => __('Checkout ', 'splitit'),
 				'description' => __('Checkout settings'),
@@ -465,6 +465,16 @@ class SplitIt_Settings {
 				'title' => __('Splitit logo source', 'splitit'),
 				'type' => 'text',
 				'default' => __('https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png'),
+			),*/
+			'_Checkout ' => array(
+				'type' => 'title',
+				'class' => 'hidden',
+			),
+
+			'splitit_logo_src' => array(
+				'type' => 'text',
+				'class' => 'hidden',
+				'default' => Splitit_logo_source
 			),
 
 			/*'title' => array(
@@ -495,10 +505,15 @@ class SplitIt_Settings {
 					'custom_attributes' => array('readonly' => 'readonly'),
 			*/
 			'splitit_help_title_link' => array(
+				'type' => 'text',
+				'class' => 'hidden',
+				'default' => Learn_More_Link
+			),
+			/*'splitit_help_title_link' => array(
 				'title' => __('Learn More Link', 'splitit'),
 				'type' => 'text',
 				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
-			),
+			),*/
 			'_3dSecure ' => array(
 				'type' => 'title',
 				'title' => __('3D Secure ', 'splitit'),
