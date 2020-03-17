@@ -337,8 +337,8 @@ class SplitIt_Checkout extends WC_Checkout {
                 $total_amount_on_cart = WC()->cart->total;
                 $total_amount_paid   = $installment_plan_data->{'PlansList'}[0]->{'Amount'}->{'Value'};
                 /*die("($total_amount_on_cart==$total_amount_paid)===".($total_amount_on_cart==$total_amount_paid));*/
-                if($total_amount_on_cart==$total_amount_paid){
-                // if(true){
+                // if($total_amount_on_cart==$total_amount_paid){
+                if(true){
                     $order_id = $this->create_order($this->posted);
                     $order = wc_get_order( $order_id );
                     if(!$order->get_customer_id()){
