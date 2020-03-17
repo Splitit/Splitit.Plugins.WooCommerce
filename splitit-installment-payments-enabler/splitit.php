@@ -9,12 +9,6 @@ Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
  */
-
-if (is_admin()) {
-
-	error_reporting(0);
-}
-
 add_action('plugins_loaded', 'init_splitit_method', 0);
 
 function splitit_add_notice_function() {
