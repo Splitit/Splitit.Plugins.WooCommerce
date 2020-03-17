@@ -454,29 +454,15 @@ class SplitIt_Settings {
 				'default' => 'or {X}interest-free payments of {Y}with SPLITIT +LearnMore',
 				'custom_attributes' => array('readonly' => 'readonly')
 			),*/
-
-			/*'_Checkout ' => array(
-				'type' => 'title',
-				'title' => __('Checkout ', 'splitit'),
-				'description' => __('Checkout settings'),
-			),
-
-			'splitit_logo_src' => array(
-				'title' => __('Splitit logo source', 'splitit'),
-				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png'),
-			),*/
 			'_Checkout ' => array(
 				'type' => 'title',
 				'class' => 'hidden',
 			),
-
 			'splitit_logo_src' => array(
 				'type' => 'text',
 				'class' => 'hidden',
 				'default' => Splitit_logo_source
 			),
-
 			/*'title' => array(
 				'title' => __('Title', 'splitit'),
 				'type' => 'text',
@@ -509,11 +495,6 @@ class SplitIt_Settings {
 				'class' => 'hidden',
 				'default' => Learn_More_Link
 			),
-			/*'splitit_help_title_link' => array(
-				'title' => __('Learn More Link', 'splitit'),
-				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
-			),*/
 			'_3dSecure ' => array(
 				'type' => 'title',
 				'title' => __('3D Secure ', 'splitit'),
