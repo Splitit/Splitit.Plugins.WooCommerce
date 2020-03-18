@@ -56,9 +56,12 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 == Screenshots ==
 
 1. General settings
-2. Splitit payment method on checkout
-3. Splitit popup wizard
-4. Customer charge action
+2. Cart page
+3. Splitit payment method on checkout
+4. Splitit payment gateway page
+5. Order success page
+6. Admin Order page
+7. Customer charge action
 
 == Changelog ==
 
