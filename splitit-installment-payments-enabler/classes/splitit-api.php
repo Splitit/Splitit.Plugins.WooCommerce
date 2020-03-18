@@ -52,7 +52,7 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.2.14"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.3.0"),
 		);
 
 		try {
@@ -171,8 +171,8 @@ class SplitIt_API {
 
 			}
 
-			$splitit_default_selected_installment = $this->_settings['splitit_default_selected_installment'];
 			$installmentOptionsArr = explode(',', $instOptions);
+			$splitit_default_selected_installment = isset($this->_settings['splitit_default_selected_installment'])?$this->_settings['splitit_default_selected_installment']:array_rand($installmentOptionsArr);
 
 			if (!$splitit_default_selected_installment || !in_array($splitit_default_selected_installment, $installmentOptionsArr)) {
 				$index = floor(count($installmentOptionsArr) / 2);
@@ -362,7 +362,7 @@ class SplitIt_API {
 
 					$user_data = "";
 					if (isset($_COOKIE['splitit_checkout'])) {
-						$user_data = $_COOKIE['splitit_checkout'];
+						$user_data = wc_clean($_COOKIE['splitit_checkout']);
 					}
 
 					if ($ipn != "" && $user_data != "") {
