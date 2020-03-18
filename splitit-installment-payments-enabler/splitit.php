@@ -1792,6 +1792,10 @@ return $price . "<br/>" . $textToDisplay;
 			$order = wc_get_order($order_id);
 			if ($order->get_payment_method() == 'splitit') {
 
+				if(!intval($amount)){
+					return new WP_Error('error', __('Cannot refund 0.00', 'woocommerce'));
+				}
+
 				if (!$this->can_refund_order($order)) {
 					return new WP_Error('error', __('Refund failed.', 'woocommerce'));
 				}
