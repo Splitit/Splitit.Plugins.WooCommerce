@@ -493,7 +493,7 @@ class SplitIt_Settings {
 			'splitit_help_title_link' => array(
 				'type' => 'text',
 				'class' => 'hidden',
-				'default' => Learn_More_Link
+				'default' => Splitit_learnmore_imgsource
 			),
 			'_3dSecure ' => array(
 				'type' => 'title',

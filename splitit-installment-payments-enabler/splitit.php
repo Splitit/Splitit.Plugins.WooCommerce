@@ -178,7 +178,7 @@ function init_splitit_method() {
 
 	define('Splitit_VERSION', '2.2.14');
 	define('Splitit_logo_source', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
-	define('Learn_More_Link', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
+	define('Splitit_learnmore_imgsource', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
 
 	// Import helper classes
 	require_once 'classes/splitit-log.php';
