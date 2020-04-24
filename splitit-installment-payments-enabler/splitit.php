@@ -1241,8 +1241,12 @@ $textValue = esc_attr($this->get_option($key));
 				$criteria = array('InstallmentPlanNumber' => $ipn);
 				$installment_data = $this->_API->get($esi, $criteria);
 				$verifyData = $this->_API->verifyPayment($esi, $ipn);
+				$this->log->info(__FILE__, __LINE__, __METHOD__);
+				$this->log->add('installment_data=='.var_export($installment_data,true));
+				$this->log->add('verifyData=='.var_export($verifyData,true));
 				if(!$verifyData->{'IsPaid'}){
 					wc_clear_notices();
+					$this->log->add('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.');
 					wc_add_notice('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.', 'error');
 					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
 					exit;
@@ -1250,6 +1254,7 @@ $textValue = esc_attr($this->get_option($key));
 				$total_amount_on_cart = WC()->cart->total;
 				if($total_amount_on_cart != $verifyData->{'OriginalAmountPaid'}){
 					wc_clear_notices();
+					$this->log->add('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
 					wc_add_notice('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
 					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
 					exit;
@@ -1257,10 +1262,13 @@ $textValue = esc_attr($this->get_option($key));
 				$planStatus = $installment_data->{'PlansList'}[0]->{'InstallmentPlanStatus'}->{'Code'};
 				if (!(($planStatus == "PendingMerchantShipmentNotice" || $planStatus == "InProgress")||($installment_data->{'PlansList'}[0]->{'NumberOfInstallments'}==1 && $planStatus == "Cleared"))) {
 					wc_clear_notices();
+					$this->log->add('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
 					wc_add_notice('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
 					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
 					exit;
 				}
+				$this->log->add('--------valid order-------payment made--------');
+
 				$table_name = $wpdb->prefix . 'splitit_logs';
 				$fetch_items = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $table_name . " WHERE ipn =" . $ipn, array()), ARRAY_A);
 				//checking for user entered data
@@ -1338,6 +1346,38 @@ $textValue = esc_attr($this->get_option($key));
 					if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 						$this->settings['splitit_cancel_url'] = 'checkout/';
 					}
+					
+					$criteria = array('InstallmentPlanNumber' => $ipn);
+					$installment_data = $this->_API->get($esi, $criteria);
+					$verifyData = $this->_API->verifyPayment($esi, $ipn);
+					$this->log->info(__FILE__, __LINE__, __METHOD__);
+					$this->log->add('installment_data=='.var_export($installment_data,true));
+					$this->log->add('verifyData=='.var_export($verifyData,true));
+					if(!$verifyData->{'IsPaid'}){
+						wc_clear_notices();
+						$this->log->add('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.');
+						wc_add_notice('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.', 'error');
+						wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+						exit;
+					}
+					$total_amount_on_cart = WC()->cart->total;
+					if($total_amount_on_cart != $verifyData->{'OriginalAmountPaid'}){
+						wc_clear_notices();
+						$this->log->add('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
+						wc_add_notice('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
+						wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+						exit;
+					}
+					$planStatus = $installment_data->{'PlansList'}[0]->{'InstallmentPlanStatus'}->{'Code'};
+					if (!(($planStatus == "PendingMerchantShipmentNotice" || $planStatus == "InProgress")||($installment_data->{'PlansList'}[0]->{'NumberOfInstallments'}==1 && $planStatus == "Cleared"))) {
+						wc_clear_notices();
+						$this->log->add('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
+						wc_add_notice('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
+						wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+						exit;
+					}
+					$this->log->add('--------valid order-------payment made--------');
+
 					if ($user_data != "") {
 						$checkout_fields_array = explode('&', $user_data);
 						$checkout_fields = array();
