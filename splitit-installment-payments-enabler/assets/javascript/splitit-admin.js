@@ -144,26 +144,6 @@
 			}
 		});
 		$("#woocommerce_splitit_splitit_3d_secure").trigger('change');
-		/*show field fees when enable*/
-		$("#woocommerce_splitit_splitit_fee_enable").on("change",function(){
-			if($(this).val()=='yes'){
-				$('#woocommerce_splitit_splitit_fee_type').closest('tr').show();
-				$("#woocommerce_splitit_splitit_fee_type").trigger('change');
-			} else {
-				$('#woocommerce_splitit_splitit_fee_type').closest('tr').hide();
-				$('#woocommerce_splitit_splitit_fee_amount').closest('tr').hide();				
-			}
-		});
-		$("#woocommerce_splitit_splitit_fee_enable").trigger('change');
-		/*show field fees percent when percent*/
-		$("#woocommerce_splitit_splitit_fee_type").on("change",function(){
-			if($(this).val()=='percent'){
-				$('#woocommerce_splitit_splitit_fee_amount').closest('tr').show();
-			} else {
-				$('#woocommerce_splitit_splitit_fee_amount').closest('tr').hide();				
-			}
-		});
-		$("#woocommerce_splitit_splitit_fee_type").trigger('change');
 		/*show field order percent when percent*/
 		$("#woocommerce_splitit_splitit_first_installment").on("change",function(){
 			if($(this).val()=='percent'){
@@ -173,17 +153,6 @@
 			}
 		});
 		$("#woocommerce_splitit_splitit_first_installment").trigger('change');
-		/*check if fees is more than 50% */
-		$("#woocommerce_splitit_splitit_fee_amount").on("change",function(){
-			if (parseFloat($(this).val())>50.00) {
-				alert("Fee can't be greater than 50");
-				$(this).val(50.00);
-			}
-			if (parseFloat($(this).val())<0) {
-				alert("Fee can't be less than 0");
-				$(this).val(0.00);
-			}
-		});
 		
 
 		$('#checkApiCredentials').on('click', function(e) {
