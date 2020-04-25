@@ -1240,6 +1240,29 @@ $textValue = esc_attr($this->get_option($key));
 				if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 					$this->settings['splitit_cancel_url'] = 'checkout/';
 				}
+				$criteria = array('InstallmentPlanNumber' => $ipn);
+				$installment_data = $this->_API->get($esi, $criteria);
+				$verifyData = $this->_API->verifyPayment($esi, $ipn);
+				if(!$verifyData->{'IsPaid'}){
+					wc_clear_notices();
+					wc_add_notice('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.', 'error');
+					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+					exit;
+				}
+				$total_amount_on_cart = WC()->cart->total;
+				if($total_amount_on_cart != $verifyData->{'OriginalAmountPaid'}){
+					wc_clear_notices();
+					wc_add_notice('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
+					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+					exit;
+				}
+				$planStatus = $installment_data->{'PlansList'}[0]->{'InstallmentPlanStatus'}->{'Code'};
+				if (!(($planStatus == "PendingMerchantShipmentNotice" || $planStatus == "InProgress")||($installment_data->{'PlansList'}[0]->{'NumberOfInstallments'}==1 && $planStatus == "Cleared"))) {
+					wc_clear_notices();
+					wc_add_notice('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
+					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+					exit;
+				}
 				$table_name = $wpdb->prefix . 'splitit_logs';
 				$fetch_items = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $table_name . " WHERE ipn =" . $ipn, array()), ARRAY_A);
 				//checking for user entered data
@@ -1251,8 +1274,7 @@ $textValue = esc_attr($this->get_option($key));
 						$checkout_fields[$key_value[0]] = $key_value[1];
 					}
 					$checkout_fields['payment_method'] = 'splitit';
-					$criteria = array('InstallmentPlanNumber' => $ipn);
-					$installment_data = $this->_API->get($esi, $criteria);
+					
 					$checkout = new SplitIt_Checkout();
 					$checkout->process_splitit_checkout($checkout_fields, $this, $installment_data, $ipn, $esi, $this->settings);
 					setcookie('splitit_checkout', null, strtotime('-1 day'));
