@@ -42,3 +42,5 @@ span.splitit-installment-price-checkout img.logoWidthSrc{/* width:44px !importan
     width: 42px;
 }
 .related .splitit-installment-price-product, .related #tell-me-more {display: none !important;}
+
+div.payment_box.payment_method_splitit img.tell-me-more-image {max-height: 100% !important;}

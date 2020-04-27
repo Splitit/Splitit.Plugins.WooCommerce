@@ -1568,11 +1568,11 @@ return $price . "<br/>" . $textToDisplay;
 					$textToDisplay = $this->settings['splitit_without_interest'];
 					if (isset($this->settings['splitit_logo_src']) && $this->settings['splitit_logo_src']) {
 						//echo $this->settings['splitit_help_title_link'];die;
-						$replace = "<a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
+						$replace = "<a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' class='no-lightbox' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 						$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 					}
 					$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg">';
-					$learnmore = " <a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' target='_blank'>" . $learnmoreImage . "</a>";
+					$learnmore = " <a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' class='no-lightbox' target='_blank'>" . $learnmoreImage . "</a>";
 					//$prodData = $product->get_data();
 					//$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
 					$textToDisplay = '<span style="display:block;" class="splitit-installment-price-checkout">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
