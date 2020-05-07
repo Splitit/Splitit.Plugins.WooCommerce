@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.1
+Version: 2.4.2
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.1');
+	define('Splitit_VERSION', '2.4.2');
 	define('Splitit_logo_source', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 	define('Splitit_learnmore_imgsource', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
 
@@ -1348,8 +1348,8 @@ $textValue = esc_attr($this->get_option($key));
 					}
 					
 					$criteria = array('InstallmentPlanNumber' => $ipn);
-					$installment_data = $this->_API->get($esi, $criteria);
-					$verifyData = $this->_API->verifyPayment($esi, $ipn);
+					$installment_data = $this->_API->get($session, $criteria);
+					$verifyData = $this->_API->verifyPayment($session, $ipn);
 					$this->log->info(__FILE__, __LINE__, __METHOD__);
 					$this->log->add('installment_data=='.var_export($installment_data,true));
 					$this->log->add('verifyData=='.var_export($verifyData,true));
@@ -1397,6 +1397,8 @@ $textValue = esc_attr($this->get_option($key));
 				}
 
 			} else {
+				$this->log->info(__FILE__, __LINE__, __METHOD__);
+				$this->log->add('SplitIt===Order has been already created');
 				echo "Order has been already created";die;
 			}
 			return true;
