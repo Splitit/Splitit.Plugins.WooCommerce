@@ -1360,14 +1360,14 @@ $textValue = esc_attr($this->get_option($key));
 						wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
 						exit;
 					}
-					$total_amount_on_cart = WC()->cart->total;
+					/*$total_amount_on_cart = WC()->cart->total;
 					if($total_amount_on_cart != $verifyData->{'OriginalAmountPaid'}){
 						wc_clear_notices();
 						$this->log->add('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
 						wc_add_notice('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
 						wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
 						exit;
-					}
+					}*/
 					$planStatus = $installment_data->{'PlansList'}[0]->{'InstallmentPlanStatus'}->{'Code'};
 					if (!(($planStatus == "PendingMerchantShipmentNotice" || $planStatus == "InProgress")||($installment_data->{'PlansList'}[0]->{'NumberOfInstallments'}==1 && $planStatus == "Cleared"))) {
 						wc_clear_notices();
