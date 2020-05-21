@@ -4,20 +4,14 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.2.9
+Version: 2.3.0
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
  */
-
-if (is_admin()) {
-
-	error_reporting(0);
-}
-
 add_action('plugins_loaded', 'init_splitit_method', 0);
 
-function add_notice_function() {
+function splitit_add_notice_function() {
 	if (is_checkout() == false && is_cart() == false) {
 		wc_print_notices();
 	}
@@ -26,17 +20,17 @@ function add_notice_function() {
 $isCustomPLugin = false;
 
 if($isCustomPLugin){
-	function prefix_plugin_update_message( $data, $response ) {
+	function splitit_prefix_plugin_update_message( $data, $response ) {
 		printf(
 			'<div class="update-message"><p>%s <strong style="color:red;">%s</strong></p></div>',
 			__('Dear user, your Splitit plugin version has been customized specifically for your needs.', 'splitit' ),__('Please do not update the plugin version without consulting first with your Splitit Customer Success manager. The consequences might be LOSING the modification done specifically for you!', 'splitit' )
 		);
 	}
-	add_action( 'in_plugin_update_message-splitit-installment-payments-enabler/splitit.php', 'prefix_plugin_update_message', 10, 2 );
+	add_action( 'in_plugin_update_message-splitit-installment-payments-enabler/splitit.php', 'splitit_prefix_plugin_update_message', 10, 2 );
 }
 
-add_filter('woocommerce_locate_template', 'woo_adon_plugin_template', 1, 3);
-function woo_adon_plugin_template($template, $template_name, $template_path) {
+add_filter('woocommerce_locate_template', 'splitit_woo_adon_plugin_template', 1, 3);
+function splitit_woo_adon_plugin_template($template, $template_name, $template_path) {
 	global $woocommerce;
 	$_template = $template;
 	if (!$template_path) {
@@ -65,7 +59,7 @@ function woo_adon_plugin_template($template, $template_name, $template_path) {
 }
 
 /*code to create new table and maintain IPN logss for Async*/
-function create_plugin_database_table() {
+function splitit_create_plugin_database_table() {
 	global $wpdb;
 
 	$table_name = $wpdb->prefix . 'splitit_logs';
@@ -172,17 +166,19 @@ function create_plugin_database_table() {
 
 }
 
-//register_activation_hook( __FILE__, 'create_plugin_database_table' );
-add_action("admin_init", 'create_plugin_database_table');
+//register_activation_hook( __FILE__, 'splitit_create_plugin_database_table' );
+add_action("admin_init", 'splitit_create_plugin_database_table');
 /*end*/
 
 function init_splitit_method() {
 
-	add_action('wp_head', 'add_notice_function');
+	add_action('wp_head', 'splitit_add_notice_function');
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.2.9');
+	define('Splitit_VERSION', '2.3.0');
+	define('Splitit_logo_source', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
+	define('Splitit_learnmore_imgsource', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
 
 	// Import helper classes
 	require_once 'classes/splitit-log.php';
@@ -830,7 +826,7 @@ $textValue = esc_attr($this->get_option($key));
 	        public function get_field_value( $key, $field, $post_data = array() ) {
 	            $type      = $this->get_field_type( $field );
 	            $field_key = $this->get_field_key( $key );
-	            $post_data = empty( $post_data ) ? $_POST : $post_data;
+	            $post_data = empty( $post_data ) ? stripslashes_deep($_POST) : $post_data;
 	            $value     = isset( $post_data[ $field_key ] ) ? $post_data[ $field_key ] : null;
 
 	            // Look for a validate_FIELDID_field method for special handling
@@ -961,7 +957,7 @@ $textValue = esc_attr($this->get_option($key));
 		 * @access public
 		 */
 		public function splitit_scripts_on_checkout() {
-			$checkout_fields_post = $_POST;
+			$checkout_fields_post = stripslashes_deep($_POST);
 
 			//trying to receive checkout fields data from post
 			if (count($checkout_fields_post)) {
@@ -987,7 +983,7 @@ $textValue = esc_attr($this->get_option($key));
 				$order_data = array(
 					'Address' => trim($checkout_fields['billing_address_1_field']),
 					'Address2' => trim(isset($checkout_fields['billing_address_2_field']) ? $checkout_fields['billing_address_2_field'] : ''),
-					'Zip' => trim($checkout_fields['billing_postcode_field']),
+					'Zip' => (isset($checkout_fields['billing_postcode_field'])&&$checkout_fields['billing_postcode_field'])?trim($checkout_fields['billing_postcode_field']):(WC()->customer->get_shipping_country() == 'IE'?'00000':''),
 					'AmountBeforeFees' => WC()->cart->total,
 					'ConsumerFullName' => trim($checkout_fields['billing_first_name_field'] . ' ' . $checkout_fields['billing_last_name_field']),
 					'Email' => trim($checkout_fields['billing_email_field']),
@@ -1035,7 +1031,7 @@ $textValue = esc_attr($this->get_option($key));
 			if (isset($_POST)) {
 
 				unset($_POST['account_password_field']); //not needed field
-				$checkout_fields = $_POST;
+				$checkout_fields = stripslashes_deep($_POST);
 				$validate_errors = array();
 				//  print_r($checkout_fields);
 				//echo "comig";
@@ -1082,7 +1078,7 @@ $textValue = esc_attr($this->get_option($key));
 						}
 					}
 
-					if (count($validate_errors) == 0) {
+					if (count($validate_errors) == 0 && WC()->customer->get_shipping_country() != 'IE') {
 						// Validation rules
 
 						switch ($field) {
@@ -1194,8 +1190,8 @@ $textValue = esc_attr($this->get_option($key));
 		}
 
 		public function splitit_payment_error() {
-			$ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
-			$esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? $_COOKIE["splitit_checkout_session_id_data"] : false;
+			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
+			$esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? wc_clean($_COOKIE["splitit_checkout_session_id_data"]) : false;
 
 			$this->_API = new SplitIt_API($this->settings); //passing settings to API
 
@@ -1232,8 +1228,8 @@ $textValue = esc_attr($this->get_option($key));
 		public function splitit_payment_success($flag = NULL) {
 			//die('----');
 			global $wpdb;
-			$ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
-			// $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? $_COOKIE["splitit_checkout_session_id_data"] : false;
+			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
+			// $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? wc_clean($_COOKIE["splitit_checkout_session_id_data"]) : false;
 			$esi = (WC()->session->get('splitit_checkout_session_id_data')) ? WC()->session->get('splitit_checkout_session_id_data') : false;
 			// echo $esi.'<pre>';
 			// print_r(WC()->session->get('splitit_checkout_session_id_data'));die('-------fsfsdfs');
@@ -1294,7 +1290,7 @@ $textValue = esc_attr($this->get_option($key));
 		public function splitit_payment_success_async() {
 
 			global $wpdb;
-			$ipn = isset($_GET['InstallmentPlanNumber']) ? $_GET['InstallmentPlanNumber'] : false;
+			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
 
 			//echo $ipn."---";die;
 			// $ipn = "67757642666443565703";
@@ -1416,7 +1412,12 @@ $textValue = esc_attr($this->get_option($key));
 						//$redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
 						global $woocommerce;
 						$checkout_url = wc_get_checkout_url();
-						$redirect = $checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+						
+						if($this->s('splitit_thankyou_page') == 'no'){
+							$redirect = $checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+						} else {
+							$redirect = ($order->get_checkout_order_received_url())?$order->get_checkout_order_received_url():$checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+						}
 
 						wp_redirect($redirect);
 						exit;
@@ -1795,6 +1796,10 @@ return $price . "<br/>" . $textToDisplay;
 			$order = wc_get_order($order_id);
 			if ($order->get_payment_method() == 'splitit') {
 
+				if(!intval($amount)){
+					return new WP_Error('error', __('Cannot refund 0.00', 'woocommerce'));
+				}
+
 				if (!$this->can_refund_order($order)) {
 					return new WP_Error('error', __('Refund failed.', 'woocommerce'));
 				}
@@ -1897,11 +1902,13 @@ return $price . "<br/>" . $textToDisplay;
 			// $args = array('post_type' => 'product', 'posts_per_page' => -1, 'orderby' => 'title');
 			$where = "post_type='product' and post_status = 'publish' and meta_key='_sku'";
 			if (isset($_GET['term']) && $_GET['term']) {
+				$_GET['term'] = wc_clean($_GET['term']);
 				// $args['title']=array('like'=>$_GET['term']);
 				$where .= " AND (post_title like '%{$_GET['term']}%' OR meta_value like '%{$_GET['term']}%') ORDER BY post_title";
 			} elseif (isset($_POST['prodIds']) && $_POST['prodIds']) {
 				// $args['include'] = explode(',', $_POST['prodIds']);
-				$where .= " AND ID IN({$_POST['prodIds']})";
+				$postProdIds = wc_clean($_POST['prodIds']);
+				$where .= " AND ID IN($postProdIds)";
 			} else {
 				echo json_encode(array());exit;
 			}

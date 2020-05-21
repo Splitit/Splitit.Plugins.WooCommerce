@@ -84,6 +84,17 @@ class SplitIt_Settings {
 					'yes' => 'Yes',
 				),
 			),
+			'splitit_thankyou_page' => array(
+				'title' => __('Are you using a custom \'Thank You\' page?', 'splitit'),
+				'description' => __('using a custom thank you page', 'splitit'),
+				'desc_tip' => false,
+				'type' => 'select',
+				'options' => array(
+					'no' => 'No',
+					'yes' => 'Yes',
+				),
+				'default' => 'no',
+			),
 			'splitit_test_api' => array(
 				'title' => '<a href="" id="checkApiCredentials">Verify API Credentials</a>',
 				'css' => 'display:none;',
@@ -443,19 +454,15 @@ class SplitIt_Settings {
 				'default' => 'or {X}interest-free payments of {Y}with SPLITIT +LearnMore',
 				'custom_attributes' => array('readonly' => 'readonly')
 			),*/
-
 			'_Checkout ' => array(
 				'type' => 'title',
-				'title' => __('Checkout ', 'splitit'),
-				'description' => __('Checkout settings'),
+				'class' => 'hidden',
 			),
-
 			'splitit_logo_src' => array(
-				'title' => __('Splitit logo source', 'splitit'),
 				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png'),
+				'class' => 'hidden',
+				'default' => Splitit_logo_source
 			),
-
 			/*'title' => array(
 				'title' => __('Title', 'splitit'),
 				'type' => 'text',
@@ -484,15 +491,10 @@ class SplitIt_Settings {
 					'custom_attributes' => array('readonly' => 'readonly'),
 			*/
 			'splitit_help_title_link' => array(
-				'title' => __('Learn More Link', 'splitit'),
 				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
+				'class' => 'hidden',
+				'default' => Splitit_learnmore_imgsource
 			),
-			/*'splitit_logo_background_href' => array(
-				'title' => __('Splitit Logo Link', 'splitit'),
-				'type' => 'text',
-				'default' => __('https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png', 'splitit'),
-			),*/
 			'_3dSecure ' => array(
 				'type' => 'title',
 				'title' => __('3D Secure ', 'splitit'),
@@ -512,27 +514,6 @@ class SplitIt_Settings {
 				'type' => 'number',
 				'default' => 0,
 			),
-
-			/*'_Shop_setup' => array(
-				'type' => 'title',
-				'title' => __('Shop setup', 'splitit'),
-				'description' => __('Splitit settings visible on frontend'),
-			),*/
-
-//                'splitit_order_status' => array(
-			//                    'title' => __( 'New order status', 'splitit' ),
-			//                    'type' => 'select',
-			//                    'description' => __('Select status for PayItSimple orders', 'splitit'),
-			//                    'desc_tip'          => true,
-			//                    'class'             => 'wc-enhanced-select',
-			//                    'css'               => 'width: 450px;',
-			//                    'custom_attributes' => array(
-			//                        'data-placeholder' => __( 'Select order status', 'splitit' )
-			//                    ),
-			//                    'default' => '',
-			//                    'options' => wc_get_order_statuses()
-			//                ),
-
 			'splitit_cancel_url' => array(
 				'title' => __('Cancel payment url', 'splitit'),
 				'type' => 'text',
@@ -559,61 +540,6 @@ class SplitIt_Settings {
 				'placeholder' => __('Default url is "checkout/"', 'splitit'),
 				'description' => __('Enter url (without domain) which will be used for redirect on Splitit success payment action.', 'splitit'),
 				'desc_tip' => true,
-			),
-
-			/*'_Installment_price_setup' => array(
-				'type' => 'title',
-				'title' => __('Installment price setup', 'splitit'),
-				'description' => __('Installment price functionality settings'),
-			),*/
-
-			'_Splitit_banners' => array(
-				'type' => 'title',
-				'title' => __('Splitit banners', 'splitit'),
-				'description' => __('Choose your Splitit Banner.<br><a href="https://www.splitit.com/for-developers/how-to-promote/banners-library/" target="_blank">Click here to see all Splitit banners</a><p>Copy and paste this code block in a place (template/page) you want to display banner.</p>'),
-			),
-			//below parameters doesn`t need to be processed
-			'splitit_banner1' => array(
-				'title' => __('<img src="https://www.splitit.com/wp-content/uploads/2015/10/120x240.jpg" />', 'splitit'),
-				'type' => 'textarea',
-				'css' => 'height: 50px; position: absolute; top: 15px; width: 800px;', //dirty way to align code blocks in a way we need
-				'default' => "<div class='pisAncorBanner' PISdata='PIS_120x240_1'></div>
-<script id='pisBannersScript' src='https://cdn.splitit.com/Scripts/banners/banners.js'></script>",
-			),
-			'splitit_banner2' => array(
-				'title' => __('', 'splitit'),
-				'type' => 'textarea',
-				'css' => 'height: 50px; position: absolute; top: 75px; width: 800px;',
-				'default' => "<div class='pisAncorBanner' PISdata='PIS_120x600_1'></div>
-<script id='pisBannersScript' src='https://cdn.splitit.com/Scripts/banners/banners.js'></script>",
-			),
-			'splitit_banner3' => array(
-				'title' => __('<img src="https://www.splitit.com/wp-content/uploads/2015/10/250x250.jpg" />', 'splitit'),
-				'type' => 'textarea',
-				'css' => 'height: 50px; position: absolute; width: 800px; top: 340px;',
-				'default' => "<div class='pisAncorBanner' PISdata='PIS_250x250_1'></div>
-<script id='pisBannersScript' src='https://cdn.splitit.com/Scripts/banners/banners.js'></script>",
-			),
-			'splitit_banner4' => array(
-				'title' => __('', 'splitit'),
-				'type' => 'textarea',
-				'css' => 'height: 50px; width: 800px; position: absolute; top: 400px;',
-				'default' => "<div class='pisAncorBanner' PISdata='PIS_300x250_1'></div>
-<script id='pisBannersScript' src='https://cdn.splitit.com/Scripts/banners/banners.js'></script>",
-			),
-			'splitit_banner5' => array(
-				'title' => __('', 'splitit'),
-				'type' => 'textarea',
-				'css' => 'height: 50px; width: 800px; position: absolute; top: 460px;',
-				'default' => "<div class='pisAncorBanner' PISdata='PIS_468x60_1'></div>
-<script id='pisBannersScript' src='https://cdn.splitit.com/Scripts/banners/banners.js'></script>",
-			),
-			'splitit_banner6' => array(
-				'title' => __('', 'splitit'),
-				'type' => 'textarea',
-				'css' => 'height: 50px; position: absolute; top: 520px; width: 800px;',
-				'default' => "<div class='pisAncorBanner' PISdata='PIS_728x90_1'></div>
-<script id='pisBannersScript' src='https://cdn.splitit.com/Scripts/banners/banners.js'></script>",
 			),
 		);
 
