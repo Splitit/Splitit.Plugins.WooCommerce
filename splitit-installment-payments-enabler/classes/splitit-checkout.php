@@ -20,7 +20,12 @@ class SplitIt_Checkout extends WC_Checkout {
 
     protected $_API = null;
     public $posted = array();
+    public $log;
+    public function __construct(){
+        $this->log = new SplitIt_Log(); 
+    }
     public function process_splitit_checkout($checkout_fields, $payment_obj, $installment_plan_data,$ipn,$esi,$settings) {
+        $this->log->info(__FILE__, __LINE__, __METHOD__);
         try {          
 
             /*
@@ -241,6 +246,8 @@ class SplitIt_Checkout extends WC_Checkout {
 
             }
            // print_r($this->posted);die;
+            $this->log->add("\n posted data===");
+            $this->log->add(print_r($this->posted,true));
             // Update cart totals now we have customer address
             WC()->cart->calculate_totals();
 
@@ -285,12 +292,16 @@ class SplitIt_Checkout extends WC_Checkout {
             // Action after validation
             do_action( 'woocommerce_after_checkout_validation', $this->posted, 10, 1);
             //print_r($this->posted);die;
+            $this->log->add('woocommerce_after_checkout_validation called');
+            $this->log->add('====wc_notices====');
+            $this->log->add(print_r(wc_print_notices(true),true));
 
-            if ( ! isset( $checkout_fields['woocommerce_checkout_update_totals'] ) && wc_notice_count( 'error' ) == 0 ) {
-                
+            // if ( ! isset( $checkout_fields['woocommerce_checkout_update_totals'] ) && wc_notice_count( 'error' ) == 0 ) {
+            if ( ! isset( $checkout_fields['woocommerce_checkout_update_totals'] )) {
 
                 // Customer accounts
                 $this->customer_id = apply_filters( 'woocommerce_checkout_customer_id', get_current_user_id() );
+                $this->log->add('checking customer accounts');
 
                 if ( ! is_user_logged_in() && ( $this->must_create_account || ! empty( $this->posted['createaccount'] ) ) ) {
 
@@ -323,20 +334,23 @@ class SplitIt_Checkout extends WC_Checkout {
                         );
                         wp_update_user( apply_filters( 'woocommerce_checkout_customer_userdata', $userdata, $this ) );
                     }
+                    $this->log->add('created customer accounts');
                 }
 
                 // Do a final stock check at this point
                 $this->check_cart_items();
 
 
-               
+               $this->log->add('====wc_notices ignored====');
+               $this->log->add(print_r(wc_print_notices(true),true));
                 // Abort if errors are present
-                if ( wc_notice_count( 'error' ) > 0 )
-                    throw new Exception();
+                /*if ( wc_notice_count( 'error' ) > 0 )
+                    throw new Exception();*/
 
                 $total_amount_on_cart = WC()->cart->total;
                 $total_amount_paid   = $installment_plan_data->{'PlansList'}[0]->{'Amount'}->{'Value'};
                 /*die("($total_amount_on_cart==$total_amount_paid)===".($total_amount_on_cart==$total_amount_paid));*/
+               $this->log->add('====check totals ignored as already did====');
                 // if($total_amount_on_cart==$total_amount_paid){
                 if(true){
                     $order_id = $this->create_order($this->posted);
@@ -471,12 +485,14 @@ class SplitIt_Checkout extends WC_Checkout {
                 }
                 
                 setcookie("order_id",$order_id);
+                $this->log->add('====SplitIt : setting order id in cookie====');
                 if (is_null($this->_API)) { 
                     $this->_API = new SplitIt_API($settings); //passing settings to API
                 }
 
                 /*update order id in splitit log table and update splitit order only when details are there*/
                 global $wpdb;
+                $this->log->add('====SplitIt : updating order id in table====');
                 // $ipnNumber = $installment_plan_data->{'PlansList'}[0]->{'InstallmentPlanNumber'};
                 $table_name = $wpdb->prefix . 'splitit_logs';
                 $wpdb->update($table_name, array('order_id'=>$order_id), array('ipn'=>$ipn));
@@ -493,11 +509,14 @@ class SplitIt_Checkout extends WC_Checkout {
                 if ( is_wp_error( $order_id ) ) {
                     throw new Exception( $order_id->get_error_message() );
                 }
+                $this->log->add('====SplitIt : updated order id in table====');
 
                 do_action( 'woocommerce_checkout_order_processed', $order_id, $this->posted, $order);
 
+                $this->log->add('====SplitIt : woocommerce_checkout_order_processed called====');
                 // Process payment
                 if ( WC()->cart->needs_payment() ) {
+                    $this->log->add('====SplitIt : WC()->cart->needs_payment()====');
                     $success_message = "";
                     $success_message .= "Congratulations you have successfully placed your order.<br/>Please find the details mentioned below.<br/>";
                     $order_details = wc_get_order( $order_id );
@@ -512,9 +531,10 @@ class SplitIt_Checkout extends WC_Checkout {
                     // Store Order ID in session so it can be re-used after payment failure
                     WC()->session->order_awaiting_payment = $order_id;
 
+                    $this->log->add('====SplitIt : process payment====');
                     // Process Payment
                     $result = $available_gateways[ $this->posted['payment_method'] ]->process_payment( $order_id );
-
+                    $this->log->add('====SplitIt : payment processed====');
                     // Redirect to success/confirmation/payment page
                     if ( $result['result'] == 'success' ) {
 
@@ -535,7 +555,7 @@ class SplitIt_Checkout extends WC_Checkout {
                         $order = wc_get_order( $order_id );
                     }
 
-
+                    $this->log->add('====SplitIt : No payment was required for order====');
 
                     // No payment was required for order
                     $order->payment_complete();
@@ -563,6 +583,21 @@ class SplitIt_Checkout extends WC_Checkout {
                     }
 
                 }
+
+                $checkout_url = wc_get_checkout_url();
+                $order_key = $order->order_key;
+
+                $this->log->add('====SplitIt : checkout_url ===='.$checkout_url.'====');
+                
+                $this->log->add('====SplitIt : splitit_thankyou_page ===='.$settings['splitit_thankyou_page'].'====');
+                if($settings['splitit_thankyou_page'] == 'no'){
+                    $redirect = $checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+                } else {
+                    $redirect = ($order->get_checkout_order_received_url())?$order->get_checkout_order_received_url():$checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+                }
+                $this->log->add('====SplitIt : redirect ===='.$redirect.'====');
+
+                wp_redirect($redirect);exit;
 
             } else {
               //  wp_redirect(SplitIt_Helper::sanitize_redirect_url('checkout/'));
@@ -601,9 +636,11 @@ class SplitIt_Checkout extends WC_Checkout {
 
             /*created orders from the database values*/
                         global $wpdb;
+                        $this->log->info(__FILE__, __LINE__, __METHOD__);
                         $fetch_ipn_data = $ipn;
                         $table_name = $wpdb->prefix . 'splitit_logs';
                         $fetch_cart_details = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM ".$table_name." WHERE ipn = %s", $fetch_ipn_data ), ARRAY_A );
+                        $this->log->add('wc_cart=='.var_export($fetch_cart_details['wc_cart'],true));
                         $cart_info = json_decode($fetch_cart_details['wc_cart'],true);
                         $cart_info = $cart_info['cart_contents'];
                         $shipping_method = $fetch_cart_details['shipping_method_id'];
@@ -663,6 +700,9 @@ class SplitIt_Checkout extends WC_Checkout {
                                              'customer_id' => $user_id
                                         );
                             $order = wc_create_order($order_data);
+
+                            $this->log->add('cart_info=='.var_export($cart_info,true));
+
                             foreach ($cart_info as $key => $values) {
                                 $product_id = $values['product_id'];
                                 $product = wc_get_product($product_id);
@@ -709,11 +749,14 @@ class SplitIt_Checkout extends WC_Checkout {
                                 $order->add_shipping($shipping_rate);                    
                             }
                             $order->calculate_totals();
+                            $this->log->add('before discount order_total_edit=='.$order->get_total('edit'));
+                            $this->log->add('before discount order_total=='.$order->get_total());
                             if($coupon_code!="" && $coupon_amount!=""){
                                 $order->add_coupon($coupon_code,wc_format_decimal($coupon_amount));
-                                $order->set_total($order->calculate_totals() - wc_format_decimal($coupon_amount));
+                                $order->set_total($order->calculate_totals());
                                 $order->set_total($coupon_amount, 'cart_discount');
                             }
+                            $this->log->add('after discount order_total=='.$order->get_total());
                             
                             $order->set_payment_method($payment_obj);
                             $order->update_status('processing');

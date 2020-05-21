@@ -1286,7 +1286,7 @@ $textValue = esc_attr($this->get_option($key));
 					setcookie('splitit_checkout', null, strtotime('-1 day'));
 					setcookie('splitit_checkout_session_id_data', null, strtotime('-1 day'));
 					wc_clear_notices();
-					wp_redirect(wc_get_checkout_url() . '?wc-api=splitit_payment_success_async&InstallmentPlanNumber=' . $ipn);
+					// wp_redirect(wc_get_checkout_url() . '?wc-api=splitit_payment_success_async&InstallmentPlanNumber=' . $ipn);
 					exit;
 				} else {
 					wc_clear_notices();
@@ -1323,6 +1323,8 @@ $textValue = esc_attr($this->get_option($key));
 			//echo $ipn."---";die;
 			// $ipn = "67757642666443565703";
 			$exists_data_array = $this->get_post_id_by_meta_value($ipn);
+			$this->log->info(__FILE__, __LINE__, __METHOD__);
+			$this->log->add('exists_data_array=='.var_export($exists_data_array,true));
 			// echo "<pre>";print_r($exists_data_array);die;
 			// do something if the meta-key-value-pair exists in another post
 			if (empty($exists_data_array)) {
@@ -1443,7 +1445,9 @@ $textValue = esc_attr($this->get_option($key));
 		 */
 		public function process_payment($order_id) {
 			global $woocommerce;
+			$this->log->info(__FILE__, __LINE__, __METHOD__);
 			try {
+				$this->log->add('$order_id==='.$order_id);
 
 				$order = wc_get_order($order_id);
 				// Get redirect
@@ -1451,6 +1455,7 @@ $textValue = esc_attr($this->get_option($key));
 				if (!$return_url) {
 					$return_url = $order->get_checkout_order_received_url();
 				}
+				$this->log->add('$return_url==='.$return_url);
 				$woocommerce->cart->empty_cart();
 				// Redirect to success/confirmation/payment page
 				if (is_ajax()) {
@@ -1474,12 +1479,15 @@ $textValue = esc_attr($this->get_option($key));
 						//$redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
 						global $woocommerce;
 						$checkout_url = wc_get_checkout_url();
+						$this->log->info(__FILE__, __LINE__, __METHOD__);
+						$this->log->add('splitit_thankyou_page==='.$this->s('splitit_thankyou_page'));
 						
 						if($this->s('splitit_thankyou_page') == 'no'){
-							$redirect = $checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+							$redirect = $checkout_url . 'order-received/' . $order_id . '/?key=' . $order_key;
 						} else {
 							$redirect = ($order->get_checkout_order_received_url())?$order->get_checkout_order_received_url():$checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
 						}
+						$this->log->add('$redirect==='.$redirect);
 
 						wp_redirect($redirect);
 						exit;
