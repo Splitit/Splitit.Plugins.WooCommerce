@@ -1552,7 +1552,8 @@ return $price . "<br/>" . $textToDisplay;
 			$learnmore = " <a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
 			$prodData = $product->get_data();
 			$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
-			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
+            $resultPrice = str_replace('woocommerce-Price-amount', '', wc_price($split_price, array('decimals' => 2)));
+			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . $resultPrice . ' with ' . $replace . $learnmore . '</span>';
 		}
 
 		/***************************************************************************************************************
