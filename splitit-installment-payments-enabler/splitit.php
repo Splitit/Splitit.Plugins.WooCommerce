@@ -243,7 +243,7 @@ function init_splitit_method() {
 			//$this->title = $this->s('title') . '<span id="pis_anchor" style="display:none;"></span>';
 
 			//echo $this->settings['splitit_help_title_link'];die;
-			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg" >';
+			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png" >';
 			$textToDisplay = "<span class='payment-title-checkout'><img  class='paymentlogoWidthSrc' src='" . $this->s('splitit_logo_src') . "' alt='SPLITIT'/> ".__("0% INTEREST MONTHLY PAYMENTS")." <a href='" . $this->s('splitit_help_title_link') . "' id='tell-me-more'>" . $learnmoreImage . "</a></span>";
 			$descriptionImage = '<span class="description_image"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/description.png" ></span>';
 			//echo $textToDisplay;die;
@@ -363,6 +363,7 @@ function init_splitit_method() {
 			add_action('woocommerce_order_status_cancelled', array($this, 'splitit_cancel_order'), 10, 1);
 			/* END woocommerce cancel order hook */
 			add_filter('woocommerce_gateway_icon', array($this, 'splitit_gateway_icons'), 2, 3);
+			add_action('woocommerce_email_before_order_table', array($this, 'splitit_add_content_specific_email'), 20, 4);
 			if ($this->s('splitit_discount_type') == 'depending_on_cart_total') {
 				add_filter('woocommerce_available_payment_gateways', array($this, 'change_payment_gateway'), 20, 1);
 			}
@@ -1594,7 +1595,7 @@ return $price . "<br/>" . $textToDisplay;
 						$replace = "<a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' class='no-lightbox' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 						$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 					}
-					$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg">';
+					$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png">';
 					$learnmore = " <a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' class='no-lightbox' target='_blank'>" . $learnmoreImage . "</a>";
 					//$prodData = $product->get_data();
 					//$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
@@ -1627,7 +1628,7 @@ return $price . "<br/>" . $textToDisplay;
 				$replace = "<a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
 				$textToDisplay = str_replace('SPLITIT', $replace, isset($this->settings['splitit_without_interest'])?$this->settings['splitit_without_interest']:'');
 			}
-			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg">';
+			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png">';
 			$learnmore = " <a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
 			$prodData = $product->get_data();
 			$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
@@ -1913,6 +1914,11 @@ return $price . "<br/>" . $textToDisplay;
 			return true;
 		}
 
+		public function splitit_add_content_specific_email( $order, $sent_to_admin, $plain_text, $email ) { ?>
+			<style type="text/css">.paymentlogoWidthSrc{width:42px;} .tell-me-more-image{width:12px;}</style>
+		  <?php
+		}
+		
 		public function getAPIerrorJSON($json) {
 			$result = $json;
 			if (is_string($json)) {
