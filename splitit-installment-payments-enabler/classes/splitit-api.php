@@ -52,7 +52,7 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.3.0"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.4.2"),
 		);
 
 		try {
@@ -231,7 +231,6 @@ class SplitIt_API {
 				"FullName" => $order_data['ConsumerFullName'],
 				"Email" => $order_data['Email'],
 				"PhoneNumber" => $order_data['Phone'],
-				"CultureName" => "en-us",
 			);
 			$params['PaymentWizardData'] = array(
 
@@ -542,6 +541,29 @@ class SplitIt_API {
 	}
 
 	/**
+	 * verify payment
+	 *
+	 * @param $IPN
+	 * @param $SessionId
+	 * @return array|bool
+	 */
+	public function verifyPayment($SessionId, $IPN) {
+		$params = array(
+			'RequestHeader' => array('SessionId' => $SessionId),
+			'InstallmentPlanNumber' => $IPN
+		);
+		$result = $this->make_request($this->_API['url'], 'InstallmentPlan/Get/VerifyPayment', $params);
+		if (count($this->getError())) {
+			if (!is_admin()) {
+				wc_clear_notices();
+				wc_add_notice(SplitIt_Helper::format_error($this->getError()), 'error');
+				return false;
+			}
+		}
+		return $result;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function is_logged_in() {
@@ -577,6 +599,7 @@ class SplitIt_API {
 		}
 		if ('InstallmentPlan/StartInstallments' != $method &&
 			'InstallmentPlan/Get' != $method &&
+			'InstallmentPlan/Get/VerifyPayment' != $method &&
 			'InstallmentPlan/Cancel' != $method &&
 			'Login' != $method &&
 			'InstallmentPlan/Initiate' != $method &&

@@ -364,30 +364,6 @@ class SplitIt_Settings {
 				'title' => __('Percentage Of Order  %', 'splitit'),
 				'type' => 'number',
 			),
-			/* only to be enabled if approved by merchant*/
-			/*'splitit_fee_enable' => array(
-					'title' => __('Enable Splitit fees', 'splitit'),
-					'type' => 'select',
-					'options' => array(
-						'no' => 'No',
-						'yes' => 'Yes',
-					),
-				),
-				'splitit_fee_type' => array(
-					'title' => __('Splitit fee type', 'splitit'),
-					'type' => 'select',
-					'options' => array(
-						'fixed' => 'Fixed',
-						'percent' => 'Percentage',
-					),
-				),
-				'splitit_fee_amount' => array(
-					'title' => __('Splitit Fees Amount/Percentage', 'splitit'),
-					'description' => __("Fee can't be greater than 50.00 or less than 0.00", 'splitit'),
-					'desc_tip' => true,
-					'type' => 'text',
-					'default' => '0.00',
-			*/
 
 			'_Enable Splitit Per Product' => array(
 				'type' => 'title',

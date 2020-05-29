@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.3.0
+Version: 2.4.2
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.3.0');
+	define('Splitit_VERSION', '2.4.2');
 	define('Splitit_logo_source', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 	define('Splitit_learnmore_imgsource', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
 
@@ -337,9 +337,7 @@ function init_splitit_method() {
 			add_action('wp_enqueue_scripts', 'SplitIt_Helper::checkout_js');
 			add_action('woocommerce_after_checkout_form', array($this, 'splitit_pass_cdn_urls'));
 			add_action('woocommerce_api_splitit_scripts_on_checkout', array($this, 'splitit_scripts_on_checkout'));
-			/* add splitit fees */
-			add_action('woocommerce_cart_calculate_fees', array($this, 'splitit_fee_add'));
-			/* END add splitit fees */
+
 			/* woocommerce cancel order hook */
 			add_action('woocommerce_order_status_cancelled', array($this, 'splitit_cancel_order'), 10, 1);
 			/* END woocommerce cancel order hook */
@@ -1240,6 +1238,37 @@ $textValue = esc_attr($this->get_option($key));
 				if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 					$this->settings['splitit_cancel_url'] = 'checkout/';
 				}
+				$criteria = array('InstallmentPlanNumber' => $ipn);
+				$installment_data = $this->_API->get($esi, $criteria);
+				$verifyData = $this->_API->verifyPayment($esi, $ipn);
+				$this->log->info(__FILE__, __LINE__, __METHOD__);
+				$this->log->add('installment_data=='.var_export($installment_data,true));
+				$this->log->add('verifyData=='.var_export($verifyData,true));
+				if(!$verifyData->{'IsPaid'}){
+					wc_clear_notices();
+					$this->log->add('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.');
+					wc_add_notice('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.', 'error');
+					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+					exit;
+				}
+				$total_amount_on_cart = WC()->cart->total;
+				if($total_amount_on_cart != $verifyData->{'OriginalAmountPaid'}){
+					wc_clear_notices();
+					$this->log->add('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
+					wc_add_notice('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
+					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+					exit;
+				}
+				$planStatus = $installment_data->{'PlansList'}[0]->{'InstallmentPlanStatus'}->{'Code'};
+				if (!(($planStatus == "PendingMerchantShipmentNotice" || $planStatus == "InProgress")||($installment_data->{'PlansList'}[0]->{'NumberOfInstallments'}==1 && $planStatus == "Cleared"))) {
+					wc_clear_notices();
+					$this->log->add('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
+					wc_add_notice('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
+					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+					exit;
+				}
+				$this->log->add('--------valid order-------payment made--------');
+
 				$table_name = $wpdb->prefix . 'splitit_logs';
 				$fetch_items = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $table_name . " WHERE ipn =" . $ipn, array()), ARRAY_A);
 				//checking for user entered data
@@ -1251,8 +1280,7 @@ $textValue = esc_attr($this->get_option($key));
 						$checkout_fields[$key_value[0]] = $key_value[1];
 					}
 					$checkout_fields['payment_method'] = 'splitit';
-					$criteria = array('InstallmentPlanNumber' => $ipn);
-					$installment_data = $this->_API->get($esi, $criteria);
+					
 					$checkout = new SplitIt_Checkout();
 					$checkout->process_splitit_checkout($checkout_fields, $this, $installment_data, $ipn, $esi, $this->settings);
 					setcookie('splitit_checkout', null, strtotime('-1 day'));
@@ -1318,6 +1346,38 @@ $textValue = esc_attr($this->get_option($key));
 					if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 						$this->settings['splitit_cancel_url'] = 'checkout/';
 					}
+					
+					$criteria = array('InstallmentPlanNumber' => $ipn);
+					$installment_data = $this->_API->get($session, $criteria);
+					$verifyData = $this->_API->verifyPayment($session, $ipn);
+					$this->log->info(__FILE__, __LINE__, __METHOD__);
+					$this->log->add('installment_data=='.var_export($installment_data,true));
+					$this->log->add('verifyData=='.var_export($verifyData,true));
+					if(!$verifyData->{'IsPaid'}){
+						wc_clear_notices();
+						$this->log->add('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.');
+						wc_add_notice('Sorry, there was no actual payment received to create the order! So order was not placed. Please try to order again.', 'error');
+						wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+						exit;
+					}
+					/*$total_amount_on_cart = WC()->cart->total;
+					if($total_amount_on_cart != $verifyData->{'OriginalAmountPaid'}){
+						wc_clear_notices();
+						$this->log->add('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
+						wc_add_notice('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
+						wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+						exit;
+					}*/
+					$planStatus = $installment_data->{'PlansList'}[0]->{'InstallmentPlanStatus'}->{'Code'};
+					if (!(($planStatus == "PendingMerchantShipmentNotice" || $planStatus == "InProgress")||($installment_data->{'PlansList'}[0]->{'NumberOfInstallments'}==1 && $planStatus == "Cleared"))) {
+						wc_clear_notices();
+						$this->log->add('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
+						wc_add_notice('Sorry, the payment was denied by the gateway! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.', 'error');
+						wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
+						exit;
+					}
+					$this->log->add('--------valid order-------payment made--------');
+
 					if ($user_data != "") {
 						$checkout_fields_array = explode('&', $user_data);
 						$checkout_fields = array();
@@ -1337,6 +1397,8 @@ $textValue = esc_attr($this->get_option($key));
 				}
 
 			} else {
+				$this->log->info(__FILE__, __LINE__, __METHOD__);
+				$this->log->add('SplitIt===Order has been already created');
 				echo "Order has been already created";die;
 			}
 			return true;
@@ -1505,18 +1567,14 @@ return $price . "<br/>" . $textToDisplay;
 					}
 					$textToDisplay = str_replace('{X}', self::$_maxInstallments, $textToDisplay);
 					$textToDisplay = str_replace('{Y}', wc_price($split_price, array('decimals' => 2)), $textToDisplay);*/
-					if(isset($this->settings['splitit_without_interest'])){
-						$textToDisplay = $this->settings['splitit_without_interest'];	
-					}
+					$textToDisplay = $this->settings['splitit_without_interest'];
 					if (isset($this->settings['splitit_logo_src']) && $this->settings['splitit_logo_src']) {
 						//echo $this->settings['splitit_help_title_link'];die;
-						$replace = "<a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
-						if(isset($this->settings['splitit_without_interest'])){
-							$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
-						}	
+						$replace = "<a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' class='no-lightbox' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src'] . "' alt='SPLITIT'/></a>";
+						$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
 					}
 					$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.svg">';
-					$learnmore = " <a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' target='_blank'>" . $learnmoreImage . "</a>";
+					$learnmore = " <a id='tell-me-more' href='" . $this->settings['splitit_help_title_link'] . "' class='no-lightbox' target='_blank'>" . $learnmoreImage . "</a>";
 					//$prodData = $product->get_data();
 					//$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
 					$textToDisplay = '<span style="display:block;" class="splitit-installment-price-checkout">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
@@ -1552,8 +1610,7 @@ return $price . "<br/>" . $textToDisplay;
 			$learnmore = " <a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
 			$prodData = $product->get_data();
 			$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
-            $resultPrice = str_replace('woocommerce-Price-amount', '', wc_price($split_price, array('decimals' => 2)));
-			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . $resultPrice . ' with ' . $replace . $learnmore . '</span>';
+			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
 		}
 
 		/***************************************************************************************************************
@@ -1703,36 +1760,6 @@ return $price . "<br/>" . $textToDisplay;
 				}
 			}
 			return $show;
-		}
-
-		public function splitit_fee_add() {
-			global $woocommerce;
-			$chosen_gateway = $woocommerce->session->chosen_payment_method;
-			if ((isset($this->settings['splitit_fee_enable']) && $this->settings['splitit_fee_enable'] == 'yes') && ($chosen_gateway == 'splitit')) {
-				$fees = floatval($this->settings['splitit_fee_amount']);
-				if ($this->settings['splitit_fee_type'] == 'fixed') {
-					$woocommerce->cart->add_fee(__('Splitit Fees', 'splitit'), $fees);
-					return $fees;
-				} elseif ($this->settings['splitit_fee_type'] == 'percent') {
-					$cartTotal = $woocommerce->cart->cart_contents_total;
-					$woocommerce->cart->add_fee(__('Splitit Fees', 'splitit'), ($cartTotal * $fees / 100));
-					return ($cartTotal * $fees / 100);
-				}
-			}
-		}
-
-		public function get_splitit_fee_to_add($subtotal = 0) {
-			global $woocommerce;
-
-			if (($this->settings['splitit_fee_enable'] == 'yes')) {
-				$fees = floatval($this->settings['splitit_fee_amount']);
-				if ($this->settings['splitit_fee_type'] == 'fixed') {
-					return $fees;
-				} elseif ($this->settings['splitit_fee_type'] == 'percent') {
-
-					return ($subtotal * $fees / 100);
-				}
-			}
 		}
 
 		/**
