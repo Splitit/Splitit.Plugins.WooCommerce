@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.2
+Version: 2.4.3
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.2');
+	define('Splitit_VERSION', '2.4.3');
 	define('Splitit_logo_source', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 	define('Splitit_learnmore_imgsource', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
 
@@ -1339,6 +1339,8 @@ $textValue = esc_attr($this->get_option($key));
 			//echo $ipn."---";die;
 			// $ipn = "67757642666443565703";
 			$exists_data_array = $this->get_post_id_by_meta_value($ipn);
+			$this->log->info(__FILE__, __LINE__, __METHOD__);
+			$this->log->add('exists_data_array=='.var_export($exists_data_array,true));
 			// echo "<pre>";print_r($exists_data_array);die;
 			// do something if the meta-key-value-pair exists in another post
 			if (empty($exists_data_array)) {
@@ -1456,7 +1458,9 @@ $textValue = esc_attr($this->get_option($key));
 		 */
 		public function process_payment($order_id) {
 			global $woocommerce;
+			$this->log->info(__FILE__, __LINE__, __METHOD__);
 			try {
+				$this->log->add('$order_id==='.$order_id);
 
 				$order = wc_get_order($order_id);
 				// Get redirect
@@ -1464,6 +1468,7 @@ $textValue = esc_attr($this->get_option($key));
 				if (!$return_url) {
 					$return_url = $order->get_checkout_order_received_url();
 				}
+				$this->log->add('$return_url==='.$return_url);
 				$woocommerce->cart->empty_cart();
 				// Redirect to success/confirmation/payment page
 				if (is_ajax()) {
@@ -1487,12 +1492,15 @@ $textValue = esc_attr($this->get_option($key));
 						//$redirect .= get_option( 'permalink_structure' ) === '' ? '&' : '?';
 						global $woocommerce;
 						$checkout_url = wc_get_checkout_url();
+						$this->log->info(__FILE__, __LINE__, __METHOD__);
+						$this->log->add('splitit_thankyou_page==='.$this->s('splitit_thankyou_page'));
 						
 						if($this->s('splitit_thankyou_page') == 'no'){
-							$redirect = $checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+							$redirect = $checkout_url . 'order-received/' . $order_id . '/?key=' . $order_key;
 						} else {
 							$redirect = ($order->get_checkout_order_received_url())?$order->get_checkout_order_received_url():$checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
 						}
+						$this->log->add('$redirect==='.$redirect);
 
 						wp_redirect($redirect);
                         SplitIt_Helper::exit_safely();
