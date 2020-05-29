@@ -10,6 +10,9 @@
  */
 
 class SplitIt_Helper {
+
+    private static $exitSafelyFlag = false;
+    protected static $allowSetCookie = true;
 	/**
 	 * Ajax handler for check api settings
 	 */
@@ -71,4 +74,45 @@ class SplitIt_Helper {
 		return false;
 	}
 
+    /**
+     * @param bool $flag
+     */
+	public static function set_exit_safely_flag(bool $flag) {
+	    self::$exitSafelyFlag = $flag;
+    }
+
+    /**
+     * @throws Exception
+     */
+	public static function exit_safely() {
+	    if (self::$exitSafelyFlag) {
+	        throw new Exception('Exit');
+        }
+
+	    exit;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @param int $expire
+     * @param string $path
+     * @param string $domain
+     * @param bool $secure
+     * @param bool $httponly
+     */
+    public static function setCookie($name, $value, $expire = 0, $path = '', $domain = '', $secure = false, $httponly = false)
+    {
+        if (self::$allowSetCookie) {
+            setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+        }
+    }
+
+    /**
+     * @param bool $flag
+     */
+    public static function setCookieFlag(bool $flag)
+    {
+        self::$allowSetCookie = $flag;
+    }
 }

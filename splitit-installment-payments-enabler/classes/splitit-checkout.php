@@ -469,11 +469,9 @@ class SplitIt_Checkout extends WC_Checkout {
                         /*custom order creation end*/                
 
                 }
-                
-                setcookie("order_id",$order_id);
-                if (is_null($this->_API)) { 
-                    $this->_API = new SplitIt_API($settings); //passing settings to API
-                }
+
+                SplitIt_Helper::setCookie('order_id', $order_id);
+                $api = SplitIt::getApi($settings);
 
                 /*update order id in splitit log table and update splitit order only when details are there*/
                 global $wpdb;
@@ -483,7 +481,7 @@ class SplitIt_Checkout extends WC_Checkout {
                 $order = wc_get_order( $order_id );
                 $order_data = $order->get_data();
                 if(isset($order_data['billing']) && isset($order_data['billing']['first_name']) && $order_data['billing']['first_name'] && floatval($order->get_total())>0 && $ipn && $order_id){
-                    $this->_API->installment_plan_update($order_id,$esi,$ipn);
+                    $api->installment_plan_update($order_id,$esi,$ipn);
                 }
 
                 update_post_meta( $order_id, 'installment_plan_number', sanitize_text_field( $ipn ) );
@@ -524,7 +522,7 @@ class SplitIt_Checkout extends WC_Checkout {
                             wp_send_json( $result );
                         } else {
                           //  wp_redirect( $result['redirect'] );
-                            exit;
+                            SplitIt_Helper::exit_safely();
                         }
 
                     }
@@ -559,7 +557,7 @@ class SplitIt_Checkout extends WC_Checkout {
                         wp_safe_redirect(
                             apply_filters( 'woocommerce_checkout_no_payment_needed_redirect', $return_url, $order )
                         );
-                        exit;
+                        SplitIt_Helper::exit_safely();
                     }
 
                 }

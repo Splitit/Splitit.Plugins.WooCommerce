@@ -198,7 +198,7 @@ function init_splitit_method() {
 		 */
 		public static $_instance = NULL;
 		private static $_maxInstallments = NULL;
-		protected $_API = null;
+		private static $_API = null;
 
 		/**
 		 * Returns a new instance of self, if it does not already exist.
@@ -257,6 +257,27 @@ function init_splitit_method() {
 			// }
 		}
 
+        /**
+         * @param $settings
+         * @return SplitIt_API
+         */
+		public static function getApi($settings): SplitIt_API
+        {
+		    if (!self::$_API) {
+                self::$_API = new SplitIt_API($settings);
+            }
+
+		    return self::$_API;
+        }
+
+        /**
+         * @param SplitIt_API $api
+         */
+        public static function setApi(SplitIt_API $api)
+        {
+            self::$_API = $api;
+        }
+
 		/**
 		 * Return the title for Checkout page and Admin
 		 *
@@ -304,7 +325,7 @@ function init_splitit_method() {
 			//TODO: Translation?
 			//add_action( 'init', 'Splitit_Helper::load_i18n' );
 			//admin functions init
-			if (is_admin()) {
+			if (is_admin() || defined('SPLITIT_TESTING')) {
 				add_action('admin_enqueue_scripts', 'SplitIt_Helper::admin_js');
 				//add_action( 'wp_ajax_my_action', 'check_credentials' );
 				add_action('wp_ajax_my_action', array($this, 'splitit_check_api_credentials'));
@@ -912,13 +933,10 @@ $textValue = esc_attr($this->get_option($key));
 				//echo '<pre>'; print_r($order_meta); die;
 				if (isset($order_meta['installment_plan_number']) && !empty($order_meta['installment_plan_number'][0])) {
 
-					if (is_null($this->_API)) {
-						$this->_API = new SplitIt_API($this->settings); //passing settings to API
-					}
-
-					$session = $this->_API->login();
+                    $api = self::getApi($this->settings);
+					$session = $api->login();
 					//var_dump($session); die;
-					$result = $this->_API->capture($order_meta['installment_plan_number'][0], $session);
+					$result = $api->capture($order_meta['installment_plan_number'][0], $session);
 					if (is_array($result) && isset($result['error'])) {
 						//error
 						$order->add_order_note('[Splitit] ' . $result['error']);
@@ -935,11 +953,9 @@ $textValue = esc_attr($this->get_option($key));
 				//Here order id is sent as parameter
 				$order_meta = get_post_custom($order_id);
 				if (isset($order_meta['installment_plan_number']) && !empty($order_meta['installment_plan_number'][0])) {
-					if (is_null($this->_API)) {
-						$this->_API = new SplitIt_API($this->settings); //passing settings to API
-					}
-					$session = $this->_API->login();
-					$this->_API->capture($order_meta['installment_plan_number'][0], $session);
+					$api = self::getApi($this->settings);
+					$session = $api->login();
+                    $api->capture($order_meta['installment_plan_number'][0], $session);
 				}
 			}
 		}
@@ -1002,11 +1018,11 @@ $textValue = esc_attr($this->get_option($key));
 				);
 			}
 
-			$this->_API = new SplitIt_API($this->settings); //passing settings to API
-			$session = $this->_API->login();
+			$api = self::getApi($this->settings); //passing settings to API
+			$session = $api->login();
 
 			if (!is_array($session)) {
-				$ec_session_id = $this->_API->getEcSession($order_data);
+				$ec_session_id = $api->getEcSession($order_data);
 				if (isset($ec_session_id->{'EcSessionId'})) {
 					return wp_send_json(array('ec_session_id' => $ec_session_id->{'EcSessionId'}, 'sandbox_mode' => $this->settings['splitit_mode_sandbox']));
 				} else {
@@ -1191,7 +1207,7 @@ $textValue = esc_attr($this->get_option($key));
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
 			$esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? wc_clean($_COOKIE["splitit_checkout_session_id_data"]) : false;
 
-			$this->_API = new SplitIt_API($this->settings); //passing settings to API
+			$api = self::getApi($this->settings); //passing settings to API
 
 			if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 				$this->settings['splitit_cancel_url'] = 'checkout/';
@@ -1234,13 +1250,13 @@ $textValue = esc_attr($this->get_option($key));
 			$exists_data_array = $this->get_post_id_by_meta_value($ipn);
 			//print_r($exists_data_array);die;
 			if (empty($exists_data_array)) {
-				$this->_API = new SplitIt_API($this->settings); //passing settings to API
+				$api = self::getApi($this->settings); //passing settings to API
 				if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 					$this->settings['splitit_cancel_url'] = 'checkout/';
 				}
 				$criteria = array('InstallmentPlanNumber' => $ipn);
-				$installment_data = $this->_API->get($esi, $criteria);
-				$verifyData = $this->_API->verifyPayment($esi, $ipn);
+				$installment_data = $api->get($esi, $criteria);
+				$verifyData = $api->verifyPayment($esi, $ipn);
 				$this->log->info(__FILE__, __LINE__, __METHOD__);
 				$this->log->add('installment_data=='.var_export($installment_data,true));
 				$this->log->add('verifyData=='.var_export($verifyData,true));
@@ -1283,16 +1299,16 @@ $textValue = esc_attr($this->get_option($key));
 					
 					$checkout = new SplitIt_Checkout();
 					$checkout->process_splitit_checkout($checkout_fields, $this, $installment_data, $ipn, $esi, $this->settings);
-					setcookie('splitit_checkout', null, strtotime('-1 day'));
-					setcookie('splitit_checkout_session_id_data', null, strtotime('-1 day'));
+                    SplitIt_Helper::setCookie('splitit_checkout', null, strtotime('-1 day'));
+                    SplitIt_Helper::setCookie('splitit_checkout_session_id_data', null, strtotime('-1 day'));
 					wc_clear_notices();
 					wp_redirect(wc_get_checkout_url() . '?wc-api=splitit_payment_success_async&InstallmentPlanNumber=' . $ipn);
-					exit;
+                    SplitIt_Helper::exit_safely();
 				} else {
 					wc_clear_notices();
 					wc_add_notice('Sorry, there was no checkout data received to create order! It was not placed. Please try to order again.', 'error');
 					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
-					exit;
+                    SplitIt_Helper::exit_safely();
 
 				}
 			} else {
@@ -1302,7 +1318,7 @@ $textValue = esc_attr($this->get_option($key));
 					$last_order_key = $last_order->order_key;
 
 					wp_redirect(site_url("checkout/order-received/" . $orderId . "/?key=" . $last_order_key));
-					exit;
+                    SplitIt_Helper::exit_safely();
 				}
 
 			}
@@ -1341,15 +1357,15 @@ $textValue = esc_attr($this->get_option($key));
 					$coupon_code = $fetch_items['coupon_code'];
 					$cart_items = json_decode($fetch_items['cart_items'], true);
 					//print_r($cart_items);die;
-					$this->_API = new SplitIt_API($this->settings); //passing settings to API
-					$session = $this->_API->login();
+					$api = self::getApi($this->settings); //passing settings to API
+					$session = $api->login();
 					if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 						$this->settings['splitit_cancel_url'] = 'checkout/';
 					}
-					
+
 					$criteria = array('InstallmentPlanNumber' => $ipn);
-					$installment_data = $this->_API->get($session, $criteria);
-					$verifyData = $this->_API->verifyPayment($session, $ipn);
+					$installment_data = $api->get($session, $criteria);
+					$verifyData = $api->verifyPayment($session, $ipn);
 					$this->log->info(__FILE__, __LINE__, __METHOD__);
 					$this->log->add('installment_data=='.var_export($installment_data,true));
 					$this->log->add('verifyData=='.var_export($verifyData,true));
@@ -1387,7 +1403,7 @@ $textValue = esc_attr($this->get_option($key));
 						}
 						$checkout_fields['payment_method'] = 'splitit'; //override default method as it is not correct
 						$criteria = array('InstallmentPlanNumber' => $ipn);
-						$installment_data = $this->_API->get($session, $criteria);
+						$installment_data = $api->get($session, $criteria);
 						$checkout = new SplitIt_Checkout();
 						$checkout->async_process_splitit_checkout($checkout_fields, $this, $installment_data, $ipn, $session, $this->settings, $user_id, $cart_items, $shipping_method, $shipping_cost, $shipping_title, $coupon_amount, $coupon_code);
 						wc_clear_notices();
@@ -1417,11 +1433,8 @@ $textValue = esc_attr($this->get_option($key));
 				$message = "Please enter the credentials and save settings";
 			} else {
 
-				if (is_null($this->_API)) {
-					$this->_API = new SplitIt_API($this->settings); //passing settings to API
-				}
-
-				$session = $this->_API->login();
+			    $api = self::getApi($this->settings);
+				$session = $api->login();
 
 				$message = ($this->s('splitit_mode_sandbox') == 'yes') ? '[Sandbox Mode] ' : '[Production mode] ';
 				if (!isset($session['error'])) {
@@ -1482,13 +1495,13 @@ $textValue = esc_attr($this->get_option($key));
 						}
 
 						wp_redirect($redirect);
-						exit;
+                        SplitIt_Helper::exit_safely();
 					}
 
 					wp_safe_redirect(
 						apply_filters('woocommerce_checkout_no_payment_needed_redirect', $return_url, $order)
 					);
-					exit;
+                    SplitIt_Helper::exit_safely();
 				}
 			} catch (Exception $e) {
 				$this->log->info(__FILE__, __LINE__, __METHOD__);
@@ -1834,13 +1847,11 @@ return $price . "<br/>" . $textToDisplay;
 
 				$ipn = get_post_meta($order->id, 'installment_plan_number', true);
 
-				if (is_null($this->_API)) {
-					$this->_API = new SplitIt_API($this->settings); //passing settings to API
-				}
+				$api = self::getApi($this->settings);
 				/*var_dump($ipn);
 					            var_dump($amount);
 				*/
-				$result = $this->_API->refund($ipn, $amount, $reason);
+				$result = $api->refund($ipn, $amount, $reason);
 				/*echo '<pre>';print_r($result);die;*/
 				$error = $this->getAPIerrorJSON($result);
 				$this->log->info(__FILE__, __LINE__, __METHOD__);
@@ -1877,10 +1888,8 @@ return $price . "<br/>" . $textToDisplay;
 			if ($chosen_gateway == 'splitit') {
 				$ipn = get_post_meta($order_get_id, 'installment_plan_number', true);
 				/*var_dump($ipn);exit;*/
-				if (is_null($this->_API)) {
-					$this->_API = new SplitIt_API($this->settings); //passing settings to API
-				}
-				$result = $this->_API->cancel($ipn);
+				$api = self::getApi($this->settings);
+				$result = $api->cancel($ipn);
 				/*var_dump($result);die;*/
 				$error = $this->getAPIerrorJSON($result);
 				$this->log->info(__FILE__, __LINE__, __METHOD__);
