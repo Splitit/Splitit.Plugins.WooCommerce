@@ -1915,7 +1915,7 @@ return $price . "<br/>" . $textToDisplay;
 		}
 
 		public function splitit_add_content_specific_email( $order, $sent_to_admin, $plain_text, $email ) { ?>
-			<style type="text/css">.paymentlogoWidthSrc{width:42px;} .tell-me-more-image{width:12px;}</style>
+			<style type="text/css">.paymentlogoWidthSrc{width:52px;} .tell-me-more-image{width:12px;}</style>
 		  <?php
 		}
 		
