@@ -290,7 +290,9 @@ class SplitIt_Checkout extends WC_Checkout {
             }
 
             // Action after validation
-            do_action( 'woocommerce_after_checkout_validation', $this->posted, 10, 1);
+            // Second param null was added because there are some actions which has a second param $errors
+            // For other cases, we will post only 1 param $this->posted
+            do_action( 'woocommerce_after_checkout_validation', $this->posted, null, 10, 1);
             //print_r($this->posted);die;
             $this->log->add('woocommerce_after_checkout_validation called');
             $this->log->add('====wc_notices====');
