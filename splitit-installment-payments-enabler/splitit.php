@@ -1860,7 +1860,8 @@ return $price . "<br/>" . $textToDisplay;
 				/*var_dump($ipn);
 					            var_dump($amount);
 				*/
-				$result = $api->refund($ipn, $amount, $reason);
+//				$result = $api->refund($ipn, $amount, $reason);
+                $result = [];
 				/*echo '<pre>';print_r($result);die;*/
 				$error = $this->getAPIerrorJSON($result);
 				$this->log->info(__FILE__, __LINE__, __METHOD__);
@@ -1898,7 +1899,8 @@ return $price . "<br/>" . $textToDisplay;
 				$ipn = get_post_meta($order_get_id, 'installment_plan_number', true);
 				/*var_dump($ipn);exit;*/
 				$api = self::getApi($this->settings);
-				$result = $api->cancel($ipn);
+//				$result = $api->cancel($ipn);
+                $result = [];
 				/*var_dump($result);die;*/
 				$error = $this->getAPIerrorJSON($result);
 				$this->log->info(__FILE__, __LINE__, __METHOD__);
