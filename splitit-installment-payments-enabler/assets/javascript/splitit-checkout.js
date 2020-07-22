@@ -26,6 +26,23 @@
         $(document.body).on('change', 'input[name="payment_method"]', function() {
             $('body').trigger('update_checkout');
         });
+
+        $('#calc_shipping_country').change(function() {
+            var countryList = $(this).val();
+            var countriesWithoutPostCode = ['AE', 'AF', 'AG', 'AI', 'AL', 'AN', 'AO', 'AW', 'BB', 'BF', 'BH', 'BI', 'BJ', 'BM', 'BO', 'BS',
+                'BT', 'BW', 'BZ', 'CD', 'CF', 'CG', 'CI', 'CK', 'CL', 'CM', 'CO', 'CR', 'CV', 'DJ', 'DM', 'DO', 'EC',
+                'EG', 'ER', 'ET', 'FJ', 'FK', 'GA', 'GD', 'GH', 'GI', 'GM', 'GN', 'GQ', 'GT', 'GW', 'GY', 'HN', 'HT',
+                'IE', 'IQ', 'IR', 'JM', 'JO', 'KE', 'KH', 'KI', 'KM', 'KN', 'KP', 'KW', 'KY', 'LA', 'LB', 'LC', 'LK',
+                'LR', 'LS', 'LY', 'ML', 'MM', 'MO', 'MR', 'MS', 'MT', 'MU', 'MW', 'MY', 'MZ', 'NA', 'NE', 'NG', 'NI',
+                'NP', 'NR', 'NU', 'OM', 'PA', 'PE', 'PF', 'PY', 'QA', 'RW', 'SA', 'SB', 'SC', 'SD', 'SL', 'SN', 'SO',
+                'SR', 'SS', 'ST', 'SV', 'SY', 'TC', 'TD', 'TG', 'TL', 'TO', 'TR', 'TT', 'TV', 'TZ', 'UG', 'UY', 'VC',
+                'VE', 'VG', 'VN', 'VU', 'WS', 'XA', 'XB', 'XC', 'XE', 'XL', 'XM', 'XN', 'XS', 'YE', 'ZM', 'ZW'];
+            if ($.inArray(countryList, countriesWithoutPostCode) !== -1) {
+                $('#calc_shipping_city').show();
+            } else {
+                $('#calc_shipping_city').val('').hide();
+            }
+        });
     });
 
     //tell me more button
