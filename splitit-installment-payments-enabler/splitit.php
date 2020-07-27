@@ -374,7 +374,7 @@ function init_splitit_method() {
 			//Installment price functionality init
 			if ($this->s('splitit_enable_installment_price') == 'yes') {
 				add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 10, 3);
+				//add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 10, 3);
 				add_filter('woocommerce_product_get_regular_price', array($this, 'splitit_installment_price'), 10, 3);
 				add_filter('woocommerce_product_get_sale_price', array($this, 'splitit_installment_price'), 10, 3);
 				add_filter('woocommerce_order_amount_item_subtotal', array($this, 'splitit_installment_price'), 10, 3);
@@ -1630,8 +1630,7 @@ return $price . "<br/>" . $textToDisplay;
 			}
 			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png">';
 			$learnmore = " <a href='" . $this->settings['splitit_help_title_link'] . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
-			$prodData = $product->get_data();
-			$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
+            $split_price = round($product->get_price() / self::$_maxInstallments, 3);
 			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
 		}
 
