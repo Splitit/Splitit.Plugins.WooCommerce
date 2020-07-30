@@ -434,10 +434,10 @@ class SplitIt_Settings {
 				'type' => 'title',
 				'class' => 'hidden',
 			),
-			'splitit_logo_src' => array(
+			'splitit_logo_src_local' => array(
 				'type' => 'text',
 				'class' => 'hidden',
-				'default' => Splitit_logo_source
+				'default' => Splitit_logo_source_local
 			),
 			/*'title' => array(
 				'title' => __('Title', 'splitit'),
@@ -466,10 +466,10 @@ class SplitIt_Settings {
 					'default' => __('Tell me more', 'splitit'),
 					'custom_attributes' => array('readonly' => 'readonly'),
 			*/
-			'splitit_help_title_link' => array(
+			'splitit_help_title_link_local' => array(
 				'type' => 'text',
 				'class' => 'hidden',
-				'default' => Splitit_learnmore_imgsource
+				'default' => Splitit_learnmore_imgsource_local
 			),
 			'_3dSecure ' => array(
 				'type' => 'title',
