@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.4
+Version: 2.4.5
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.4');
+	define('Splitit_VERSION', '2.4.5');
 	define('Splitit_logo_source_local', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 	define('Splitit_learnmore_imgsource_local', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
 
@@ -374,7 +374,7 @@ function init_splitit_method() {
 			//Installment price functionality init
 			if ($this->s('splitit_enable_installment_price') == 'yes') {
 				add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 10, 3);
+				//add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 10, 3);
 				add_filter('woocommerce_product_get_regular_price', array($this, 'splitit_installment_price'), 10, 3);
 				add_filter('woocommerce_product_get_sale_price', array($this, 'splitit_installment_price'), 10, 3);
 				add_filter('woocommerce_order_amount_item_subtotal', array($this, 'splitit_installment_price'), 10, 3);
