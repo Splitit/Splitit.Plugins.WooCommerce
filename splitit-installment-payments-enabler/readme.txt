@@ -1,9 +1,9 @@
 === Splitit Installment Payments Enabler ===
-Contributors: splitit
+Contributors: splitit, sixg
 Tags: ecommerce, e-commerce, commerce, wordpress ecommerce, sales, sell, shop, shopping, checkout, payment, splitit
 Requires at least: 3.0.1
-Tested up to: 5.4.0
-Stable tag: 2.4.4
+Tested up to: 5.4.2
+Stable tag: 2.4.5
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -64,6 +64,9 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 7. Customer charge action
 
 == Changelog ==
+
+= 2.4.5 =
+*change splitit logo
 
 = 2.4.4 =
 *change splitit logo
