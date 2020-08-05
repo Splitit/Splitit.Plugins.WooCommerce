@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.5
+Version: 2.4.6
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.5');
+	define('Splitit_VERSION', '2.4.6');
 	define('Splitit_logo_source_local', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 	define('Splitit_learnmore_imgsource_local', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
 
@@ -312,7 +312,7 @@ function init_splitit_method() {
 
 			$has_api_creds = isset($this->settings['splitit_api_terminal_key']) && $this->settings['splitit_api_terminal_key'] && isset($this->settings['splitit_api_username']) && $this->settings['splitit_api_username'] && isset($this->settings['splitit_api_password']) && $this->settings['splitit_api_password'];
 
-			return $order && get_post_meta($order->id, 'installment_plan_number', true) && $has_api_creds;
+			return $order && get_post_meta($order->get_id(), 'installment_plan_number', true) && $has_api_creds;
 		}
 
 		/**
@@ -1589,11 +1589,11 @@ return $price . "<br/>" . $textToDisplay;
 					}
 					$textToDisplay = str_replace('{X}', self::$_maxInstallments, $textToDisplay);
 					$textToDisplay = str_replace('{Y}', wc_price($split_price, array('decimals' => 2)), $textToDisplay);*/
-					$textToDisplay = $this->settings['splitit_without_interest'];
+					/*$textToDisplay = $this->settings['splitit_without_interest'];*/
 					if (isset($this->settings['splitit_logo_src_local']) && $this->settings['splitit_logo_src_local']) {
 						//echo $this->settings['splitit_help_title_link_local'];die;
 						$replace = "<a id='tell-me-more' href='" . $this->settings['splitit_help_title_link_local'] . "' class='no-lightbox' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src_local'] . "' alt='SPLITIT'/></a>";
-						$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);
+						/*$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);*/
 					}
 					$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png">';
 					$learnmore = " <a id='tell-me-more' href='" . $this->settings['splitit_help_title_link_local'] . "' class='no-lightbox' target='_blank'>" . $learnmoreImage . "</a>";
@@ -1810,8 +1810,8 @@ return $price . "<br/>" . $textToDisplay;
 		 * @param $order
 		 */
 		public function splitit_add_installment_plan_number_data($order) {
-			echo '<p><strong>' . __('Installment plan number') . ':</strong> ' . get_post_meta($order->id, 'installment_plan_number', true) . '</p>';
-			echo '<p><strong>' . __('Number of installments') . ':</strong> ' . get_post_meta($order->id, 'number_of_installments', true) . '</p>';
+			echo '<p><strong>' . __('Installment plan number') . ':</strong> ' . get_post_meta($order->get_id(), 'installment_plan_number', true) . '</p>';
+			echo '<p><strong>' . __('Number of installments') . ':</strong> ' . get_post_meta($order->get_id(), 'number_of_installments', true) . '</p>';
 		}
 
 		/**
