@@ -178,7 +178,6 @@ function init_splitit_method() {
 
 	define('Splitit_VERSION', '2.4.6');
 	define('Splitit_logo_source_local', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
-	define('Splitit_learnmore_imgsource_local', plugin_dir_url(__FILE__) . 'assets/images/V1-USD.png');
 
 	// Import helper classes
 	require_once 'classes/splitit-log.php';
@@ -244,7 +243,7 @@ function init_splitit_method() {
 
 			//echo $this->settings['splitit_help_title_link_local'];die;
 			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png" >';
-			$textToDisplay = "<span class='payment-title-checkout'><img  class='paymentlogoWidthSrc' src='" . $this->s('splitit_logo_src_local') . "' alt='SPLITIT'/> ".__("0% INTEREST MONTHLY PAYMENTS")." <a href='" . $this->s('splitit_help_title_link_local') . "' id='tell-me-more'>" . $learnmoreImage . "</a></span>";
+			$textToDisplay = "<span class='payment-title-checkout'><img  class='paymentlogoWidthSrc' src='" . $this->s('splitit_logo_src_local') . "' alt='SPLITIT'/> ".__("0% INTEREST MONTHLY PAYMENTS")." <a href='" . $this->getHelpMeLink() . "' id='tell-me-more'>" . $learnmoreImage . "</a></span>";
 			$descriptionImage = '<span class="description_image"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/description.png" ></span>';
 			//echo $textToDisplay;die;
 			$this->title = $textToDisplay;
@@ -1592,11 +1591,11 @@ return $price . "<br/>" . $textToDisplay;
 					/*$textToDisplay = $this->settings['splitit_without_interest'];*/
 					if (isset($this->settings['splitit_logo_src_local']) && $this->settings['splitit_logo_src_local']) {
 						//echo $this->settings['splitit_help_title_link_local'];die;
-						$replace = "<a id='tell-me-more' href='" . $this->settings['splitit_help_title_link_local'] . "' class='no-lightbox' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src_local'] . "' alt='SPLITIT'/></a>";
+						$replace = "<a id='tell-me-more' href='" . $this->getHelpMeLink($price) . "' class='no-lightbox' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src_local'] . "' alt='SPLITIT'/></a>";
 						/*$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);*/
 					}
 					$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png">';
-					$learnmore = " <a id='tell-me-more' href='" . $this->settings['splitit_help_title_link_local'] . "' class='no-lightbox' target='_blank'>" . $learnmoreImage . "</a>";
+					$learnmore = " <a id='tell-me-more' href='" . $this->getHelpMeLink($price) . "' class='no-lightbox' target='_blank'>" . $learnmoreImage . "</a>";
 					//$prodData = $product->get_data();
 					//$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
 					$textToDisplay = '<span style="display:block;" class="splitit-installment-price-checkout">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
@@ -1625,11 +1624,11 @@ return $price . "<br/>" . $textToDisplay;
 			$textToDisplay = isset($this->settings['splitit_without_interest'])?$this->settings['splitit_without_interest']:'';
 			if (isset($this->settings['splitit_logo_src_local']) && $this->settings['splitit_logo_src_local']) {
 				//echo $this->settings['splitit_help_title_link_local'];die;
-				$replace = "<a href='" . $this->settings['splitit_help_title_link_local'] . "' id='tell-me-more'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src_local'] . "' alt='SPLITIT'/></a>";
+				$replace = "<a href='" . $this->getHelpMeLink($product->get_price()) . "' id='tell-me-more'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src_local'] . "' alt='SPLITIT'/></a>";
 				$textToDisplay = str_replace('SPLITIT', $replace, isset($this->settings['splitit_without_interest'])?$this->settings['splitit_without_interest']:'');
 			}
 			$learnmoreImage = '<img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png">';
-			$learnmore = " <a href='" . $this->settings['splitit_help_title_link_local'] . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
+			$learnmore = " <a href='" . $this->getHelpMeLink($product->get_price()) . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
             $split_price = round($product->get_price() / self::$_maxInstallments, 3);
 			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
 		}
@@ -1979,7 +1978,33 @@ return $price . "<br/>" . $textToDisplay;
 			echo json_encode($prodSKUs);
 			wp_die();
 		}
-	}
+
+        public function getHelpMeLink($amount = null)
+        {
+            $apiKey = $this->get_option('splitit_api_terminal_key');
+            $culture = get_locale();
+            $currencyCode = "USD";
+            if (get_woocommerce_currency() != "") {
+                $currencyCode = get_woocommerce_currency();
+            }
+            $numInstallments = self::$_maxInstallments;
+
+            if ($this->get_option('splitit_mode_sandbox')) {
+                $url = 'https://documents.sandbox.splitit.com/LearnMore?apiKey=' . $apiKey;
+            } else {
+                $url = 'https://documents.production.splitit.com/LearnMore?apiKey=' . $apiKey;
+            }
+            if ($amount) {
+                $url = $url . '&amount=' . $amount;
+            }
+            $url = $url . '&culture=' . $culture
+                . '&currencyCode=' . $currencyCode
+                . '&numInstallments=' . $numInstallments;
+
+
+            return $url;
+        }
+    }
 
 	// Make the object available for later use
 	function SplitIt() {
