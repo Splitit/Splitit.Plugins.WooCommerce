@@ -196,7 +196,7 @@ class SplitIt_API {
 					if ($percentageOfOrder > 50) {
 						$percentageOfOrder = 50;
 					}
-					$firstInstallmentAmount = (($order_data['AmountBeforeFees'] * $percentageOfOrder) / 100);
+					$firstInstallmentAmount = round((($order_data['AmountBeforeFees'] * $percentageOfOrder) / 100), 2);
 					// var_dump($firstInstallmentAmount);
 				}
 			} elseif ($firstPayment == "shipping") {
