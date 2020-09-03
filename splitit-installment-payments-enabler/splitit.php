@@ -1548,8 +1548,11 @@ $textValue = esc_attr($this->get_option($key));
 						return $price;
 					}
 					if (is_checkout() && in_array('checkout', $sections)) {
-						return $price . $this->get_formatted_installment_price($product);
-					}
+                        if (method_exists($product, 'get_price')) {
+                            return $price . $this->get_formatted_installment_price($product);
+                        }
+                        return $price;
+                    }
 				}
 			}
 			return $price;
