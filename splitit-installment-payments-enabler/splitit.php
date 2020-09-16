@@ -1536,7 +1536,7 @@ $textValue = esc_attr($this->get_option($key));
 				if (is_array($sections)) {
 					if (is_product() && in_array('product', $sections)) {
 						if($this->isSplititTextVisibleOnProduct($product->get_id())){
-							return $price . $this->get_formatted_installment_price($product);
+							return $price . '</p><p class="splitprice" style="margin-top: -30px;">' .$this->get_formatted_installment_price($product);
 						} else {
 							return $price;
 						}
