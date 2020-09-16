@@ -361,7 +361,7 @@ class SplitIt_API {
 
 					$user_data = "";
 					if (isset($_COOKIE['splitit_checkout'])) {
-						$user_data = wc_clean($_COOKIE['splitit_checkout']);
+						$user_data = urldecode(wc_clean($_COOKIE['splitit_checkout']));
 					}
 
 					if ($ipn != "" && $user_data != "") {
