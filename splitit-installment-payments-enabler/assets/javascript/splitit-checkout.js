@@ -51,10 +51,7 @@
         var left = (screen.width - 433)/2;
         var top = (screen.height/2)-(window.innerHeight/2);
         var win= window.open(this.href,"Tell me more","width=433,height=607,left="+left+",top="+top+",location=no,status=no,scrollbars=no,resizable=no");
-        win.document.writeln("<body style='margin:0px'><img width=100% src='"+this.href+"' />");
-        win.document.writeln("</body>");
-        win.document.write('<title>Splitit Learn More</title>');
-        
+
         return;
         $.ajax({
             url: '?wc-api=splitit_help',
