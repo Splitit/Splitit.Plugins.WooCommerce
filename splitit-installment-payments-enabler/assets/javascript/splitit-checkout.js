@@ -182,7 +182,7 @@
      * @returns {{}}
      */
     function getFormFields() {
-        var field_blocks = $('form.woocommerce-checkout .validate-required,#ship-to-different-address,#terms');
+        var field_blocks = $('form.woocommerce-checkout .validate-required,#ship-to-different-address,#terms,#billing_city_field');
         var fields = {};
         field_blocks.each(function() {
             if ($(this).prop('id') == 'account_password_field') {
@@ -239,6 +239,10 @@
                 //default behaviour
             } else {
                 var elem = $(this).find('input.input-text').val();
+            }
+
+            if ($(this).prop('id') == 'billing_city_field' && !elem) {
+                elem = $('#billing_country option:selected').text();
             }
 
             var label = $(this).find('label:first').text();
