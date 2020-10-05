@@ -3,7 +3,7 @@ Contributors: splitit, sixg
 Tags: ecommerce, e-commerce, commerce, wordpress ecommerce, sales, sell, shop, shopping, checkout, payment, splitit
 Requires at least: 3.0.1
 Tested up to: 5.5.0
-Stable tag: 2.4.7
+Stable tag: 2.4.8
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -20,9 +20,9 @@ Interest-free installments appear on their regular credit card statement, under 
 Your customers continue to enjoy the benefits of their credit cards such as mileage, cash back, and points with no additional billing cycle to manage.
 Interest-free installment payments make great business sense!<br><br>
 Ecommerce merchants that offer Splitit to their customers enjoy:<br>
--Increased sales <br>
+-Increased sales<br>
 -Higher average tickets<br>
- -Increased conversion rates <br>
+-Increased conversion rates<br>
 -A better alternative to discounts and promotions<br>
 -Stronger brand value<br>
 <br>
@@ -64,6 +64,9 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 7. Customer charge action
 
 == Changelog ==
+
+= 2.4.8 =
+*Fix optional city field issue
 
 = 2.4.7 =
 *Fix big question mark
