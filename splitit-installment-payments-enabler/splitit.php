@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.8
+Version: 2.4.9
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.8');
+	define('Splitit_VERSION', '2.4.9');
 	define('Splitit_logo_source_local', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 
 	// Import helper classes
@@ -243,11 +243,24 @@ function init_splitit_method() {
 
 			//echo $this->settings['splitit_help_title_link_local'];die;
 			$learnmoreImage = '<span class="tell-me-more-image-wrapper"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png" ></span>';
-			$textToDisplay = "<span class='payment-title-checkout'><img  class='paymentlogoWidthSrc' src='" . $this->s('splitit_logo_src_local') . "' alt='SPLITIT'/> ".__("0% INTEREST MONTHLY PAYMENTS")." <a href='" . $this->getHelpMeLink() . "' id='tell-me-more'>" . $learnmoreImage . "</a></span>";
+			$textToDisplay = "<span class=\"payment-title-checkout\"><img  class=\"paymentlogoWidthSrc\" src=\"" . $this->s('splitit_logo_src_local') . "\" alt=\"SPLITIT\"/> ".__("0% INTEREST MONTHLY PAYMENTS")." <a href=\"" . $this->getHelpMeLink() . "\" id=\"tell-me-more\">" . $learnmoreImage . "</a></span>";
 			$descriptionImage = '<span class="description_image"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/description.png" ></span>';
 			//echo $textToDisplay;die;
-			$this->title = $textToDisplay;
-			$this->description = $descriptionImage;
+			$this->title = "Splitit";
+			// $this->title = $textToDisplay;
+			$this->description = "<script>
+				(function(i,s,o,g,r,a,m){i['SplititObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+				})(window, document, 'script', '//upstream.production.splitit.com/v1/dist/upstream-messaging.js?v='+(Math.ceil(new Date().getTime()/100000)), 'splitit');
+			
+				splitit('init', { apiKey: '{$this->s('splitit_api_terminal_key')}', lang: 'en', currency: 'USD', currencySymbol: '$', debug: false });
+			</script>
+			<div data-splitit='true' data-splitit-amount='100' data-splitit-num-installments='3' data-splitit-type='product-description'></div>";
+			$this->description = "<script>
+				jQuery('.wc_payment_method.payment_method_splitit label').html(jQuery('.wc_payment_method.payment_method_splitit label').html().replace('Splitit','$textToDisplay'));
+			</script>".
+			$descriptionImage;
 			$this->instructions = $this->s('instructions');
 			// if($this->s('splitit_max_installments') && $this->s('splitit_max_installments') != '' && $this->s('splitit_max_installments') <= $this->s('splitit_max_installments_limit')) {
 			//     self::$_maxInstallments = $this->settings['splitit_max_installments'];
