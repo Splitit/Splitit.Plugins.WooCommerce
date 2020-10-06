@@ -29,6 +29,10 @@ class SplitIt_Helper {
 		if (isset($_GET['page']) && $_GET['page'] == 'wc-settings' && isset($_GET['tab']) && $_GET['tab'] == 'checkout') {
 			wp_enqueue_style('splitit_prodlist_admin_css', plugins_url('/assets/css/splitit-admin.css', dirname(__FILE__)));
 		}
+		/* support multi currency plugin */
+		if (isset($_GET['page']) && $_GET['page'] == 'woocommerce-multi-currency') {
+			wp_enqueue_style('splitit_order_admin_css', plugins_url('/assets/css/splitit-admin-order.css', dirname(__FILE__)));
+		}
 	}
 
 	/**
