@@ -52,7 +52,7 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.4.6"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.4.9"),
 		);
 
 		try {
@@ -196,7 +196,7 @@ class SplitIt_API {
 					if ($percentageOfOrder > 50) {
 						$percentageOfOrder = 50;
 					}
-					$firstInstallmentAmount = (($order_data['AmountBeforeFees'] * $percentageOfOrder) / 100);
+					$firstInstallmentAmount = round((($order_data['AmountBeforeFees'] * $percentageOfOrder) / 100), 2);
 					// var_dump($firstInstallmentAmount);
 				}
 			} elseif ($firstPayment == "shipping") {
@@ -361,7 +361,7 @@ class SplitIt_API {
 
 					$user_data = "";
 					if (isset($_COOKIE['splitit_checkout'])) {
-						$user_data = wc_clean($_COOKIE['splitit_checkout']);
+						$user_data = urldecode(wc_clean($_COOKIE['splitit_checkout']));
 					}
 
 					if ($ipn != "" && $user_data != "") {

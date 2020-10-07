@@ -51,10 +51,7 @@
         var left = (screen.width - 433)/2;
         var top = (screen.height/2)-(window.innerHeight/2);
         var win= window.open(this.href,"Tell me more","width=433,height=607,left="+left+",top="+top+",location=no,status=no,scrollbars=no,resizable=no");
-        win.document.writeln("<body style='margin:0px'><img width=100% src='"+this.href+"' />");
-        win.document.writeln("</body>");
-        win.document.write('<title>Splitit Learn More</title>');
-        
+
         return;
         $.ajax({
             url: '?wc-api=splitit_help',
@@ -185,7 +182,7 @@
      * @returns {{}}
      */
     function getFormFields() {
-        var field_blocks = $('form.woocommerce-checkout .validate-required,#ship-to-different-address,#terms');
+        var field_blocks = $('form.woocommerce-checkout .validate-required,#ship-to-different-address,#terms,#billing_city_field');
         var fields = {};
         field_blocks.each(function() {
             if ($(this).prop('id') == 'account_password_field') {
@@ -242,6 +239,10 @@
                 //default behaviour
             } else {
                 var elem = $(this).find('input.input-text').val();
+            }
+
+            if ($(this).prop('id') == 'billing_city_field' && !elem) {
+                elem = $('#billing_country option:selected').text();
             }
 
             var label = $(this).find('label:first').text();
