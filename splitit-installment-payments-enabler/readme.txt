@@ -11,7 +11,12 @@ Enables offering shoppers monthly payments on their existing Visa and Master Car
 
 == Description ==
 
-Splitit – Interest-Free Monthly Payments plugin for WooCommerce<br>
+Splitit – Interest-Free Monthly Payments plugin for WooCommerce<br/>
+<br/>
+<a href="https://www.splitit.com/">Splitit</a> is a payment method solution enabling customers to pay for purchases with an existing debit or credit card by splitting the cost into interest and fee free monthly payments, without additional registrations or applications.<br/>
+Splitit enables merchants to offer their customers an easy way to pay for purchases in monthly instalments with instant approval, decreasing cart abandonment rates and increasing revenue.<br/>
+Serving many of Internet Retailer’s top 500 merchants, Splitit’s global footprint extends to hundreds of merchants in countries around the world. Headquartered in New York, Splitit has an R&D center in Israel and offices in London and Australia.<br/>
+<br/>
 Start offering your customers **interest-free installment payments** on their existing credit cards today!<br>
 The Splitit  WooCommerce plugin lets your customers pay for your goods and services via interest-free monthly installments on the Visa and Master Card credit cards they already have in their wallets.
 No credit checks, applications or new credit cards.
