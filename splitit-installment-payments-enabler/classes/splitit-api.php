@@ -249,7 +249,13 @@ class SplitIt_API {
 				);
 			}
 
-			$items = WC()->cart->get_cart();
+            $cart = WC()->cart;
+            $items = $cart->get_cart();
+            if (is_plugin_active('woocommerce-avatax/woocommerce-avatax.php')) {     // if avatax enabled, recalculate taxes
+                define(WOOCOMMERCE_CHECKOUT, true);
+                $this->removeTaxCache();
+                new WC_Cart_Totals($cart);
+            }
 			$itemsArr = array();
 			foreach ($items as $item => $values) {
 				array_push($itemsArr, array(
@@ -644,4 +650,14 @@ class SplitIt_API {
 		$this->_error = array('code' => $errorCode, 'message' => $errorMsg);
 	}
 
+    /**
+     * Remove tax cache to allow recalculate tax when avatax is installed
+     */
+    private function removeTaxCache()
+    {
+        global $wp_object_cache;
+        $cache = $wp_object_cache->cache;
+        unset($cache['taxes']);
+        $wp_object_cache->cache = $cache;
+    }
 }
