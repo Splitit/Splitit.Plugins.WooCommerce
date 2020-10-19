@@ -1265,6 +1265,20 @@ $textValue = esc_attr($this->get_option($key));
 			//print_r($exists_data_array);die;
 			if (empty($exists_data_array)) {
 				$api = self::getApi($this->settings); //passing settings to API
+				
+				/* Fix for avatax */
+				$cart = WC()->cart;
+				if (!function_exists('is_plugin_active')) {
+					include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+				}
+				if (is_plugin_active('woocommerce-avatax/woocommerce-avatax.php')) {     // if avatax enabled, recalculate taxes
+					define(WOOCOMMERCE_CHECKOUT, true);
+					$api->removeTaxCache();
+					new WC_Cart_Totals($cart);
+					WC()->cart->calculate_totals();
+				}
+				/* Fix for avatax */
+				
 				if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 					$this->settings['splitit_cancel_url'] = 'checkout/';
 				}
@@ -1281,7 +1295,7 @@ $textValue = esc_attr($this->get_option($key));
 					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
 					exit;
 				}
-				$total_amount_on_cart = WC()->cart->total;
+				$total_amount_on_cart = WC()->cart->get_total(false);
 				if($total_amount_on_cart != $verifyData->{'OriginalAmountPaid'}){
 					wc_clear_notices();
 					$this->log->add('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');

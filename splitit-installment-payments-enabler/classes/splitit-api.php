@@ -250,11 +250,15 @@ class SplitIt_API {
 			}
 
             $cart = WC()->cart;
-            $items = $cart->get_cart();
+			$items = $cart->get_cart();
+			if (!function_exists('is_plugin_active')) {
+				include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+			}
             if (is_plugin_active('woocommerce-avatax/woocommerce-avatax.php')) {     // if avatax enabled, recalculate taxes
                 define(WOOCOMMERCE_CHECKOUT, true);
                 $this->removeTaxCache();
-                new WC_Cart_Totals($cart);
+				new WC_Cart_Totals($cart);
+				WC()->cart->calculate_totals();
             }
 			$itemsArr = array();
 			foreach ($items as $item => $values) {
@@ -266,6 +270,7 @@ class SplitIt_API {
 					'Description' => strip_tags($values['data']->get_short_description()),
 				));
 			}
+			$params['PlanData']['Amount']['Value']=WC()->cart->get_total(false);
 			$params['CartData'] = array(
 				"Items" => $itemsArr,
 				"AmountDetails" => array(
@@ -355,6 +360,8 @@ class SplitIt_API {
 
 			try {
 				// print_r($params);
+				$this->_log->info(__FILE__, __LINE__, __METHOD__);
+				$this->_log->add($params);
 				$result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
 				$userid = "0";
 				if (is_user_logged_in()) {
@@ -653,7 +660,7 @@ class SplitIt_API {
     /**
      * Remove tax cache to allow recalculate tax when avatax is installed
      */
-    private function removeTaxCache()
+    public function removeTaxCache()
     {
         global $wp_object_cache;
         $cache = $wp_object_cache->cache;
