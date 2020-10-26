@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.9
+Version: 2.4.10
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.9');
+	define('Splitit_VERSION', '2.4.10');
 	define('Splitit_logo_source_local', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 
 	// Import helper classes
@@ -1608,11 +1608,11 @@ return $price . "<br/>" . $textToDisplay;
 					/*$textToDisplay = $this->settings['splitit_without_interest'];*/
 					if (isset($this->settings['splitit_logo_src_local']) && $this->settings['splitit_logo_src_local']) {
 						//echo $this->settings['splitit_help_title_link_local'];die;
-						$replace = "<a id='tell-me-more' href='" . $this->getHelpMeLink($price) . "' class='no-lightbox' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src_local'] . "' alt='SPLITIT'/></a>";
+						$replace = "<a id='tell-me-more' href='" . $this->getHelpMeLink($woocommerce->cart->total) . "' class='no-lightbox' target='_blank'><img  class='logoWidthSrc' src='" . $this->settings['splitit_logo_src_local'] . "' alt='SPLITIT'/></a>";
 						/*$textToDisplay = str_replace('SPLITIT', $replace, $this->settings['splitit_without_interest']);*/
 					}
 					$learnmoreImage = '<span class="tell-me-more-image-wrapper"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png"></span>';
-					$learnmore = " <a id='tell-me-more' href='" . $this->getHelpMeLink($price) . "' class='no-lightbox' target='_blank'>" . $learnmoreImage . "</a>";
+					$learnmore = " <a id='tell-me-more' href='" . $this->getHelpMeLink($woocommerce->cart->total) . "' class='no-lightbox' target='_blank'>" . $learnmoreImage . "</a>";
 					//$prodData = $product->get_data();
 					//$split_price = round($prodData['price'] / self::$_maxInstallments, 3);
 					$textToDisplay = '<span style="display:block;" class="splitit-installment-price-checkout">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
