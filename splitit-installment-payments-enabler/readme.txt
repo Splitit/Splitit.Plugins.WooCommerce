@@ -3,7 +3,7 @@ Contributors: splitit, sixg
 Tags: ecommerce, e-commerce, commerce, wordpress ecommerce, sales, sell, shop, shopping, checkout, payment, splitit
 Requires at least: 3.0.1
 Tested up to: 5.5.0
-Stable tag: 2.4.9
+Stable tag: 2.4.10
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -69,6 +69,9 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 7. Customer charge action
 
 == Changelog ==
+
+= 2.4.10 =
+*Fix learn more link on cart
 
 = 2.4.9 =
 *Fix Splitit payment method title for checkout, admin and invoice - remove html from admin and invoice
