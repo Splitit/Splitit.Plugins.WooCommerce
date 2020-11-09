@@ -1647,7 +1647,8 @@ return $price . "<br/>" . $textToDisplay;
 			$learnmoreImage = '<span class="tell-me-more-image-wrapper"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png"></span>';
 			$learnmore = " <a href='" . $this->getHelpMeLink($product->get_price()) . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
             $split_price = round($product->get_price() / self::$_maxInstallments, 3);
-			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
+            $resultPrice = str_replace('woocommerce-Price-amount', '', wc_price($split_price, array('decimals' => 2)));
+			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . $resultPrice . ' with ' . $replace . $learnmore . '</span>';
 		}
 
 		/***************************************************************************************************************
