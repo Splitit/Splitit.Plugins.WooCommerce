@@ -231,6 +231,7 @@ class SplitIt_API {
 				"FullName" => $order_data['ConsumerFullName'],
 				"Email" => $order_data['Email'],
 				"PhoneNumber" => $order_data['Phone'],
+                "CultureName" => $culture = str_replace('_', '-', get_locale()),
 			);
 			$params['PaymentWizardData'] = array(
 
