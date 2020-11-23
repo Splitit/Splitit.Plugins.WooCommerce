@@ -1259,6 +1259,10 @@ $textValue = esc_attr($this->get_option($key));
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
 			// $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? wc_clean($_COOKIE["splitit_checkout_session_id_data"]) : false;
 			$esi = (WC()->session->get('splitit_checkout_session_id_data')) ? WC()->session->get('splitit_checkout_session_id_data') : false;
+			if(!$esi){
+				$api = self::getApi($this->settings);
+				$esi = $api->login();
+			}
 			// echo $esi.'<pre>';
 			// print_r(WC()->session->get('splitit_checkout_session_id_data'));die('-------fsfsdfs');
 			$exists_data_array = $this->get_post_id_by_meta_value($ipn);
