@@ -2017,7 +2017,8 @@ return $price . "<br/>" . $textToDisplay;
         public function getHelpMeLink($amount = null)
         {
             $apiKey = $this->get_option('splitit_api_terminal_key');
-            $culture = get_locale();
+            $culture = str_replace('_', '-', get_locale());
+            $culture = $culture != 'pt-BR' ?: 'pt-PT';
             $currencyCode = "USD";
             if (get_woocommerce_currency() != "") {
                 $currencyCode = get_woocommerce_currency();
