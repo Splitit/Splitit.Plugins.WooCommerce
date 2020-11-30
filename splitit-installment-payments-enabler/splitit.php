@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.10
+Version: 2.4.11
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.10');
+	define('Splitit_VERSION', '2.4.11');
 	define('Splitit_logo_source_local', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 
 	// Import helper classes
@@ -1567,7 +1567,7 @@ $textValue = esc_attr($this->get_option($key));
 				if (is_array($sections)) {
 					if (is_product() && in_array('product', $sections)) {
 						if($this->isSplititTextVisibleOnProduct($product->get_id())){
-							return $price . '</p><p class="splitprice" style="margin-top: -30px;">' .$this->get_formatted_installment_price($product);
+							return $price . '</p><p class="splitprice">' .$this->get_formatted_installment_price($product);
 						} else {
 							return $price;
 						}
@@ -2025,7 +2025,7 @@ return $price . "<br/>" . $textToDisplay;
             }
             $numInstallments = self::$_maxInstallments;
 
-            if ($this->get_option('splitit_mode_sandbox')) {
+            if ($this->get_option('splitit_mode_sandbox') == 'yes') {
                 $url = 'https://documents.sandbox.splitit.com/LearnMore?apiKey=' . $apiKey;
             } else {
                 $url = 'https://documents.production.splitit.com/LearnMore?apiKey=' . $apiKey;
