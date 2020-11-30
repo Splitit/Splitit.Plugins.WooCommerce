@@ -433,9 +433,9 @@ function init_splitit_method() {
 
 			do_action('splitit_settings_table_before');
 
-			echo "<table class=\"form-table\">";
+//			echo "<table class=\"form-table\">";
 			$this->generate_settings_html();
-			echo "</table";
+//			echo "</table";
 
 			do_action('splitit_settings_table_after');
 		}
