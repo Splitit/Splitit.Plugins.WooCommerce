@@ -40,17 +40,18 @@ class SplitIt_Settings {
 
 		$fields =
 		array(
-			'enabled' => array(
-				'title' => __('Enable/Disable', 'splitit'),
-				'type' => 'checkbox',
-				'label' => __('Enable Splitit Payment', 'splitit'),
-				'default' => 'yes',
-			),
 			'_General_settings' => array(
 				'type' => 'title',
 				'title' => __('General settings', 'splitit'),
 				'description' => __('Api and debug settings'),
 			),
+
+            'enabled' => array(
+                'title' => __('Enable/Disable', 'splitit'),
+                'type' => 'checkbox',
+                'label' => __('Enable Splitit Payment', 'splitit'),
+                'default' => 'yes',
+            ),
 
 			'splitit_api_terminal_key' => array(
 				'title' => __('Terminal API key', 'splitit'),

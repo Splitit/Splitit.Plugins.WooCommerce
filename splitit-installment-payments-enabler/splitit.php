@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.11
+Version: 2.4.12
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.11');
+	define('Splitit_VERSION', '2.4.12');
 	define('Splitit_logo_source_local', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 
 	// Import helper classes
@@ -433,9 +433,9 @@ function init_splitit_method() {
 
 			do_action('splitit_settings_table_before');
 
-			echo "<table class=\"form-table\">";
+//			echo "<table class=\"form-table\">";
 			$this->generate_settings_html();
-			echo "</table";
+//			echo "</table";
 
 			do_action('splitit_settings_table_after');
 		}
@@ -1259,12 +1259,30 @@ $textValue = esc_attr($this->get_option($key));
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
 			// $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? wc_clean($_COOKIE["splitit_checkout_session_id_data"]) : false;
 			$esi = (WC()->session->get('splitit_checkout_session_id_data')) ? WC()->session->get('splitit_checkout_session_id_data') : false;
+			if(!$esi){
+				$api = self::getApi($this->settings);
+				$esi = $api->login();
+			}
 			// echo $esi.'<pre>';
 			// print_r(WC()->session->get('splitit_checkout_session_id_data'));die('-------fsfsdfs');
 			$exists_data_array = $this->get_post_id_by_meta_value($ipn);
 			//print_r($exists_data_array);die;
 			if (empty($exists_data_array)) {
 				$api = self::getApi($this->settings); //passing settings to API
+				
+				/* Fix for avatax */
+				$cart = WC()->cart;
+				if (!function_exists('is_plugin_active')) {
+					include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+				}
+				if (is_plugin_active('woocommerce-avatax/woocommerce-avatax.php')) {     // if avatax enabled, recalculate taxes
+					define(WOOCOMMERCE_CHECKOUT, true);
+					$api->removeTaxCache();
+					new WC_Cart_Totals($cart);
+					WC()->cart->calculate_totals();
+				}
+				/* Fix for avatax */
+				
 				if (!isset($this->settings['splitit_cancel_url']) || $this->settings['splitit_cancel_url'] == '') {
 					$this->settings['splitit_cancel_url'] = 'checkout/';
 				}
@@ -1281,7 +1299,7 @@ $textValue = esc_attr($this->get_option($key));
 					wp_redirect(SplitIt_Helper::sanitize_redirect_url($this->settings['splitit_cancel_url']));
 					exit;
 				}
-				$total_amount_on_cart = WC()->cart->total;
+				$total_amount_on_cart = WC()->cart->get_total(false);
 				if($total_amount_on_cart != $verifyData->{'OriginalAmountPaid'}){
 					wc_clear_notices();
 					$this->log->add('Sorry, there\'s an amount mismatch between cart amount and paid amount! So order was not placed. If any amount was deducted it will be credited back. Please try to order again.');
@@ -1647,7 +1665,8 @@ return $price . "<br/>" . $textToDisplay;
 			$learnmoreImage = '<span class="tell-me-more-image-wrapper"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png"></span>';
 			$learnmore = " <a href='" . $this->getHelpMeLink($product->get_price()) . "' id='tell-me-more'>" . $learnmoreImage . "</a>";
             $split_price = round($product->get_price() / self::$_maxInstallments, 3);
-			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . wc_price($split_price, array('decimals' => 2)) . ' with ' . $replace . $learnmore . '</span>';
+            $resultPrice = str_replace('woocommerce-Price-amount', '', wc_price($split_price, array('decimals' => 2)));
+			return '<span style="display:block;" class="splitit-installment-price splitit-installment-price-product">or ' . self::$_maxInstallments . ' interest-free payments of ' . $resultPrice . ' with ' . $replace . $learnmore . '</span>';
 		}
 
 		/***************************************************************************************************************
@@ -2000,6 +2019,7 @@ return $price . "<br/>" . $textToDisplay;
         {
             $apiKey = $this->get_option('splitit_api_terminal_key');
             $culture = str_replace('_', '-', get_locale());
+            $culture = $culture != 'pt-BR' ?: 'pt-PT';
             $currencyCode = "USD";
             if (get_woocommerce_currency() != "") {
                 $currencyCode = get_woocommerce_currency();

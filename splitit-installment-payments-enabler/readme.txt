@@ -2,8 +2,8 @@
 Contributors: splitit, sixg
 Tags: ecommerce, e-commerce, commerce, wordpress ecommerce, sales, sell, shop, shopping, checkout, payment, splitit
 Requires at least: 3.0.1
-Tested up to: 5.5.0
-Stable tag: 2.4.11
+Tested up to: 5.6.0
+Stable tag: 2.4.12
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -69,6 +69,14 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 7. Customer charge action
 
 == Changelog ==
+
+= 2.4.12 =
+* Fix tax when avatax is installed
+* Add support language on checkout
+* Fix BR culture
+* Fix session issue
+* Fix settings save
+* Fix for google crawlers
 
 = 2.4.11 =
 *Fix help me link
