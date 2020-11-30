@@ -79,147 +79,147 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 * Fix for google crawlers
 
 = 2.4.11 =
-*Fix help me link
-*Fix css styles of installment price section
+* Fix help me link
+* Fix css styles of installment price section
 
 = 2.4.10 =
-*Fix learn more link on cart
+* Fix learn more link on cart
 
 = 2.4.9 =
-*Fix Splitit payment method title for checkout, admin and invoice - remove html from admin and invoice
+* Fix Splitit payment method title for checkout, admin and invoice - remove html from admin and invoice
 
 = 2.4.8 =
-*Fix optional city field issue
+* Fix optional city field issue
 
 = 2.4.7 =
-*Fix big question mark
-*Fix plus sign
-*Include installment price text
-*Paypal compatibility
-*Round firstpayment amount for percentage type
-*Change to the new learn more
-*Wordperss 5.5 compatibility
+* Fix big question mark
+* Fix plus sign
+* Include installment price text
+* Paypal compatibility
+* Round firstpayment amount for percentage type
+* Change to the new learn more
+* Wordperss 5.5 compatibility
 
 = 2.4.6 =
-*Remove zipcode validation on special countries
-*Fix compatibility with Paypal For WooCommerce
-*Add multicurrency compatability
-*Change logos config name
+* Remove zipcode validation on special countries
+* Fix compatibility with Paypal For WooCommerce
+* Add multicurrency compatability
+* Change logos config name
 
 = 2.4.5 =
-*change splitit logo
+* change splitit logo
 
 = 2.4.4 =
-*change splitit logo
-*fixed logo size on order emails
-*code refactoring for allowing unit tests
-*fix culture name parameter
-*Google crawlers fix
-*some css improvement
-*remove splitit fee feature
+* change splitit logo
+* fixed logo size on order emails
+* code refactoring for allowing unit tests
+* fix culture name parameter
+* Google crawlers fix
+* some css improvement
+* remove splitit fee feature
 
 = 2.4.3 =
-*bug fix for discount being added twice during async call
-*added logs for every step
-*async call fix
+* bug fix for discount being added twice during async call
+* added logs for every step
+* async call fix
 
 = 2.4.2 =
-*bug fix for 2.4.0
+* bug fix for 2.4.0
 
 = 2.4.1 =
-*add css fix for admin order quick view
+* add css fix for admin order quick view
 
 = 2.4.0 =
-*Major vulnerability fix
+* Major vulnerability fix
 
 = 2.3.1 =
-*Removed old code which was no longer in use
+* Removed old code which was no longer in use
 
 = 2.3.0 =
-*Changed function names to prevent conflict with other plugins
-*Added extra checks to prevent XSS and SQL injection attacks
-*Removed code and settings which was no longer in use
+* Changed function names to prevent conflict with other plugins
+* Added extra checks to prevent XSS and SQL injection attacks
+* Removed code and settings which was no longer in use
 
 = 2.2.14 =
-*Small bug fixes to support other plugins
+* Small bug fixes to support other plugins
 
 = 2.2.13 =
-*Updated web-api URLs
+* Updated web-api URLs
 
 = 2.2.12 =
-*Added setting to redirect to thank you page instead of default order success page
+* Added setting to redirect to thank you page instead of default order success page
 
 = 2.2.11 =
-*Fixed minor bug with respect to Ireland zipcode.
+* Fixed minor bug with respect to Ireland zipcode.
 
 = 2.2.10 =
-*Fixed minor bug with respect to latest woocommerce update.
+* Fixed minor bug with respect to latest woocommerce update.
 
 = 2.2.9 =
-*Fixed minor bug crashing the admin product edit page.
+* Fixed minor bug crashing the admin product edit page.
 
 = 2.2.8 =
-*Added validation for address_field_1.
+* Added validation for address_field_1.
 
 = 2.2.7 =
-*Bug fixes for payment method title and checkout validate and added fix for payment method title in admin.
+* Bug fixes for payment method title and checkout validate and added fix for payment method title in admin.
 
 = 2.2.6 =
-*Fix logo issue on checkout page.
+* Fix logo issue on checkout page.
 
 = 2.2.5 =
-*To set the default installment selected when redirected to SplitIt payment page.
+* To set the default installment selected when redirected to SplitIt payment page.
 
 = 2.2.4 =
-*Rearranging the admin configuration in sub-blocks, fix the title to be shown on the checkout page, also SplitIt text is fixed.
+* Rearranging the admin configuration in sub-blocks, fix the title to be shown on the checkout page, also SplitIt text is fixed.
 
 = 2.2.3 =
-*Auto conversion for SplitIt text to SplitIt logo, Settings for Logo and Help link in the admin. 3D secure minimal amount to zero if not filled.
+* Auto conversion for SplitIt text to SplitIt logo, Settings for Logo and Help link in the admin. 3D secure minimal amount to zero if not filled.
 
 = 2.2.2 =
-*check for payment method added for order cancel and refund hooks and added backward compatibility for per product functionality.
+* check for payment method added for order cancel and refund hooks and added backward compatibility for per product functionality.
 
 = 2.2.1 =
-*small check added for logging
+* small check added for logging
 
 = 2.2.0 =
-*implemented on demand product fetch for per product functionality and added feature for first payment.
+* implemented on demand product fetch for per product functionality and added feature for first payment.
 
 = 2.1.9 =
-*added fix for shipping address country when customer billing and shipping address are same
+* added fix for shipping address country when customer billing and shipping address are same
 
 = 2.1.8 =
-*added fix for customer account creation on checkout
+* added fix for customer account creation on checkout
 
 = 2.1.7 =
-*added 3DSecure functionality with minimum amount for 3DSecure enable
+* added 3DSecure functionality with minimum amount for 3DSecure enable
 
 = 2.1.6 =
-*removed unwanted code
+* removed unwanted code
 
 = 2.1.5 =
-*different shipping address validation fix, US states validation fix
+* different shipping address validation fix, US states validation fix
 
 = 2.1.4 =
-*async call setting, splitit_log table order_id field update, remove get request check, state not mandatory, 
+* async call setting, splitit_log table order_id field update, remove get request check, state not mandatory, 
 
 = 2.1.3 =
-*Updates as per to latest wordpress and woocommerce.
+* Updates as per to latest wordpress and woocommerce.
 
 = 2.1.2 =
-*Fix for splitIt fees in async operation.
+* Fix for splitIt fees in async operation.
 
 = 2.1.1 =
-*Fix for splitIt fees and enable splitit per product,Fixed checkout success return function.
+* Fix for splitIt fees and enable splitit per product,Fixed checkout success return function.
 
 = 2.1.0 =
-*Implement splitIt fees and enable splitit per product,Fixed checkout success return function.
+* Implement splitIt fees and enable splitit per product,Fixed checkout success return function.
 
 = 2.0.9 =
-*Fixed coupon,shipping, taxes in Async also handled if fraud cases comes out.
+* Fixed coupon,shipping, taxes in Async also handled if fraud cases comes out.
 
 = 2.0.8 =
-*Fixed shipping charges in Async URL.
+* Fixed shipping charges in Async URL.
 
 = 2.0.7 =
 * Async URL fixed.
@@ -236,7 +236,6 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 
 = 2.0.3 =
 * Images updated
-
 
 = 2.0.0 =
 * Implemented depending on cart total functionality
