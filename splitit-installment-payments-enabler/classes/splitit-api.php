@@ -263,9 +263,15 @@ class SplitIt_API {
             }
 			$itemsArr = array();
 			foreach ($items as $item => $values) {
+                if ($parentId = $values['data']->get_parent_id()) {
+                    $parentProduct = wc_get_product($parentId);
+                    $sku = $parentProduct->get_sku();
+                } else {
+                    $sku = $values['data']->get_sku();
+                }
 				array_push($itemsArr, array(
 					'Name' => $values['data']->get_name(),
-					'SKU' => $values['data']->get_sku(),
+					'SKU' => $sku,
 					'Price' => array('Value' => $values['data']->get_price(), 'CurrencyCode' => $CurrencyCode),
 					'Quantity' => $values['quantity'],
 					'Description' => strip_tags($values['data']->get_short_description()),
