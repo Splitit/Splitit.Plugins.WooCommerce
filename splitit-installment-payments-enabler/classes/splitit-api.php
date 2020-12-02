@@ -52,7 +52,7 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.4.12"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.4.13"),
 		);
 
 		try {
@@ -361,8 +361,10 @@ class SplitIt_API {
 
 			try {
 				// print_r($params);
-				$this->_log->info(__FILE__, __LINE__, __METHOD__);
-				$this->_log->add($params);
+                if ($this->_log) {
+                    $this->_log->info(__FILE__, __LINE__, __METHOD__);
+                    $this->_log->add($params);
+                }
 				$result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
 				$userid = "0";
 				if (is_user_logged_in()) {
