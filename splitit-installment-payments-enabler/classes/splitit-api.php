@@ -361,8 +361,10 @@ class SplitIt_API {
 
 			try {
 				// print_r($params);
-				$this->_log->info(__FILE__, __LINE__, __METHOD__);
-				$this->_log->add($params);
+                if ($this->_log) {
+                    $this->_log->info(__FILE__, __LINE__, __METHOD__);
+                    $this->_log->add($params);
+                }
 				$result = $this->make_request($this->_API['url'], "InstallmentPlan/Initiate", $params);
 				$userid = "0";
 				if (is_user_logged_in()) {
