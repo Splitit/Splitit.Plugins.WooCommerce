@@ -355,7 +355,7 @@ class SplitIt_API {
 			}
 
 			//echo $total_tax_amount;die;
-			if ($shipping_method_id != "") {
+			if ($shipping_method_id != "" && !empty($shipping_methods[$shipping_method_id])) {
 				$shipping_method_title = $shipping_methods[$shipping_method_id]->method_title;
 			}
 
