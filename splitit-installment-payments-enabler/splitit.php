@@ -2019,7 +2019,7 @@ return $price . "<br/>" . $textToDisplay;
         {
             $apiKey = $this->get_option('splitit_api_terminal_key');
             $culture = str_replace('_', '-', get_locale());
-            $culture = $culture != 'pt-BR' ?: 'pt-PT';
+            $culture = $culture != 'pt-BR' ? $culture : 'pt-PT';
             $currencyCode = "USD";
             if (get_woocommerce_currency() != "") {
                 $currencyCode = get_woocommerce_currency();
