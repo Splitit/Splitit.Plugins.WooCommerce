@@ -52,7 +52,7 @@ class SplitIt_API {
 		}
 		$params = array('UserName' => $this->_username,
 			'Password' => $this->_password,
-			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.4.13"),
+			'TouchPoint' => array("Code" => "WooCommercePlugin", "Version" => "2.4.14"),
 		);
 
 		try {
@@ -355,7 +355,7 @@ class SplitIt_API {
 			}
 
 			//echo $total_tax_amount;die;
-			if ($shipping_method_id != "") {
+			if ($shipping_method_id != "" && !empty($shipping_methods[$shipping_method_id])) {
 				$shipping_method_title = $shipping_methods[$shipping_method_id]->method_title;
 			}
 

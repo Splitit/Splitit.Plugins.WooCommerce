@@ -3,7 +3,7 @@ Contributors: splitit, sixg
 Tags: ecommerce, e-commerce, commerce, wordpress ecommerce, sales, sell, shop, shopping, checkout, payment, splitit
 Requires at least: 3.0.1
 Tested up to: 5.6.0
-Stable tag: 2.4.13
+Stable tag: 2.4.14
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -49,14 +49,15 @@ https://wordpress.org/plugins/woocommerce/
 
 == Frequently Asked Questions ==
 
-= When I need to charge customer? =
+= When do I need to charge the customer? =
 
-You need to manually charge customer if you`ve set Payment action option in WooCommerce -> Settings -> Checkout -> Splitit (tab) to "Charge my consumer when the shipment is ready".
-If option is set to "Charge my consumer at the time of the purchase" then client will be charged automatically in a time of purchase.
+You'll need to manually charge your customer if you've set your WooCommerce->Settings->Payments->Splitit("Manage")->Payment Setup->Payment Action to "Charge my consumer when the shipment is ready".
+If it is set to "Charge my consumer at the time of purchase", your customer will be charged automatically.
 
-= How to charge customer? =
+= How do I charge the customer? =
 
-To charge customer you need to open order edit page and select "[Splitit] Charge customer" action in Order Actions section as shown on screenshot.
+To charge the customer, open Woocommerce->Orders->Order Number->Order Actions->[Splitit] Charge customer. (As shown in last screenshot).
+After clicking on update, you will be able to view the charge in your Splitit Merchant Dashboard.
 
 == Screenshots ==
 
@@ -69,6 +70,10 @@ To charge customer you need to open order edit page and select "[Splitit] Charge
 7. Customer charge action
 
 == Changelog ==
+
+= 2.4.14 =
+* Fix culture
+* Fix undefined shipping method
 
 = 2.4.13 =
 * Fix logging issue
