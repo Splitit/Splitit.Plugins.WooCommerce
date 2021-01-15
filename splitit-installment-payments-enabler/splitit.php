@@ -1257,6 +1257,14 @@ $textValue = esc_attr($this->get_option($key));
 			//die('----');
 			global $wpdb;
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
+
+            if ($ipn && $this->get_post_id_by_meta_value('lock-' . $ipn)) {   // if such request is already performing, then stop second and other requests
+                die;
+            } elseif ($ipn) {    // otherwise make a lock that payment success is already in progress and allow to complete it
+                $wpdb->insert($wpdb->postmeta, ['meta_key' => 'installment_plan_number', 'meta_value' => 'lock-' . $ipn]);
+                register_shutdown_function([$this, 'remove_payment_success_lock']);
+            }
+
 			// $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? wc_clean($_COOKIE["splitit_checkout_session_id_data"]) : false;
 			$esi = (WC()->session->get('splitit_checkout_session_id_data')) ? WC()->session->get('splitit_checkout_session_id_data') : false;
 			if(!$esi){
@@ -1367,6 +1375,13 @@ $textValue = esc_attr($this->get_option($key));
 
 			global $wpdb;
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
+
+            if ($ipn && $this->get_post_id_by_meta_value('lock-' . $ipn)) {   // if such request is already performing, then stop second and other requests
+                die;
+            } elseif ($ipn) {
+                $wpdb->insert($wpdb->postmeta, ['meta_key' => 'installment_plan_number', 'meta_value' => 'lock-' . $ipn]);
+                register_shutdown_function([$this, 'remove_payment_success_lock']);
+            }
 
 			//echo $ipn."---";die;
 			// $ipn = "67757642666443565703";
@@ -2040,6 +2055,17 @@ return $price . "<br/>" . $textToDisplay;
 
 
             return $url;
+        }
+
+        // remove locking payment success after payment success action is finished
+        public function remove_payment_success_lock()
+        {
+            global $wpdb;
+            $ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
+
+            if ($ipn && isset($_GET['wc-api']) && $_GET['wc-api'] == 'splitit_payment_success') {
+                $wpdb->delete($wpdb->postmeta, ['meta_key' => 'installment_plan_number', 'meta_value' => 'lock-' . $ipn]);
+            }
         }
     }
 
