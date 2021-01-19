@@ -1259,7 +1259,8 @@ $textValue = esc_attr($this->get_option($key));
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
 
             if ($ipn && $this->get_post_id_by_meta_value('lock-' . $ipn)) {   // if such request is already performing, then stop second and other requests
-                die;
+                wp_redirect(home_url());
+                exit;
             } elseif ($ipn) {    // otherwise make a lock that payment success is already in progress and allow to complete it
                 $wpdb->insert($wpdb->postmeta, ['meta_key' => 'installment_plan_number', 'meta_value' => 'lock-' . $ipn]);
                 register_shutdown_function([$this, 'remove_payment_success_lock']);
@@ -1377,7 +1378,8 @@ $textValue = esc_attr($this->get_option($key));
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
 
             if ($ipn && $this->get_post_id_by_meta_value('lock-' . $ipn)) {   // if such request is already performing, then stop second and other requests
-                die;
+                wp_redirect(home_url());
+                exit;
             } elseif ($ipn) {
                 $wpdb->insert($wpdb->postmeta, ['meta_key' => 'installment_plan_number', 'meta_value' => 'lock-' . $ipn]);
                 register_shutdown_function([$this, 'remove_payment_success_lock']);
