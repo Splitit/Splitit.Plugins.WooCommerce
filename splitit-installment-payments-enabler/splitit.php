@@ -386,13 +386,13 @@ function init_splitit_method() {
 
 			//Installment price functionality init
 			if ($this->s('splitit_enable_installment_price') == 'yes') {
-				add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 10, 3);
-				//add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_product_get_regular_price', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_product_get_sale_price', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_order_amount_item_subtotal', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_cart_product_price', array($this, 'splitit_installment_price'), 10, 3); //cart price column
-				add_filter('woocommerce_cart_total', array($this, 'splitit_installment_total_price'), 10, 3); //cart and checkout totals
+				add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 1000, 3);
+				//add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 1000, 3);
+				add_filter('woocommerce_product_get_regular_price', array($this, 'splitit_installment_price'), 1000, 3);
+				add_filter('woocommerce_product_get_sale_price', array($this, 'splitit_installment_price'), 1000, 3);
+				add_filter('woocommerce_order_amount_item_subtotal', array($this, 'splitit_installment_price'), 1000, 3);
+				add_filter('woocommerce_cart_product_price', array($this, 'splitit_installment_price'), 1000, 3); //cart price column
+				add_filter('woocommerce_cart_total', array($this, 'splitit_installment_total_price'), 1000, 3); //cart and checkout totals
 			}
 
 			//Debug mode init
@@ -1576,7 +1576,7 @@ $textValue = esc_attr($this->get_option($key));
 		 * @return string
 		 */
 		public function splitit_installment_price($price, $product) {
-			if (isset($this->settings['splitit_installment_price_sections'])) {
+			if (isset($this->settings['splitit_installment_price_sections'])  && $this->settings['enabled'] == 'yes') {
 				$sections = $this->settings['splitit_installment_price_sections'];
 				//checking if any options selected in admin
 				if (is_array($sections)) {
