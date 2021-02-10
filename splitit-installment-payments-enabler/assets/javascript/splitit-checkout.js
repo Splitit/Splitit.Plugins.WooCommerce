@@ -238,7 +238,14 @@
 
                 //default behaviour
             } else {
-                var elem = $(this).find('input.input-text').val();
+                var self = this,
+                    elem;
+
+                ['select', 'textarea', 'input.input-text', 'input.input-radio:checked'].forEach(function(type) {
+                    if (elem === undefined) {
+                        elem = $(self).find(type).val();
+                    }
+                });
             }
 
             if ($(this).prop('id') == 'billing_city_field' && !elem) {

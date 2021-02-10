@@ -4,7 +4,7 @@
 Plugin Name: Splitit
 Plugin URI: http://wordpress.org/plugins/splitit/
 Description: Integrates Splitit payment method into your WooCommerce installation.
-Version: 2.4.14
+Version: 2.4.15
 Author: Splitit
 Text Domain: splitit
 Author URI: https://www.splitit.com/
@@ -176,7 +176,7 @@ function init_splitit_method() {
 
 	if (!class_exists('WC_Payment_Gateway')) {return;}
 
-	define('Splitit_VERSION', '2.4.14');
+	define('Splitit_VERSION', '2.4.15');
 	define('Splitit_logo_source_local', plugin_dir_url(__FILE__) . 'assets/images/Offical_Splitit_Logo.png');
 
 	// Import helper classes
@@ -386,13 +386,13 @@ function init_splitit_method() {
 
 			//Installment price functionality init
 			if ($this->s('splitit_enable_installment_price') == 'yes') {
-				add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 10, 3);
-				//add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_product_get_regular_price', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_product_get_sale_price', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_order_amount_item_subtotal', array($this, 'splitit_installment_price'), 10, 3);
-				add_filter('woocommerce_cart_product_price', array($this, 'splitit_installment_price'), 10, 3); //cart price column
-				add_filter('woocommerce_cart_total', array($this, 'splitit_installment_total_price'), 10, 3); //cart and checkout totals
+				add_filter('woocommerce_get_price_html', array($this, 'splitit_installment_price'), 1000, 3);
+				//add_filter('woocommerce_product_get_price', array($this, 'splitit_installment_price'), 1000, 3);
+				add_filter('woocommerce_product_get_regular_price', array($this, 'splitit_installment_price'), 1000, 3);
+				add_filter('woocommerce_product_get_sale_price', array($this, 'splitit_installment_price'), 1000, 3);
+				add_filter('woocommerce_order_amount_item_subtotal', array($this, 'splitit_installment_price'), 1000, 3);
+				add_filter('woocommerce_cart_product_price', array($this, 'splitit_installment_price'), 1000, 3); //cart price column
+				add_filter('woocommerce_cart_total', array($this, 'splitit_installment_total_price'), 1000, 3); //cart and checkout totals
 			}
 
 			//Debug mode init
@@ -1257,6 +1257,14 @@ $textValue = esc_attr($this->get_option($key));
 			//die('----');
 			global $wpdb;
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
+
+            if ($ipn && $this->get_post_id_by_meta_value('lock-' . $ipn)) {   // if such request is already performing, then stop second and other requests
+                die;
+            } elseif ($ipn) {    // otherwise make a lock that payment success is already in progress and allow to complete it
+                $wpdb->insert($wpdb->postmeta, ['meta_key' => 'installment_plan_number', 'meta_value' => 'lock-' . $ipn]);
+                register_shutdown_function([$this, 'remove_payment_success_lock']);
+            }
+
 			// $esi = isset($_COOKIE["splitit_checkout_session_id_data"]) ? wc_clean($_COOKIE["splitit_checkout_session_id_data"]) : false;
 			$esi = (WC()->session->get('splitit_checkout_session_id_data')) ? WC()->session->get('splitit_checkout_session_id_data') : false;
 			if(!$esi){
@@ -1367,6 +1375,13 @@ $textValue = esc_attr($this->get_option($key));
 
 			global $wpdb;
 			$ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
+
+            if ($ipn && $this->get_post_id_by_meta_value('lock-' . $ipn)) {   // if such request is already performing, then stop second and other requests
+                die;
+            } elseif ($ipn) {
+                $wpdb->insert($wpdb->postmeta, ['meta_key' => 'installment_plan_number', 'meta_value' => 'lock-' . $ipn]);
+                register_shutdown_function([$this, 'remove_payment_success_lock']);
+            }
 
 			//echo $ipn."---";die;
 			// $ipn = "67757642666443565703";
@@ -1561,7 +1576,7 @@ $textValue = esc_attr($this->get_option($key));
 		 * @return string
 		 */
 		public function splitit_installment_price($price, $product) {
-			if (isset($this->settings['splitit_installment_price_sections'])) {
+			if (isset($this->settings['splitit_installment_price_sections'])  && $this->settings['enabled'] == 'yes') {
 				$sections = $this->settings['splitit_installment_price_sections'];
 				//checking if any options selected in admin
 				if (is_array($sections)) {
@@ -2040,6 +2055,17 @@ return $price . "<br/>" . $textToDisplay;
 
 
             return $url;
+        }
+
+        // remove locking payment success after payment success action is finished
+        public function remove_payment_success_lock()
+        {
+            global $wpdb;
+            $ipn = isset($_GET['InstallmentPlanNumber']) ? wc_clean($_GET['InstallmentPlanNumber']) : false;
+
+            if ($ipn && isset($_GET['wc-api']) && $_GET['wc-api'] == 'splitit_payment_success') {
+                $wpdb->delete($wpdb->postmeta, ['meta_key' => 'installment_plan_number', 'meta_value' => 'lock-' . $ipn]);
+            }
         }
     }
 
