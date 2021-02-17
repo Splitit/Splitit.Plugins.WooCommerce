@@ -160,7 +160,7 @@
 			var $this = $(this);
 			$this.closest('tr').find('td').append('<div class="lds-dual-ring"></div>');
 			var data = {
-				'action': 'my_action',
+				'action': 'splitit_check_api_credentials',
 			
 				// We pass php values differently!
 			};
