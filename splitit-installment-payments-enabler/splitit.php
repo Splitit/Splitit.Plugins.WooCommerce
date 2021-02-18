@@ -341,7 +341,7 @@ function init_splitit_method() {
 			if (is_admin() || defined('SPLITIT_TESTING')) {
 				add_action('admin_enqueue_scripts', 'SplitIt_Helper::admin_js');
 				//add_action( 'wp_ajax_my_action', 'check_credentials' );
-				add_action('wp_ajax_my_action', array($this, 'splitit_check_api_credentials'));
+				add_action('wp_ajax_splitit_check_api_credentials', array($this, 'splitit_check_api_credentials'));
 				add_action('wp_ajax_fetch_prods', array($this, 'splitit_fetch_prods'));
 				add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
 				add_action('woocommerce_admin_order_data_after_billing_address', array($this, 'splitit_add_installment_plan_number_data'), 10, 1);
