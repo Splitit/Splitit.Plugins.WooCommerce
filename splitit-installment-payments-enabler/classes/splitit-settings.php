@@ -204,13 +204,13 @@ class SplitIt_Settings {
 				array(
 					'ct_from' => array(
 						'title' => __('test1', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_from',
 						'default' => '0',
 					),
 					'ct_to' => array(
 						'title' => __('test2', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_to',
 						'default' => '300',
 					),
@@ -230,13 +230,13 @@ class SplitIt_Settings {
 				array(
 					'ct_from' => array(
 						'title' => __('test12', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_from',
 						'default' => '301',
 					),
 					'ct_to' => array(
 						'title' => __('test22', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_to',
 						'default' => '500',
 					),
@@ -256,13 +256,13 @@ class SplitIt_Settings {
 				array(
 					'ct_from' => array(
 						'title' => __('test12', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_from',
 						'default' => '501',
 					),
 					'ct_to' => array(
 						'title' => __('test22', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_to',
 						'default' => '700',
 					),
@@ -282,13 +282,13 @@ class SplitIt_Settings {
 				array(
 					'ct_from' => array(
 						'title' => __('test12', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_from',
 						'default' => '701',
 					),
 					'ct_to' => array(
 						'title' => __('test22', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_to',
 						'default' => '1000',
 					),
@@ -309,13 +309,13 @@ class SplitIt_Settings {
 				array(
 					'ct_from' => array(
 						'title' => __('test12', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_from',
 						'default' => '1001',
 					),
 					'ct_to' => array(
 						'title' => __('test22', 'splitit'),
-						'type' => 'number',
+						'type' => 'text_money',
 						'class' => 'doctv_to',
 						'default' => '10000',
 					),
@@ -483,7 +483,7 @@ class SplitIt_Settings {
 			),
 			'splitit_3d_secure_min_amount' => array(
 				'title' => __('Minimal amount for 3D attempt', 'splitit'),
-				'type' => 'number',
+				'type' => 'text_money',
 				'default' => 0,
 			),
 			'splitit_cancel_url' => array(
