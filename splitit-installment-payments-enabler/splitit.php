@@ -244,7 +244,8 @@ function init_splitit_method() {
 			//echo $this->settings['splitit_help_title_link_local'];die;
 			$learnmoreImage = '<span class="tell-me-more-image-wrapper"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png" ></span>';
 			// $textToDisplay = "<span class=\"payment-title-checkout\"><img  class=\"paymentlogoWidthSrc\" src=\"" . $this->s('splitit_logo_src_local') . "\" alt=\"SPLITIT\"/> ".__("0% INTEREST MONTHLY PAYMENTS")." <a href=\"" . $this->getHelpMeLink() . "\" id=\"tell-me-more\">" . $learnmoreImage . "</a></span>";
-			$textToDisplay = "Splitit <span class=\"payment-title-checkout\">".__("0% INTEREST MONTHLY PAYMENTS")." <a href=\"" . $this->getHelpMeLink() . "\" id=\"tell-me-more\">" . $learnmoreImage . "</a></span>";
+            $splititLogoText = $this->settings['splitit_installment_text'] ?? '0% INTEREST MONTHLY PAYMENTS';
+			$textToDisplay = "Splitit <span class=\"payment-title-checkout\">".__($splititLogoText)." <a href=\"" . $this->getHelpMeLink() . "\" id=\"tell-me-more\">" . $learnmoreImage . "</a></span>";
 			$descriptionImage = '<span class="description_image"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/description.png" ></span>';
 			//echo $textToDisplay;die;
 			$this->title = "Splitit";
