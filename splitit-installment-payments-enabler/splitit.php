@@ -1903,7 +1903,7 @@ return $price . "<br/>" . $textToDisplay;
 					return new WP_Error('error', __('Refund failed.', 'woocommerce'));
 				}
 
-				$ipn = get_post_meta($order->id, 'installment_plan_number', true);
+				$ipn = get_post_meta($order->get_id(), 'installment_plan_number', true);
 
 				$api = self::getApi($this->settings);
 				/*var_dump($ipn);
