@@ -424,6 +424,13 @@ class SplitIt_Settings {
 				'options' => self::get_installment_price_sections(),
 			),
 
+			'splitit_installment_text' => array(
+				'title' => __('Splitit Installment Text', 'splitit'),
+				'description' => __('Installment text to be displayed with SplitIt logo'),
+				'type' => 'text',
+				'default' => '0% INTEREST MONTHLY PAYMENTS',
+			),
+
 			/*'splitit_without_interest' => array(
 				'title' => __('Installment price text', 'splitit'),
 				'type' => 'text',
