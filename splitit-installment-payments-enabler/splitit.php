@@ -986,6 +986,7 @@ $textValue = esc_attr($this->get_option($key));
 		 * @access public
 		 */
 		public function splitit_scripts_on_checkout() {
+            WC()->cart->calculate_totals();
 			$checkout_fields_post = stripslashes_deep($_POST);
 
 			//trying to receive checkout fields data from post
