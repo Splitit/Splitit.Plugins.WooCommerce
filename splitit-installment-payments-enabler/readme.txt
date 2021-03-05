@@ -2,8 +2,8 @@
 Contributors: splitit, sixg
 Tags: ecommerce, e-commerce, commerce, wordpress ecommerce, sales, sell, shop, shopping, checkout, payment, splitit
 Requires at least: 3.0.1
-Tested up to: 5.6.0
-Stable tag: 2.4.15
+Tested up to: 5.7.0
+Stable tag: 2.4.16
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -70,6 +70,14 @@ After clicking on update, you will be able to view the charge in your Splitit Me
 7. Customer charge action
 
 == Changelog ==
+
+= 2.4.16 =
+* Fix amount fields type to be money_text
+* Improved totals calculation
+* Upstream messages logo configuration
+* Fix in config section
+* Minor fixes
+* Tested on WP 5.7
 
 = 2.4.15 =
 * Fix duplicate orders on payment success and on async call
