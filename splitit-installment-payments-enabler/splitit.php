@@ -244,7 +244,8 @@ function init_splitit_method() {
 			//echo $this->settings['splitit_help_title_link_local'];die;
 			$learnmoreImage = '<span class="tell-me-more-image-wrapper"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/learn_more.png" ></span>';
 			// $textToDisplay = "<span class=\"payment-title-checkout\"><img  class=\"paymentlogoWidthSrc\" src=\"" . $this->s('splitit_logo_src_local') . "\" alt=\"SPLITIT\"/> ".__("0% INTEREST MONTHLY PAYMENTS")." <a href=\"" . $this->getHelpMeLink() . "\" id=\"tell-me-more\">" . $learnmoreImage . "</a></span>";
-			$textToDisplay = "Splitit <span class=\"payment-title-checkout\">".__("0% INTEREST MONTHLY PAYMENTS")." <a href=\"" . $this->getHelpMeLink() . "\" id=\"tell-me-more\">" . $learnmoreImage . "</a></span>";
+            $splititLogoText = $this->settings['splitit_installment_text'] ?? '0% INTEREST MONTHLY PAYMENTS';
+			$textToDisplay = "Splitit <span class=\"payment-title-checkout\">".__($splititLogoText)." <a href=\"" . $this->getHelpMeLink() . "\" id=\"tell-me-more\">" . $learnmoreImage . "</a></span>";
 			$descriptionImage = '<span class="description_image"><img class="tell-me-more-image" src="' . plugin_dir_url(__FILE__) . 'assets/images/description.png" ></span>';
 			//echo $textToDisplay;die;
 			$this->title = "Splitit";
@@ -433,9 +434,9 @@ function init_splitit_method() {
 
 			do_action('splitit_settings_table_before');
 
-//			echo "<table class=\"form-table\">";
+			echo "<table class=\"form-table\">";
 			$this->generate_settings_html();
-//			echo "</table";
+			echo "</table";
 
 			do_action('splitit_settings_table_after');
 		}
@@ -985,6 +986,7 @@ $textValue = esc_attr($this->get_option($key));
 		 * @access public
 		 */
 		public function splitit_scripts_on_checkout() {
+            WC()->cart->calculate_totals();
 			$checkout_fields_post = stripslashes_deep($_POST);
 
 			//trying to receive checkout fields data from post
@@ -1903,7 +1905,7 @@ return $price . "<br/>" . $textToDisplay;
 					return new WP_Error('error', __('Refund failed.', 'woocommerce'));
 				}
 
-				$ipn = get_post_meta($order->id, 'installment_plan_number', true);
+				$ipn = get_post_meta($order->get_id(), 'installment_plan_number', true);
 
 				$api = self::getApi($this->settings);
 				/*var_dump($ipn);
