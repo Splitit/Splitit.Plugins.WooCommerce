@@ -1359,7 +1359,10 @@ $textValue = esc_attr($this->get_option($key));
 					$last_order = new WC_Order($orderId);
 					$last_order_key = $last_order->order_key;
 
-					wp_redirect(site_url("checkout/order-received/" . $orderId . "/?key=" . $last_order_key));
+                    $checkout_url = wc_get_checkout_url();
+                    $redirect = sprintf('%s%s/%s/?key=%s', $checkout_url, get_option('woocommerce_checkout_order_received_endpoint'), $orderId, $last_order_key);
+
+					wp_redirect($redirect);
                     SplitIt_Helper::exit_safely();
 				}
 
@@ -1543,12 +1546,13 @@ $textValue = esc_attr($this->get_option($key));
 						$checkout_url = wc_get_checkout_url();
 						$this->log->info(__FILE__, __LINE__, __METHOD__);
 						$this->log->add('splitit_thankyou_page==='.$this->s('splitit_thankyou_page'));
-						
-						if($this->s('splitit_thankyou_page') == 'no'){
-							$redirect = $checkout_url . 'order-received/' . $order_id . '/?key=' . $order_key;
-						} else {
-							$redirect = ($order->get_checkout_order_received_url())?$order->get_checkout_order_received_url():$checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+
+                        $redirect = sprintf('%s%s/%s/?key=%s', $checkout_url, get_option('woocommerce_checkout_order_received_endpoint'), $order_id, $order_key);
+
+						if($this->s('splitit_thankyou_page') == 'yes'){
+                            $redirect = ($order->get_checkout_order_received_url()) ? $order->get_checkout_order_received_url() : $redirect;
 						}
+
 						$this->log->add('$redirect==='.$redirect);
 
 						wp_redirect($redirect);
