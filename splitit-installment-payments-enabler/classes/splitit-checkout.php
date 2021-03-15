@@ -589,10 +589,10 @@ class SplitIt_Checkout extends WC_Checkout {
                 $this->log->add('====SplitIt : checkout_url ===='.$checkout_url.'====');
                 
                 $this->log->add('====SplitIt : splitit_thankyou_page ===='.$settings['splitit_thankyou_page'].'====');
-                if($settings['splitit_thankyou_page'] == 'no'){
-                    $redirect = $checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
-                } else {
-                    $redirect = ($order->get_checkout_order_received_url())?$order->get_checkout_order_received_url():$checkout_url . '/order-received/' . $order_id . '/?key=' . $order_key;
+                $redirect = sprintf('%s%s/%s/?key=%s', $checkout_url, get_option('woocommerce_checkout_order_received_endpoint'), $order_id, $order_key);
+
+                if($settings['splitit_thankyou_page'] == 'yes'){
+                    $redirect = ($order->get_checkout_order_received_url()) ? $order->get_checkout_order_received_url() : $redirect;
                 }
                 $this->log->add('====SplitIt : redirect ===='.$redirect.'====');
 
